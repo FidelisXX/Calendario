@@ -576,7 +576,9 @@ async function doRegister(e) {
   const user = {id: uid(), name, email, pw};
   const insertErr = await insertUser(user);
   if (insertErr) {
-    errEl.textContent = 'Erro ao criar conta. Tente novamente.'; errEl.style.display = 'block'; return;
+    console.error('Supabase insertUser error:', insertErr);
+    errEl.textContent = 'Erro ao criar conta: ' + (insertErr.message || JSON.stringify(insertErr));
+    errEl.style.display = 'block'; return;
   }
 
   document.getElementById('reg-ok').style.display = 'block';
