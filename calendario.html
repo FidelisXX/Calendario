@@ -167,7 +167,43 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   .mcard{box-shadow:none!important;break-inside:avoid;border:1px solid var(--g200)}
   #list-view{display:none!important}
   #grid-view{display:block!important}
+  body.print-lit #lit-print-area{display:block!important;padding:32px}
+  body.print-lit *:not(#lit-print-area):not(#lit-print-area *){display:none!important}
 }
+
+/* ── LITURGIA PREVIEW ─────────────────────────────────── */
+.lp-preview{font-family:'Times New Roman',Times,serif;max-width:640px;margin:0 auto;padding:24px 32px;color:#000;background:#fff;line-height:1.6}
+.lp-hdr{text-align:center;padding-bottom:18px;border-bottom:3px double #000;margin-bottom:24px}
+.lp-logo-img{width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:8px}
+.lp-slogan{font-style:italic;font-size:13px;font-family:'Palatino Linotype',Palatino,serif;margin-bottom:3px;color:#333}
+.lp-church{font-weight:900;font-size:15px;letter-spacing:.8px;margin-bottom:3px;text-transform:uppercase}
+.lp-date-line{font-weight:700;font-size:13px;margin-bottom:4px;letter-spacing:.3px}
+.lp-title-line{font-weight:900;font-size:20px;text-decoration:underline;text-transform:uppercase;margin-top:8px;letter-spacing:.5px}
+.lp-items{margin:4px 0 28px}
+.lp-row{display:flex;align-items:baseline;gap:0;margin-bottom:13px;font-size:13.5px;page-break-inside:avoid}
+.lp-rnum{min-width:26px;font-weight:600;flex-shrink:0}
+.lp-rdesc{white-space:nowrap;flex-shrink:0}
+.lp-rfill{flex:1;border-bottom:1.5px dotted #555;margin:0 6px;position:relative;top:-3px;min-width:24px}
+.lp-rresp{font-weight:700;white-space:nowrap;flex-shrink:0}
+.lp-rsub{font-size:11.5px;font-style:italic;margin:-6px 0 10px 26px;color:#444;padding-left:2px}
+.lp-ftr{display:flex;align-items:center;gap:14px;margin-top:32px;border-top:2px solid #000;padding-top:12px;font-size:11px;color:#333;line-height:1.5}
+.lp-ftr-logo{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.lp-ftr-txt{line-height:1.5}
+
+/* ── LITURGIA ITEM EDITOR ─────────────────────────────── */
+.lit-item-row{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:10px;overflow:hidden}
+.lit-row-main{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.lit-row-num{min-width:22px;font-weight:700;font-size:13px;color:var(--navy);flex-shrink:0}
+.lit-inp{flex:1;border:1px solid #cbd5e1;border-radius:6px;padding:7px 10px;font-size:13px;background:#fff;min-width:0}
+.lit-inp:focus{outline:none;border-color:var(--navy);background:#fff}
+.lit-inp-resp{flex:0 0 180px;font-weight:600}
+.lit-row-btns{display:flex;gap:4px;flex-shrink:0}
+.lit-row-sub{border-top:1px dashed #e2e8f0;padding:6px 12px 8px 44px}
+.lit-sub-inp{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:5px 10px;font-size:12px;background:#f1f5f9;color:#475569}
+.lit-sub-inp:focus{outline:none;border-color:var(--navy);background:#fff}
+.lit-inp-labels{display:flex;gap:8px;padding:0 12px 4px 30px;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px}
+.lit-inp-labels span:first-child{flex:1}
+.lit-inp-labels span:last-child{flex:0 0 180px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1083,14 +1119,19 @@ function buildLitHTML(lit){
   const dateStr=fmtLitDate(lit.date);
   const timePart=lit.time?' \u2013 '+lit.time:'';
   const items=(lit.items||[]).map((it,i)=>
-    '<div class="lp-row"><span class="lp-rnum">'+(i+1)+'.</span><span class="lp-rdesc">'+escH(it.desc)+'</span><span class="lp-rfill"></span><span class="lp-rresp">'+escH(it.resp)+'</span></div>'
-    +(it.sub?'<div class="lp-rsub">'+escH(it.sub)+'</div>':'')
+    '<div class="lp-row">'
+    +'<span class="lp-rnum">'+(i+1)+'.</span>'
+    +'<span class="lp-rdesc">'+escH(it.desc)+'</span>'
+    +'<span class="lp-rfill"></span>'
+    +(it.resp?'<span class="lp-rresp">'+escH(it.resp)+'</span>':'')
+    +'</div>'
+    +(it.sub?'<div class="lp-rsub">('+escH(it.sub)+')</div>':'')
   ).join('');
   const footer=(lit.footer||'').replace(/\n/g,'<br>');
   return '<div class="lp-preview">'
     +'<div class="lp-hdr">'
-    +(logo?'<div><img class="lp-logo-img" src="'+logo+'"></div>':'')
-    +'<div class="lp-slogan">'+escH(lit.slogan)+'</div>'
+    +(logo?'<img class="lp-logo-img" src="'+logo+'"><br>':'')
+    +(lit.slogan?'<div class="lp-slogan"><em>'+escH(lit.slogan)+'</em></div>':'')
     +'<div class="lp-church">IGREJA BATISTA CENTRAL DO JORD\u00c3O</div>'
     +(dateStr?'<div class="lp-date-line">'+escH(dateStr+timePart)+'</div>':'')
     +'<div class="lp-title-line">'+escH(lit.title)+'</div>'
@@ -1179,21 +1220,25 @@ function renderLitItems(){
   if(!list) return;
   list.innerHTML='';
   if(!litItems.length){
-    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--g400);font-size:13px">Nenhum item. Clique em &quot;+ Adicionar Item&quot; para come\u00e7ar.</div>';
+    list.innerHTML='<div style="text-align:center;padding:24px;color:var(--g400);font-size:13px;border:2px dashed #e2e8f0;border-radius:8px">Nenhum item ainda.<br>Clique em <strong>+ Adicionar Item</strong> para começar.</div>';
     return;
   }
+  const labels=document.createElement('div');
+  labels.className='lit-inp-labels';
+  labels.innerHTML='<span>Descrição do item</span><span>Responsável</span>';
+  list.append(labels);
   litItems.forEach(function(it,i){
     const row=el('div','lit-item-row');
     row.innerHTML='<div class="lit-row-main">'
       +'<span class="lit-row-num">'+(i+1)+'.</span>'
-      +'<input class="lit-inp" placeholder="Descri\u00e7\u00e3o do item" value="'+escH(it.desc)+'" oninput="litItems['+i+'].desc=this.value">'
-      +'<input class="lit-inp lit-inp-resp" placeholder="Respons\u00e1vel" value="'+escH(it.resp)+'" oninput="litItems['+i+'].resp=this.value">'
+      +'<input class="lit-inp" placeholder="Ex: Louvor congregacional" value="'+escH(it.desc)+'" oninput="litItems['+i+'].desc=this.value">'
+      +'<input class="lit-inp lit-inp-resp" placeholder="Ex: Min. de Louvor" value="'+escH(it.resp)+'" oninput="litItems['+i+'].resp=this.value">'
       +'<div class="lit-row-btns">'
-      +(i>0?'<button type="button" class="btn-icon" onclick="moveLitItem('+i+',-1)">\u2191</button>':'<span style="width:30px"></span>')
-      +(i<litItems.length-1?'<button type="button" class="btn-icon" onclick="moveLitItem('+i+',1)">\u2193</button>':'<span style="width:30px"></span>')
-      +'<button type="button" class="btn-icon" onclick="removeLitItem('+i+')" style="color:var(--red)">\ud83d\uddd1</button>'
+      +(i>0?'<button type="button" class="btn-icon" title="Mover para cima" onclick="moveLitItem('+i+',-1)">↑</button>':'<span style="width:28px"></span>')
+      +(i<litItems.length-1?'<button type="button" class="btn-icon" title="Mover para baixo" onclick="moveLitItem('+i+',1)">↓</button>':'<span style="width:28px"></span>')
+      +'<button type="button" class="btn-icon" title="Remover item" onclick="removeLitItem('+i+')" style="color:var(--red)">🗑</button>'
       +'</div></div>'
-      +'<div class="lit-row-sub"><input class="lit-sub-inp" placeholder="Sub-item / observa\u00e7\u00e3o (opcional)" value="'+escH(it.sub||'')+'" oninput="litItems['+i+'].sub=this.value"></div>';
+      +'<div class="lit-row-sub"><input class="lit-sub-inp" placeholder="Observação / sub-item opcional — ex: (Recolhimento: Diác. Carlos)" value="'+escH(it.sub||'')+'" oninput="litItems['+i+'].sub=this.value"></div>';
     list.append(row);
   });
 }
