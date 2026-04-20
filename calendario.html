@@ -488,6 +488,23 @@ const DB = supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2aGZiZG1iZ3hrb2h6d2FiY3ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDM1MTYsImV4cCI6MjA5MjAxOTUxNn0.JyhV4Nr1xBvv8RH6X49t1QKZv6NSbHBUOKvOoaKH6gQ'
 );
 
+function evtToDb(ev) {
+  return {
+    id: ev.id, name: ev.name, date: ev.date,
+    start_time: ev.start || null, end_time: ev.end || null,
+    category: ev.cat, description: ev.desc || null,
+    recurrence: ev.rec || 'unique'
+  };
+}
+function evtFromDb(row) {
+  return {
+    id: row.id, name: row.name, date: row.date,
+    start: row.start_time || '', end: row.end_time || '',
+    cat: row.category, desc: row.description || '',
+    rec: row.recurrence || 'unique'
+  };
+}
+
 async function getUserByEmailPw(email, pw) {
   const { data } = await DB.from('ibcj_users').select('*').eq('email', email).eq('pw', pw).maybeSingle();
   return data;
@@ -517,12 +534,9 @@ let S = {
 };
 
 // ─── PERSISTÊNCIA ────────────────────────────────────────────
-function loadEvts() {
-  try { S.events = JSON.parse(localStorage.getItem('ibcj_events') || '[]'); }
-  catch { S.events = []; }
-}
-function saveEvts() {
-  localStorage.setItem('ibcj_events', JSON.stringify(S.events));
+async function loadEvts() {
+  const { data, error } = await DB.from('ibcj_events').select('*');
+  S.events = error ? [] : (data || []).map(evtFromDb);
 }
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -696,12 +710,13 @@ async function checkSess() {
   }
 }
 
-function showApp(user) {
+async function showApp(user) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   if (user) {
     document.querySelector('.hdr-s').textContent = user.name || user.email;
   }
+  await loadEvts();
   render();
 }
 
@@ -911,7 +926,7 @@ function openEvtModal(id=null, prefill=null) {
 }
 function closeEvtModal() { document.getElementById('evt-overlay').classList.remove('on'); }
 
-function saveEvt(e) {
+async function saveEvt(e) {
   e.preventDefault();
   const id   = document.getElementById('ef-id').value;
   const name = document.getElementById('ef-name').value.trim();
@@ -923,16 +938,20 @@ function saveEvt(e) {
   const rec  = document.getElementById('ef-rec').value;
 
   if (id) {
-    const idx = S.events.findIndex(e=>e.id===id);
-    if (idx !== -1) S.events[idx] = {...S.events[idx], name, date, start, end, cat, desc, rec};
+    const ev = {id, name, date, start, end, cat, desc, rec};
+    const { error } = await DB.from('ibcj_events').update(evtToDb(ev)).eq('id', id);
+    if (!error) {
+      const idx = S.events.findIndex(e=>e.id===id);
+      if (idx !== -1) S.events[idx] = ev;
+    }
   } else {
-    S.events.push({id:uid(), name, date, start, end, cat, desc, rec});
+    const toInsert = [{id:uid(), name, date, start, end, cat, desc, rec}];
     if (rec === 'annual') {
-      const [,md] = [date.slice(0,4), date.slice(5)];
+      const md = date.slice(5);
       for (let y = S.year; y <= S.year+9; y++) {
         const nd = y+'-'+md;
         if (nd !== date && !S.events.find(e=>e.date===nd&&e.name===name))
-          S.events.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'annual'});
+          toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'annual'});
       }
     } else if (rec === 'monthly') {
       const [y,,d2] = date.split('-');
@@ -941,12 +960,13 @@ function saveEvt(e) {
         if (nd !== date) {
           const dt = new Date(+y, mo-1, +d2);
           if (dt.getMonth()===mo-1 && !S.events.find(e=>e.date===nd&&e.name===name))
-            S.events.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'monthly'});
+            toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'monthly'});
         }
       }
     }
+    const { error } = await DB.from('ibcj_events').insert(toInsert.map(evtToDb));
+    if (!error) S.events.push(...toInsert);
   }
-  saveEvts();
   closeEvtModal();
   if (S.dayDate) renderDayBody();
   render();
@@ -999,9 +1019,9 @@ function askDel(id, name) {
   document.getElementById('del-overlay').classList.add('on');
 }
 function closeDelModal() { document.getElementById('del-overlay').classList.remove('on'); S.delId=null; }
-function confirmDel() {
+async function confirmDel() {
+  await DB.from('ibcj_events').delete().eq('id', S.delId);
   S.events = S.events.filter(e=>e.id!==S.delId);
-  saveEvts();
   closeDelModal();
   if (S.dayDate) renderDayBody();
   render();
@@ -1259,8 +1279,6 @@ function updateEvtLitBar(){
 });
 
 // ─── INICIALIZAÇÃO ────────────────────────────────────────────
-loadUsers();
-loadEvts();
 checkSess();
 </script>
 
