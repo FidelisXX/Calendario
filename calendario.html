@@ -170,6 +170,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -469,7 +470,7 @@ const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
                'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MESESC = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const SEMS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-let USERS = [];
+// USERS array removed — auth uses Supabase
 let resetTokens = {}; // {email: {code, expires}}
 
 // ─── CONFIG EMAILJS ───────────────────────────────────────────
@@ -480,6 +481,29 @@ const EMAILJS_CFG = {
   serviceId:  'service_j6insrl',   // Email Services
   templateId: 'template_b1461oh',  // Email Templates
 };
+
+// ─── SUPABASE ─────────────────────────────────────────────────
+const DB = supabase.createClient(
+  'https://dvhfbdmbgxkohzwabcvo.supabase.co',
+  'sb_publishable_oU5D0h967QMU5Mm1ikx_1w_3mePNnOx'
+);
+
+async function getUserByEmailPw(email, pw) {
+  const { data } = await DB.from('ibcj_users').select('*').eq('email', email).eq('pw', pw).maybeSingle();
+  return data;
+}
+async function getUserByEmail(email) {
+  const { data } = await DB.from('ibcj_users').select('*').eq('email', email).maybeSingle();
+  return data;
+}
+async function insertUser(user) {
+  const { error } = await DB.from('ibcj_users').insert(user);
+  return error;
+}
+async function updateUserPw(email, pw) {
+  const { error } = await DB.from('ibcj_users').update({ pw }).eq('email', email);
+  return error;
+}
 
 // ─── STATE ────────────────────────────────────────────────────
 let S = {
@@ -504,14 +528,7 @@ function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 }
 
-// ─── USUÁRIOS ────────────────────────────────────────────────
-function loadUsers() {
-  try { USERS = JSON.parse(localStorage.getItem('ibcj_users') || '[]'); }
-  catch { USERS = []; }
-}
-function saveUsers() {
-  localStorage.setItem('ibcj_users', JSON.stringify(USERS));
-}
+// ─── USUÁRIOS (Supabase) ──────────────────────────────────────
 
 // ─── AUTH ─────────────────────────────────────────────────────
 function showPanel(p) {
@@ -526,11 +543,11 @@ function showPanel(p) {
   });
 }
 
-function doLogin(e) {
+async function doLogin(e) {
   e.preventDefault();
   const em = document.getElementById('lin-email').value.trim().toLowerCase();
   const pw = document.getElementById('lin-pw').value;
-  const user = USERS.find(u => u.email === em && u.pw === pw);
+  const user = await getUserByEmailPw(em, pw);
   if (user) {
     localStorage.setItem('ibcj_sess', user.email);
     showApp(user);
@@ -539,7 +556,7 @@ function doLogin(e) {
   }
 }
 
-function doRegister(e) {
+async function doRegister(e) {
   e.preventDefault();
   const name  = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim().toLowerCase();
@@ -551,13 +568,16 @@ function doRegister(e) {
   if (pw !== pw2) {
     errEl.textContent = 'As senhas não coincidem.'; errEl.style.display = 'block'; return;
   }
-  if (USERS.find(u => u.email === email)) {
+  const existing = await getUserByEmail(email);
+  if (existing) {
     errEl.textContent = 'Este e-mail já está cadastrado.'; errEl.style.display = 'block'; return;
   }
 
   const user = {id: uid(), name, email, pw};
-  USERS.push(user);
-  saveUsers();
+  const insertErr = await insertUser(user);
+  if (insertErr) {
+    errEl.textContent = 'Erro ao criar conta. Tente novamente.'; errEl.style.display = 'block'; return;
+  }
 
   document.getElementById('reg-ok').style.display = 'block';
   setTimeout(() => {
@@ -573,13 +593,13 @@ function doLogout() {
   showPanel('login');
 }
 
-function doForgot(e) {
+async function doForgot(e) {
   e.preventDefault();
   const email = document.getElementById('fg-email').value.trim().toLowerCase();
   const errEl = document.getElementById('fg-err');
   errEl.style.display = 'none';
 
-  const user = USERS.find(u => u.email === email);
+  const user = await getUserByEmail(email);
   if (!user) {
     errEl.textContent = 'E-mail não encontrado.';
     errEl.style.display = 'block';
@@ -624,7 +644,7 @@ function doResendCode() {
   doForgot({preventDefault:()=>{}, target: document.getElementById('forgot-form')});
 }
 
-function doResetCode(e) {
+async function doResetCode(e) {
   e.preventDefault();
   const email = document.getElementById('fg-email').value.trim().toLowerCase();
   const code  = document.getElementById('rc-code').value.trim();
@@ -655,9 +675,7 @@ function doResetCode(e) {
     return;
   }
 
-  const idx = USERS.findIndex(u => u.email === email);
-  USERS[idx].pw = pw;
-  saveUsers();
+  await updateUserPw(email, pw);
   delete resetTokens[email];
 
   document.getElementById('rc-ok').style.display = 'block';
@@ -667,10 +685,10 @@ function doResetCode(e) {
   }, 1800);
 }
 
-function checkSess() {
+async function checkSess() {
   const sessEmail = localStorage.getItem('ibcj_sess');
   if (sessEmail) {
-    const user = USERS.find(u => u.email === sessEmail);
+    const user = await getUserByEmail(sessEmail);
     if (user) { showApp(user); return; }
     localStorage.removeItem('ibcj_sess');
   }
