@@ -2723,17 +2723,24 @@ async function renderMinisterios() {
   const grid = document.getElementById('min-grid');
   grid.innerHTML = '';
   S.ministerios.forEach(m => {
+    const canEdit = hasRole('admin','pastor','secretaria') || m.created_by === currentUser?.email;
     const card = document.createElement('div');
     card.className = 'min-card';
     card.innerHTML = '<div class="min-card-name">' + escH(m.name) + '</div>'
-      + '<div class="min-card-footer"><span class="min-card-owner">&#128100; ' + escH(m.created_by || '') + '</span></div>';
+      + '<div class="min-card-footer" style="display:flex;justify-content:space-between;align-items:center">'
+        + '<span class="min-card-owner">&#128100; ' + escH(m.created_by || '') + '</span>'
+        + (canEdit ? '<button class="btn-icon" title="Editar nome" style="font-size:13px;padding:2px 6px" onclick="event.stopPropagation();openMinisterioModal(\''+m.id+'\')">&#9998;</button>' : '')
+      + '</div>';
     card.onclick = () => openMinisterio(m.id, m.name);
     grid.append(card);
   });
 }
-function openMinisterioModal() {
-  document.getElementById('min-name').value = '';
+function openMinisterioModal(id) {
+  const m = id ? (S.ministerios||[]).find(x => x.id === id) : null;
+  document.getElementById('min-id').value = m?.id || '';
+  document.getElementById('min-name').value = m?.name || '';
   document.getElementById('min-name-error').style.display = 'none';
+  document.getElementById('min-modal-title').textContent = m ? 'Editar Ministério' : 'Novo Ministério';
   document.getElementById('min-overlay').classList.add('on');
   setTimeout(() => document.getElementById('min-name').focus(), 50);
 }
@@ -2741,12 +2748,13 @@ function closeMinisterioModal() { document.getElementById('min-overlay').classLi
 async function saveMinisterio() {
   const name = document.getElementById('min-name').value.trim();
   if (!name) return;
+  const editId = document.getElementById('min-id').value;
   const btn = document.querySelector('#min-overlay .btn-navy');
   btn.textContent = 'Salvando...'; btn.disabled = true;
   try {
-    // Verifica duplicidade entre TODOS os ministérios (independente de visibilidade)
-    const { data: todos } = await DB.from('ibcj_ministerios').select('name, created_by');
-    const existente = (todos || []).find(m => m.name.trim().toLowerCase() === name.toLowerCase());
+    // Verifica duplicidade (ignora o próprio ministério ao editar)
+    const { data: todos } = await DB.from('ibcj_ministerios').select('id, name, created_by');
+    const existente = (todos || []).find(m => m.name.trim().toLowerCase() === name.toLowerCase() && m.id !== editId);
     if (existente) {
       const criador = existente.created_by || 'outro usuário';
       const msgEl = document.getElementById('min-name-error');
@@ -2757,7 +2765,15 @@ async function saveMinisterio() {
       return;
     }
     document.getElementById('min-name-error').style.display = 'none';
-    await DB.from('ibcj_ministerios').insert({id:uid(), name, created_by: currentUser.email});
+    if (editId) {
+      await DB.from('ibcj_ministerios').update({name}).eq('id', editId);
+      // Atualiza cabeçalho se o ministério atual está aberto
+      if (S.currentMinisterioId === editId) {
+        document.getElementById('reg-min-nome').textContent = name;
+      }
+    } else {
+      await DB.from('ibcj_ministerios').insert({id:uid(), name, created_by: currentUser.email});
+    }
     closeMinisterioModal();
     renderMinisterios();
   } finally {
@@ -3118,10 +3134,11 @@ checkSess();
 <div class="mover" id="min-overlay">
   <div class="modal modal-xs">
     <div class="mhdr">
-      <h2 class="mtitle">Novo Ministério</h2>
+      <h2 class="mtitle" id="min-modal-title">Novo Ministério</h2>
       <button class="mclose" onclick="closeMinisterioModal()">&#215;</button>
     </div>
     <div class="mbody">
+      <input type="hidden" id="min-id">
       <div class="fgrp">
         <label>Nome do Ministério *</label>
         <input type="text" id="min-name" placeholder="Ex: Música, Jovens, EBD..." maxlength="60" oninput="document.getElementById('min-name-error').style.display='none'">
