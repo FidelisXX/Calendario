@@ -276,6 +276,22 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .past-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:12px;flex-wrap:wrap}
 .past-hdr h2{font-size:18px;font-weight:900;color:var(--navy);margin:0}
 .past-hdr p{font-size:12px;color:var(--g400);margin:2px 0 0}
+/* ── Lista de Membros ── */
+.mbr-wrap{padding:20px 24px;max-width:1100px;margin:0 auto}
+.mbr-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.mbr-hdr h2{font-size:18px;font-weight:900;color:var(--navy);margin:0}
+.mbr-hdr p{font-size:12px;color:var(--g400);margin:2px 0 0}
+.mbr-search-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.mbr-search-bar input,.mbr-search-bar select{border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--g800)}
+.mbr-search-bar input{min-width:200px;flex:1}
+.mbr-table-wrap{background:#fff;border-radius:12px;border:1.5px solid var(--g200);overflow:hidden}
+.mbr-table{width:100%;border-collapse:collapse;font-size:13px}
+.mbr-table th{background:var(--navy);color:#fff;padding:10px 12px;text-align:left;font-weight:700;font-size:12px}
+.mbr-table td{padding:10px 12px;border-bottom:1px solid var(--g100);vertical-align:middle}
+.mbr-table tr:last-child td{border-bottom:none}
+.mbr-table tr:hover td{background:#f8fafc}
+
+.mbr-empty{text-align:center;padding:40px 20px;color:var(--g400);font-size:14px}
 .past-group-label{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--g400);padding:4px 0 8px;margin-top:12px;border-bottom:1px solid var(--g200);margin-bottom:8px}
 .past-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:box-shadow .15s}
 .past-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.07)}
@@ -292,6 +308,37 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .past-notes-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .past-notes-btn-active{opacity:1 !important;filter:sepia(1) saturate(2) hue-rotate(-30deg)}
 @media(max-width:600px){.past-card-hdr{flex-direction:column}.past-card-btns{flex-direction:row}}
+/* ── FINANCIAL REPORTS ── */
+.fin-section{margin-top:28px;padding-top:20px;border-top:2px solid var(--g200)}
+.fin-section-title{font-size:13px;font-weight:800;color:var(--g500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.fin-card{background:#fff;border:1.5px solid var(--g200);border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:box-shadow .15s}
+.fin-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.fin-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.fin-card-period{font-size:11px;color:var(--g500);font-weight:700;margin-bottom:3px}
+.fin-card-balance{font-size:20px;font-weight:900}
+.fin-card-chips{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.fin-chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.fin-chip-in{background:#dcfce7;color:#15803d}
+.fin-chip-out{background:#fee2e2;color:#dc2626}
+.fin-section-label{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--g400);margin:14px 0 8px}
+.fin-row{display:grid;grid-template-columns:1fr 120px auto auto;gap:8px;align-items:center;margin-bottom:7px}
+.fin-row input[type=text]{border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:13px;font-family:inherit;width:100%}
+.fin-row input[type=number]{border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:13px;font-family:inherit;text-align:right;width:100%}
+.fin-row input:focus{outline:none;border-color:var(--navy)}
+.fin-img-label{background:var(--g100);border:1.5px solid var(--g200);border-radius:7px;padding:5px 8px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.fin-img-label:hover{border-color:var(--navy)}
+.fin-img-label.has-img{background:#dcfce7;border-color:#15803d}
+.fin-del-btn{background:none;border:none;cursor:pointer;color:var(--red);font-size:16px;padding:0 2px;font-weight:700}
+.fin-totals-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px;background:var(--g50);border-radius:8px;padding:12px 14px}
+.fin-tot-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--g400);margin-bottom:3px}
+.fin-tot-val{font-size:15px;font-weight:900}
+.fin-add-row-btn{background:none;border:1.5px dashed var(--g300);border-radius:7px;padding:6px;font-size:12px;font-weight:700;color:var(--g500);cursor:pointer;width:100%;margin-top:2px}
+.fin-add-row-btn:hover{border-color:var(--navy);color:var(--navy)}
+/* ── SHARE MINISTRY ── */
+.share-member-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--g100);font-size:13px}
+.share-member-row:last-child{border-bottom:none}
+.min-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--g100)}
+.min-card-owner{font-size:10px;color:var(--g400);font-weight:600}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -439,6 +486,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
     <button class="main-tab on" id="tab-btn-calendar" onclick="switchTab('calendar')">&#128197; Calendário</button>
     <button class="main-tab" id="tab-btn-registros" onclick="switchTab('registros')">&#128221; Registro Semanal</button>
     <button class="main-tab" id="tab-btn-pastoral" onclick="switchTab('pastoral')" style="display:none">&#128214; Administração Pastoral</button>
+    <button class="main-tab" id="tab-btn-membros" onclick="switchTab('membros')" style="display:none">&#128100; Lista de Membros</button>
   </div>
 
   <!-- TOOLBAR -->
@@ -507,11 +555,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
     <div id="reg-view-registros" style="display:none">
       <div class="reg-wrap">
         <button class="reg-back" onclick="backToMinisterios()">&#8592; <span id="reg-min-nome">Ministério</span></button>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
           <h3 style="font-size:16px;font-weight:800;color:var(--navy)">Registros</h3>
-          <button class="btn btn-navy" onclick="openRegistroModal()">+ Novo Registro</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-out btn-sm" id="btn-share-min" onclick="openCurrentShare()" style="font-weight:700">&#128101; Compartilhar</button>
+            <button class="btn btn-out btn-sm" onclick="openCurrentFinancial()" style="font-weight:700">&#128200; Relatório Financeiro</button>
+            <button class="btn btn-navy" onclick="openRegistroModal()">+ Novo Registro</button>
+            <button class="btn btn-sm" id="btn-del-min" onclick="deleteCurrentMin()" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;font-weight:700;display:none">&#128465; Excluir Ministério</button>
+          </div>
         </div>
         <div class="reg-list" id="reg-list"></div>
+        <!-- seção financeira -->
+        <div class="fin-section" id="fin-section" style="display:none">
+          <div class="fin-section-title">
+            <span>&#128200; Relatórios Financeiros</span>
+          </div>
+          <div id="fin-list"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -533,6 +593,40 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         </div>
       </div>
       <div id="pastoral-list"></div>
+    </div>
+  </div>
+
+  <!-- ── LISTA DE MEMBROS ── -->
+  <div id="tab-membros" style="display:none">
+    <div class="mbr-wrap">
+      <div class="mbr-hdr">
+        <div>
+          <h2>&#128100; Lista de Membros</h2>
+          <p>Membros cadastrados na Igreja</p>
+        </div>
+        <button class="btn btn-navy" onclick="openMembroModal()">+ Novo Membro</button>
+      </div>
+      <div class="mbr-search-bar">
+        <input type="text" id="mbr-search" placeholder="Buscar por nome..." oninput="renderMembros()">
+        <select id="mbr-filter-depto" onchange="renderMembros()">
+          <option value="">Todos os departamentos</option>
+        </select>
+      </div>
+      <div class="mbr-table-wrap">
+        <table class="mbr-table">
+          <thead>
+            <tr>
+              <th>Nome Completo</th>
+              <th>Nascimento</th>
+              <th>Convenção / Batismo</th>
+              <th>Departamento</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="mbr-tbody"></tbody>
+        </table>
+      </div>
+      <div id="mbr-count" style="font-size:12px;color:var(--g400);margin-top:10px;text-align:right"></div>
     </div>
   </div>
 
@@ -750,6 +844,7 @@ let S = {
   currentMinisterioId: null,
   registros: [],
   approvalEvtId: null,
+  financialReports: [],
 };
 
 // ─── HELPERS DE ROLE ──────────────────────────────────────────
@@ -778,8 +873,28 @@ async function loadEvts() {
 }
 
 async function loadMinisterios() {
-  const { data } = await DB.from('ibcj_ministerios').select('*').order('created_at');
-  S.ministerios = data || [];
+  if (hasRole('admin','secretaria','pastor')) {
+    const { data } = await DB.from('ibcj_ministerios').select('*').order('created_at');
+    S.ministerios = data || [];
+  } else {
+    const { data: own } = await DB.from('ibcj_ministerios').select('*').eq('created_by', currentUser.email);
+    const { data: mbs } = await DB.from('ibcj_ministerio_members').select('ministerio_id').eq('user_email', currentUser.email);
+    const sharedIds = (mbs || []).map(m => m.ministerio_id);
+    let shared = [];
+    if (sharedIds.length) {
+      const { data: s } = await DB.from('ibcj_ministerios').select('*').in('id', sharedIds);
+      shared = s || [];
+    }
+    const all = [...(own || []), ...shared];
+    const seen = new Set();
+    S.ministerios = all.filter(m => { if (seen.has(m.id)) return false; seen.add(m.id); return true; })
+      .sort((a,b) => a.created_at < b.created_at ? -1 : 1);
+  }
+}
+async function loadFinancialReports(ministerioId) {
+  const { data } = await DB.from('ibcj_financial_reports')
+    .select('*').eq('ministerio_id', ministerioId).order('period_start', {ascending: false});
+  S.financialReports = data || [];
 }
 async function loadRegistros(ministerioId) {
   const { data } = await DB.from('ibcj_registros').select('*').eq('ministerio_id', ministerioId).order('data_culto', {ascending: false});
@@ -791,6 +906,10 @@ async function getAllUsersForAdmin() {
 }
 async function updateUserRole(userId, newRole) {
   const { error } = await DB.from('ibcj_users').update({role: newRole}).eq('id', userId);
+  return error;
+}
+async function deleteUserById(userId) {
+  const { error } = await DB.from('ibcj_users').delete().eq('id', userId);
   return error;
 }
 async function getUsersWithRoles(...roles) {
@@ -1003,6 +1122,10 @@ async function showApp(user) {
   // Mostra aba Administração Pastoral para pastor/admin
   if (hasRole('pastor','admin')) {
     document.getElementById('tab-btn-pastoral').style.display = '';
+  }
+  // Mostra aba Lista de Membros para admin/pastor/secretaria
+  if (hasRole('admin','pastor','secretaria')) {
+    document.getElementById('tab-btn-membros').style.display = '';
   }
   // Gabinete option no select
   if (canSeeGabinete()) {
@@ -1614,7 +1737,7 @@ function updateEvtLitBar(){
 }
 
 // ─── FECHAR MODALS AO CLICAR FORA ────────────────────────────
-['evt-overlay','day-overlay','del-overlay','lit-overlay','lit-list-overlay','lit-view-overlay'].forEach(id => {
+['evt-overlay','day-overlay','del-overlay','lit-overlay','lit-list-overlay','lit-view-overlay','membro-overlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('on');
   });
@@ -1625,18 +1748,22 @@ function switchTab(tab) {
   const isCalendar  = tab === 'calendar';
   const isRegistros = tab === 'registros';
   const isPastoral  = tab === 'pastoral';
+  const isMembros   = tab === 'membros';
   document.getElementById('tab-btn-calendar').classList.toggle('on', isCalendar);
   document.getElementById('tab-btn-registros').classList.toggle('on', isRegistros);
   document.getElementById('tab-btn-pastoral').classList.toggle('on', isPastoral);
+  document.getElementById('tab-btn-membros').classList.toggle('on', isMembros);
   document.querySelector('.toolbar').style.display = isCalendar ? '' : 'none';
   document.getElementById('grid-view').style.display = isCalendar && S.view==='grid' ? 'block' : 'none';
   document.getElementById('list-view').style.display = isCalendar && S.view==='list' ? 'block' : 'none';
   document.querySelector('.legend').style.display = isCalendar ? '' : 'none';
   document.getElementById('tab-registros').style.display = isRegistros ? 'block' : 'none';
   document.getElementById('tab-pastoral').style.display = isPastoral ? 'block' : 'none';
+  document.getElementById('tab-membros').style.display = isMembros ? 'block' : 'none';
   window.scrollTo({top: 0, behavior: 'instant'});
   if (isRegistros) renderMinisterios();
   if (isPastoral) renderPastoralTab();
+  if (isMembros) { loadMembros().then(() => renderMembros()); }
 }
 
 // ─── NOTIFICAÇÕES ────────────────────────────────────────────
@@ -1903,7 +2030,7 @@ async function openAdminUsers() {
   const roleOpts = ['lider','secretaria','pastor','admin']
     .map(r => '<option value="'+r+'">'+{lider:'Líder',secretaria:'Secretaria',pastor:'Pastor',admin:'Admin'}[r]+'</option>').join('');
   body.innerHTML = '<div style="overflow-x:auto"><table class="user-table">'
-    + '<thead><tr><th>Nome</th><th>E-mail</th><th>Role</th><th>Cadastro</th></tr></thead>'
+    + '<thead><tr><th>Nome</th><th>E-mail</th><th>Role</th><th>Cadastro</th><th>Ações</th></tr></thead>'
     + '<tbody>'
     + users.map(u => {
         const isSelf = u.email === currentUser.email;
@@ -1916,6 +2043,7 @@ async function openAdminUsers() {
               + roleOpts.replace('value="'+u.role+'"','value="'+u.role+'" selected')
               + '</select>') + '</td>'
           + '<td style="font-size:11px;color:var(--g400)">' + (u.created_at?u.created_at.slice(0,10):'') + '</td>'
+          + '<td>' + (isSelf ? '—' : '<button onclick="adminDeleteUser(\''+u.id+'\',\''+escH(u.name)+'\')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer">&#128465; Excluir</button>') + '</td>'
           + '</tr>';
       }).join('')
     + '</tbody></table></div>';
@@ -1927,6 +2055,278 @@ async function changeUserRole(userId, newRole) {
   if (!isAdmin()) return;
   const err = await updateUserRole(userId, newRole);
   if (err) alert('Erro ao atualizar role: ' + err.message);
+}
+async function adminDeleteUser(userId, userName) {
+  if (!isAdmin()) return;
+  if (!confirm('Excluir o usuário "' + userName + '" permanentemente?\nEsta ação não pode ser desfeita.')) return;
+  const err = await deleteUserById(userId);
+  if (err) { alert('Erro ao excluir: ' + err.message); return; }
+  openAdminUsers();
+}
+
+// ─── RELATÓRIO FINANCEIRO ────────────────────────────────────
+function fmtMoney(v) {
+  return 'R$ ' + (parseFloat(v)||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+function fmtDateBR(ds) {
+  if (!ds) return '';
+  const [y,m,d] = ds.split('-');
+  return d+'/'+m+'/'+y;
+}
+var _finRowIdx = 0;
+function addFinRow(type, data) {
+  const container = document.getElementById('fin-items-'+type);
+  const rid = 'fr'+(++_finRowIdx);
+  const div = document.createElement('div');
+  div.className = 'fin-row';
+  div.id = rid;
+  div.innerHTML = '<input type="text" placeholder="Descrição *" value="'+escH(data?.description||'')+'">'
+    + '<input type="number" placeholder="R$ 0,00" value="'+(data?.amount||'')+'" step="0.01" min="0" oninput="calcFinBalance()">'
+    + '<label class="fin-img-label" id="lbl-'+rid+'" title="Comprovante (opcional)">&#128247;<input type="file" accept="image/*" style="display:none" onchange="onFinImg(this,\''+rid+'\')" ></label>'
+    + '<button class="fin-del-btn" onclick="rmFinRow(\''+rid+'\')">&#215;</button>';
+  if (data?.image_url) {
+    div.querySelector('.fin-img-label').classList.add('has-img');
+    div.querySelector('.fin-img-label').title = 'Comprovante anexado';
+    window._finImgUrls = window._finImgUrls || {};
+    window._finImgUrls[rid] = data.image_url;
+    const safeName = encodeURIComponent((data.description||'comprovante').replace(/[^a-zA-Z0-9\-_]/g,'_'));
+    const dlBtn = document.createElement('button');
+    dlBtn.type = 'button';
+    dlBtn.title = 'Baixar comprovante';
+    dlBtn.textContent = '↓';
+    dlBtn.style.cssText = 'padding:4px 7px;border-radius:4px;border:1px solid #d1d5db;background:#f9fafb;cursor:pointer;font-size:13px;flex-shrink:0';
+    dlBtn.onclick = () => downloadComprovante(data.image_url, safeName);
+    div.querySelector('.fin-del-btn').insertAdjacentElement('beforebegin', dlBtn);
+  }
+  container.append(div);
+  calcFinBalance();
+}
+function rmFinRow(rid) {
+  document.getElementById(rid)?.remove();
+  if (window._finImages) delete window._finImages[rid];
+  calcFinBalance();
+}
+function onFinImg(input, rid) {
+  const file = input.files[0];
+  if (!file) return;
+  window._finImages = window._finImages || {};
+  window._finImages[rid] = file;
+  const lbl = document.getElementById('lbl-'+rid);
+  if (lbl) { lbl.classList.add('has-img'); lbl.title = file.name; }
+}
+function calcFinBalance() {
+  const sum = (id) => {
+    let t = 0;
+    document.querySelectorAll('#'+id+' .fin-row input[type=number]').forEach(i => t += parseFloat(i.value)||0);
+    return t;
+  };
+  const inc = sum('fin-items-entrada'), exp = sum('fin-items-saida');
+  document.getElementById('fin-total-entrada').textContent = fmtMoney(inc);
+  document.getElementById('fin-total-saida').textContent   = fmtMoney(exp);
+  const bal = inc - exp;
+  const balEl = document.getElementById('fin-balance');
+  balEl.textContent = fmtMoney(bal);
+  balEl.style.color = bal >= 0 ? '#15803d' : '#dc2626';
+}
+function openFinancialModal(reportId) {
+  window._finImages = {}; window._finImgUrls = {};
+  _finRowIdx = 0;
+  document.getElementById('fin-report-id').value = reportId || '';
+  document.getElementById('fin-modal-title').textContent = reportId ? '📊 Editar Relatório' : '📊 Relatório Financeiro';
+  document.getElementById('fin-save-btn').textContent = 'Salvar Relatório';
+  document.getElementById('fin-save-btn').disabled = false;
+  document.getElementById('fin-notes').value = '';
+  document.getElementById('fin-items-entrada').innerHTML = '';
+  document.getElementById('fin-items-saida').innerHTML = '';
+  if (reportId) {
+    const rep = (S.financialReports||[]).find(r => r.id === reportId);
+    if (rep) {
+      document.getElementById('fin-period-start').value = rep.period_start || '';
+      document.getElementById('fin-period-end').value   = rep.period_end   || '';
+      document.getElementById('fin-notes').value        = rep.notes || '';
+      const items = typeof rep.items === 'string' ? JSON.parse(rep.items) : (rep.items || []);
+      items.filter(i=>i.type==='entrada').forEach(i => addFinRow('entrada', i));
+      items.filter(i=>i.type==='saida').forEach(i   => addFinRow('saida',   i));
+    }
+  } else {
+    document.getElementById('fin-period-start').value = '';
+    document.getElementById('fin-period-end').value   = '';
+    addFinRow('entrada'); addFinRow('saida');
+  }
+  calcFinBalance();
+  document.getElementById('fin-overlay').classList.add('on');
+}
+function closeFinancialModal() {
+  document.getElementById('fin-overlay').classList.remove('on');
+  window._finImages = {}; window._finImgUrls = {};
+}
+async function saveFinancialReport() {
+  const ps = document.getElementById('fin-period-start').value;
+  const pe = document.getElementById('fin-period-end').value;
+  if (!ps || !pe) { alert('Informe o período.'); return; }
+  const btn = document.getElementById('fin-save-btn');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  const items = [];
+  const collectRows = async (containerId, type) => {
+    for (const row of document.querySelectorAll('#'+containerId+' .fin-row')) {
+      const desc   = row.querySelector('input[type=text]').value.trim();
+      const amount = parseFloat(row.querySelector('input[type=number]').value) || 0;
+      if (!desc && !amount) continue;
+      let image_url = window._finImgUrls?.[row.id] || null;
+      const file = window._finImages?.[row.id];
+      if (file) {
+        const safeEmail = currentUser.email.replace(/[^a-zA-Z0-9]/g,'_');
+        const path = safeEmail+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
+        const { error: upErr } = await DB.storage.from('comprovantes').upload(path, file, {upsert:true, contentType: file.type});
+        if (upErr) {
+          console.error('Upload comprovante falhou:', upErr);
+          btn.textContent = 'Salvar Relatório'; btn.disabled = false;
+          alert('Erro ao enviar comprovante "'+file.name+'":\n'+upErr.message+'\n\nVerifique as políticas do bucket no Supabase Storage.');
+          return;
+        }
+        const { data: pu } = DB.storage.from('comprovantes').getPublicUrl(path);
+        image_url = pu.publicUrl;
+      }
+      items.push({ type, description: desc, amount, image_url });
+    }
+  };
+  await collectRows('fin-items-entrada','entrada');
+  await collectRows('fin-items-saida','saida');
+  const income_total  = items.filter(i=>i.type==='entrada').reduce((s,i)=>s+i.amount,0);
+  const expense_total = items.filter(i=>i.type==='saida').reduce((s,i)=>s+i.amount,0);
+  const rec = {
+    ministerio_id: S.currentMinisterioId,
+    period_start: ps, period_end: pe,
+    income_total, expense_total,
+    items: JSON.stringify(items),
+    notes: document.getElementById('fin-notes').value.trim() || null,
+    created_by: currentUser.email,
+  };
+  const id = document.getElementById('fin-report-id').value;
+  let err;
+  if (id) {
+    const r = await DB.from('ibcj_financial_reports').update(rec).eq('id', id);
+    err = r.error;
+  } else {
+    rec.id = uid();
+    const r = await DB.from('ibcj_financial_reports').insert(rec);
+    err = r.error;
+  }
+  btn.textContent = 'Salvar Relatório'; btn.disabled = false;
+  if (err) { alert('Erro ao salvar: '+err.message); return; }
+  closeFinancialModal();
+  await renderFinancialReports();
+}
+async function deleteFinancialReport(id) {
+  if (!confirm('Excluir este relatório financeiro?')) return;
+  await DB.from('ibcj_financial_reports').delete().eq('id', id);
+  await renderFinancialReports();
+}
+async function downloadComprovante(url, filename) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const ext = blob.type.split('/')[1] || 'jpg';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename + '.' + ext;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  } catch(e) {
+    window.open(url, '_blank');
+  }
+}
+async function renderFinancialReports() {
+  const sec = document.getElementById('fin-section');
+  const list = document.getElementById('fin-list');
+  if (!sec || !list) return;
+  await loadFinancialReports(S.currentMinisterioId);
+  if (!S.financialReports.length) { sec.style.display='none'; return; }
+  sec.style.display = 'block';
+  list.innerHTML = (S.financialReports||[]).map(rep => {
+    const items = typeof rep.items === 'string' ? JSON.parse(rep.items||'[]') : (rep.items||[]);
+    const bal = (rep.income_total||0) - (rep.expense_total||0);
+    const imgs = items.filter(i=>i.image_url);
+    return '<div class="fin-card">'
+      + '<div class="fin-card-top">'
+      + '<div><div class="fin-card-period">'+fmtDateBR(rep.period_start)+' → '+fmtDateBR(rep.period_end)+'</div>'
+      + '<div class="fin-card-balance" style="color:'+(bal>=0?'#15803d':'#dc2626')+'">'+fmtMoney(bal)+'</div></div>'
+      + '<div style="display:flex;gap:6px">'
+      + (canEditRegistros()?'<button class="btn btn-out btn-sm" onclick="openFinancialModal(\''+rep.id+'\')">&#9998;</button>':'')
+      + (canEditRegistros()?'<button class="btn btn-out btn-sm" style="color:var(--red);border-color:var(--red)" onclick="deleteFinancialReport(\''+rep.id+'\')">&#128465;</button>':'')
+      + '</div></div>'
+      + '<div class="fin-card-chips">'
+      + '<span class="fin-chip fin-chip-in">&#8593; '+fmtMoney(rep.income_total||0)+'</span>'
+      + '<span class="fin-chip fin-chip-out">&#8595; '+fmtMoney(rep.expense_total||0)+'</span>'
+      + (imgs.length?'<span class="fin-chip" style="background:#ede9fe;color:#7c3aed">&#128247; '+imgs.length+' comprovante'+(imgs.length>1?'s':'')+'</span>':'')
+      + '</div>'
+      + (rep.notes?'<div style="font-size:12px;color:var(--g500);margin-top:8px">'+escH(rep.notes)+'</div>':'')
+      + (imgs.length?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+imgs.map((i,idx) => {
+          const safeName = encodeURIComponent((i.description||('comprovante-'+(idx+1))).replace(/[^a-zA-Z0-9\-_]/g,'_'));
+          return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
+            + '<a href="'+i.image_url+'" target="_blank" title="Visualizar">'
+            + '<img src="'+i.image_url+'" style="width:56px;height:56px;object-fit:cover;border-radius:7px;border:1.5px solid var(--g200)" loading="lazy"></a>'
+            + '<div style="display:flex;gap:3px">'
+            + '<a href="'+i.image_url+'" target="_blank" style="font-size:10px;color:var(--navy);text-decoration:none;background:var(--g100);border-radius:4px;padding:2px 5px" title="Abrir">&#128065;</a>'
+            + '<button onclick="downloadComprovante(\''+i.image_url+'\',\''+safeName+'\')" style="font-size:10px;background:var(--navy);color:#fff;border:none;border-radius:4px;padding:2px 5px;cursor:pointer" title="Baixar">&#8595;</button>'
+            + '</div></div>';
+        }).join('')+'</div>':'')
+      + '</div>';
+  }).join('');
+}
+
+// ─── COMPARTILHAR MINISTÉRIO ──────────────────────────────────
+function openCurrentShare()    { openShareMinisterio(S.currentMinisterioId); }
+function openCurrentFinancial(){ openFinancialModal(); }
+function deleteCurrentMin()    { deleteMinisterio(S.currentMinisterioId); }
+
+var _shareMinId = null;
+function openShareMinisterio(minId) {
+  if (!minId) return;
+  _shareMinId = minId;
+  document.getElementById('share-min-overlay').classList.add('on');
+  loadShareUsers(minId);
+}
+function closeShareMinisterio() {
+  document.getElementById('share-min-overlay').classList.remove('on');
+  _shareMinId = null;
+}
+async function loadShareUsers(minId) {
+  const cont = document.getElementById('share-members-list');
+  cont.innerHTML = '<p style="color:var(--g400);font-size:12px">Carregando...</p>';
+  const [{ data: allUsers }, { data: members }] = await Promise.all([
+    DB.from('ibcj_users').select('id,name,email,role').order('name'),
+    DB.from('ibcj_ministerio_members').select('user_email').eq('ministerio_id', minId)
+  ]);
+  const memberEmails = new Set((members||[]).map(m => m.user_email));
+  const roleLabel = {lider:'Líder',secretaria:'Secretaria',pastor:'Pastor',admin:'Admin'};
+  const rows = (allUsers||[])
+    .filter(u => u.email !== currentUser.email && !['admin','secretaria','pastor'].includes(u.role))
+    .map(u => {
+      const has = memberEmails.has(u.email);
+      return '<div class="share-member-row">'
+        + '<div><div style="font-weight:700;font-size:13px">'+escH(u.name)+'</div>'
+        + '<div style="font-size:11px;color:var(--g400)">'+escH(u.email)+' · '+(roleLabel[u.role]||u.role)+'</div></div>'
+        + (has
+          ? '<button class="btn" style="background:#fee2e2;color:#dc2626;border:none;font-size:12px;padding:4px 12px;font-weight:700" onclick="toggleShareMember(\''+escH(u.email)+'\',false)">Remover</button>'
+          : '<button class="btn btn-navy" style="font-size:12px;padding:4px 12px" onclick="toggleShareMember(\''+escH(u.email)+'\',true)">Dar acesso</button>')
+        + '</div>';
+    });
+  cont.innerHTML = rows.length
+    ? rows.join('')
+    : '<p style="color:var(--g400);font-size:12px;padding:8px 0">Nenhum líder cadastrado no sistema.</p>';
+}
+async function toggleShareMember(email, add) {
+  if (add) {
+    await DB.from('ibcj_ministerio_members').upsert(
+      { id: uid(), ministerio_id: _shareMinId, user_email: email, invited_by: currentUser.email },
+      { onConflict: 'ministerio_id,user_email' }
+    );
+  } else {
+    await DB.from('ibcj_ministerio_members').delete()
+      .eq('ministerio_id', _shareMinId).eq('user_email', email);
+  }
+  await loadShareUsers(_shareMinId);
 }
 
 // ─── REGISTRO SEMANAL ────────────────────────────────────────
@@ -1946,7 +2346,7 @@ async function renderMinisterios() {
     const card = document.createElement('div');
     card.className = 'min-card';
     card.innerHTML = '<div class="min-card-name">' + escH(m.name) + '</div>'
-      + '<div class="min-card-count">Ver registros ›</div>';
+      + '<div class="min-card-footer"><span class="min-card-owner">&#128100; ' + escH(m.created_by || '') + '</span></div>';
     card.onclick = () => openMinisterio(m.id, m.name);
     grid.append(card);
   });
@@ -1969,12 +2369,25 @@ async function openMinisterio(minId, minNome) {
   document.getElementById('reg-min-nome').textContent = minNome;
   document.getElementById('reg-view-ministerios').style.display = 'none';
   document.getElementById('reg-view-registros').style.display = 'block';
+  document.getElementById('btn-del-min').style.display = isAdmin() ? '' : 'none';
   await renderRegistros();
+  await renderFinancialReports();
 }
 function backToMinisterios() {
   S.currentMinisterioId = null;
   document.getElementById('reg-view-ministerios').style.display = 'block';
   document.getElementById('reg-view-registros').style.display = 'none';
+}
+async function deleteMinisterio(minId) {
+  if (!isAdmin()) return;
+  const nome = document.getElementById('reg-min-nome').textContent;
+  if (!confirm('Excluir o ministério "' + nome + '" e todos os seus registros e relatórios?\nEsta ação não pode ser desfeita.')) return;
+  await DB.from('ibcj_financial_reports').delete().eq('ministerio_id', minId);
+  await DB.from('ibcj_registros').delete().eq('ministerio_id', minId);
+  await DB.from('ibcj_ministerio_members').delete().eq('ministerio_id', minId);
+  await DB.from('ibcj_ministerios').delete().eq('id', minId);
+  backToMinisterios();
+  renderMinisterios();
 }
 async function renderRegistros() {
   await loadRegistros(S.currentMinisterioId);
@@ -2095,6 +2508,124 @@ function viewRegistro(id) {
   document.getElementById('reg-view-overlay').classList.add('on');
 }
 function closeRegistroView() { document.getElementById('reg-view-overlay').classList.remove('on'); }
+
+// ─── LISTA DE MEMBROS ────────────────────────────────────────
+var _membros = [];
+
+async function loadMembros() {
+  const { data, error } = await DB.from('ibcj_membros').select('*').order('nome');
+  if (error) { console.warn('loadMembros error:', error.message); return; }
+  _membros = data || [];
+}
+
+function getMinisterioNames() {
+  return (S.ministerios || []).map(m => m.name).sort((a,b) => a.localeCompare(b));
+}
+
+function renderMembros() {
+  const search  = (document.getElementById('mbr-search')?.value || '').toLowerCase();
+  const fDepto  = document.getElementById('mbr-filter-depto')?.value || '';
+
+  // Atualiza select de departamentos com ministérios
+  const nomes = getMinisterioNames();
+  const selDepto = document.getElementById('mbr-filter-depto');
+  if (selDepto) {
+    const cur = selDepto.value;
+    selDepto.innerHTML = '<option value="">Todos os departamentos</option>'
+      + nomes.map(n => '<option value="'+escH(n)+'"'+(n===cur?' selected':'')+'>'+escH(n)+'</option>').join('');
+  }
+
+  let list = _membros.filter(m => {
+    if (search && !m.nome.toLowerCase().includes(search)) return false;
+    if (fDepto  && (m.departamento||'') !== fDepto) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('mbr-tbody');
+  if (!tbody) return;
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="mbr-empty">Nenhum membro encontrado.</td></tr>';
+    document.getElementById('mbr-count').textContent = '';
+    return;
+  }
+  tbody.innerHTML = list.map(m => '<tr>'
+    + '<td style="font-weight:600">'+escH(m.nome)+'</td>'
+    + '<td>'+fmtDateBR(m.data_nascimento)+'</td>'
+    + '<td>'+fmtDateBR(m.data_convencao)+'</td>'
+    + '<td>'+escH(m.departamento||'—')+'</td>'
+    + '<td style="white-space:nowrap">'
+      + '<button class="btn btn-out btn-sm" style="padding:3px 10px;font-size:11px" onclick="openMembroModal(\''+m.id+'\')">Editar</button>'
+    + '</td>'
+    + '</tr>').join('');
+  document.getElementById('mbr-count').textContent = list.length + ' membro' + (list.length !== 1 ? 's' : '') + ' exibido' + (list.length !== 1 ? 's' : '');
+}
+
+function openMembroModal(id) {
+  const m = id ? _membros.find(x => x.id === id) : null;
+  document.getElementById('membro-modal-title').textContent = m ? 'Editar Membro' : 'Novo Membro';
+  document.getElementById('membro-id').value         = m?.id || '';
+  document.getElementById('membro-nome').value       = m?.nome || '';
+  document.getElementById('membro-nascimento').value = m?.data_nascimento || '';
+  document.getElementById('membro-convencao').value  = m?.data_convencao || '';
+  document.getElementById('membro-obs').value        = m?.observacoes || '';
+  // preenche select de ministérios
+  const nomes = getMinisterioNames();
+  const sel = document.getElementById('membro-depto');
+  sel.innerHTML = '<option value="">— Nenhum —</option>'
+    + nomes.map(n => '<option value="'+escH(n)+'"'+(n===(m?.departamento||'')?' selected':'')+'>'+escH(n)+'</option>').join('');
+  // botão excluir
+  document.getElementById('membro-del-btn').style.display = m ? '' : 'none';
+  document.getElementById('membro-overlay').classList.add('on');
+  setTimeout(() => document.getElementById('membro-nome').focus(), 50);
+}
+
+function closeMembroModal() {
+  document.getElementById('membro-overlay').classList.remove('on');
+}
+
+async function saveMembro() {
+  const nome = document.getElementById('membro-nome').value.trim();
+  if (!nome) { alert('Informe o nome completo.'); return; }
+  const btn = document.getElementById('membro-save-btn');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  const rec = {
+    nome,
+    data_nascimento: document.getElementById('membro-nascimento').value || null,
+    data_convencao:  document.getElementById('membro-convencao').value  || null,
+    departamento:    document.getElementById('membro-depto').value || null,
+    observacoes:     document.getElementById('membro-obs').value.trim() || null,
+  };
+  const id = document.getElementById('membro-id').value;
+  let err;
+  try {
+    if (id) {
+      const r = await DB.from('ibcj_membros').update(rec).eq('id', id);
+      err = r.error;
+    } else {
+      rec.id = uid();
+      const r = await DB.from('ibcj_membros').insert(rec);
+      err = r.error;
+    }
+  } finally {
+    btn.textContent = 'Salvar'; btn.disabled = false;
+  }
+  if (err) { alert('Erro ao salvar: ' + err.message); return; }
+  closeMembroModal();
+  await loadMembros();
+  renderMembros();
+}
+
+async function deleteMembroConfirm() {
+  const id = document.getElementById('membro-id').value;
+  if (!id) return;
+  const nome = document.getElementById('membro-nome').value;
+  if (!confirm('Excluir o membro "'+nome+'"? Esta ação não pode ser desfeita.')) return;
+  const { error } = await DB.from('ibcj_membros').delete().eq('id', id);
+  if (error) { alert('Erro ao excluir: ' + error.message); return; }
+  closeMembroModal();
+  await loadMembros();
+  renderMembros();
+}
 
 // ─── INICIALIZAÇÃO ────────────────────────────────────────────
 checkSess();
@@ -2337,6 +2868,127 @@ checkSess();
       <div style="display:flex;gap:8px">
         <button class="btn btn-out" onclick="closeGabineteNotes()">Cancelar</button>
         <button class="btn btn-navy" id="gabinete-save-btn" onclick="saveGabineteNotes()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RELATÓRIO FINANCEIRO -->
+<div class="mover" id="fin-overlay">
+  <div class="modal" style="max-width:680px">
+    <div class="mhdr">
+      <h2 class="mtitle" id="fin-modal-title">&#128200; Relatório Financeiro</h2>
+      <button class="mclose" onclick="closeFinancialModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="fgrp">
+          <label>Período — De *</label>
+          <input type="date" id="fin-period-start">
+        </div>
+        <div class="fgrp">
+          <label>Período — Até *</label>
+          <input type="date" id="fin-period-end">
+        </div>
+      </div>
+
+      <div class="fin-section-label">&#8593; Entradas</div>
+      <div id="fin-items-entrada"></div>
+      <button class="fin-add-row-btn" onclick="addFinRow('entrada')">+ Adicionar entrada</button>
+
+      <div class="fin-section-label">&#8595; Saídas</div>
+      <div id="fin-items-saida"></div>
+      <button class="fin-add-row-btn" onclick="addFinRow('saida')">+ Adicionar saída</button>
+
+      <div class="fin-totals-row">
+        <div>
+          <div class="fin-tot-lbl">Total Entradas</div>
+          <div class="fin-tot-val" id="fin-total-entrada" style="color:#15803d">R$ 0,00</div>
+        </div>
+        <div>
+          <div class="fin-tot-lbl">Total Saídas</div>
+          <div class="fin-tot-val" id="fin-total-saida" style="color:#dc2626">R$ 0,00</div>
+        </div>
+        <div>
+          <div class="fin-tot-lbl">Saldo</div>
+          <div class="fin-tot-val" id="fin-balance">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="fgrp" style="margin-top:14px">
+        <label>Observações</label>
+        <textarea id="fin-notes" placeholder="Anotações gerais..." rows="3"></textarea>
+      </div>
+      <input type="hidden" id="fin-report-id">
+    </div>
+    <div class="mftr">
+      <button class="btn btn-out" onclick="closeFinancialModal()">Cancelar</button>
+      <button class="btn btn-navy" id="fin-save-btn" onclick="saveFinancialReport()">Salvar Relatório</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: COMPARTILHAR MINISTÉRIO -->
+<div class="mover" id="share-min-overlay">
+  <div class="modal" style="max-width:500px">
+    <div class="mhdr">
+      <h2 class="mtitle">&#128101; Compartilhar Ministério</h2>
+      <button class="mclose" onclick="closeShareMinisterio()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#92400e;line-height:1.5">
+        <strong>&#9888;&#65039; Atenção:</strong> ao dar acesso, o usuário poderá <strong>ver, criar e editar</strong> todos os registros e relatórios deste ministério.
+        <br>Admin, Pastor e Secretaria já têm acesso a todos os ministérios automaticamente.
+      </div>
+      <div id="share-members-list"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-navy" onclick="closeShareMinisterio()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MEMBRO -->
+<div class="mover" id="membro-overlay">
+  <div class="modal" style="max-width:520px">
+    <div class="mhdr">
+      <h2 class="mtitle" id="membro-modal-title">Novo Membro</h2>
+      <button class="mclose" onclick="closeMembroModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="membro-id">
+      <div style="display:grid;grid-template-columns:1fr;gap:14px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Nome Completo *</label>
+          <input type="text" id="membro-nome" placeholder="Nome completo do membro" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Data de Nascimento</label>
+            <input type="date" id="membro-nascimento" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Data da Convenção/Batismo</label>
+            <input type="date" id="membro-convencao" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Departamento / Ministério</label>
+          <select id="membro-depto" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--g800);box-sizing:border-box">
+            <option value="">— Nenhum —</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Observações</label>
+          <textarea id="membro-obs" placeholder="Informações adicionais..." rows="3" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="mftr" style="justify-content:space-between">
+      <button class="btn btn-out" id="membro-del-btn" onclick="deleteMembroConfirm()" style="display:none;color:#dc2626;border-color:#dc2626">&#128465; Excluir</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-out" onclick="closeMembroModal()">Cancelar</button>
+        <button class="btn btn-navy" id="membro-save-btn" onclick="saveMembro()">Salvar</button>
       </div>
     </div>
   </div>
