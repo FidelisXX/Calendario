@@ -272,7 +272,57 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .reg-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:600px){.reg-form-grid{grid-template-columns:1fr}}
 /* ── PASTORAL TAB ── */
-.past-wrap{padding:20px 24px;max-width:860px;margin:0 auto}
+.past-wrap{padding:20px 24px;max-width:960px;margin:0 auto}
+/* Dashboard pastoral */
+.dash-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.dash-filters select,.dash-filters input{border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;background:#fff;color:var(--g800)}
+.dash-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.dash-kpi{background:#fff;border:1.5px solid var(--g200);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.dash-kpi::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:12px 0 0 12px}
+.dash-kpi.blue::before{background:var(--navy)}
+.dash-kpi.green::before{background:#15803d}
+.dash-kpi.red::before{background:#dc2626}
+.dash-kpi.purple::before{background:#7c3aed}
+.dash-kpi.orange::before{background:#ea580c}
+.dash-kpi-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--g400);margin-bottom:6px}
+.dash-kpi-val{font-size:26px;font-weight:900;color:var(--navy);line-height:1}
+.dash-kpi-sub{font-size:11px;color:var(--g400);margin-top:4px}
+.dash-section{margin-bottom:28px}
+.dash-section-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--g500);margin-bottom:12px;padding-bottom:6px;border-bottom:1.5px solid var(--g200)}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.dash-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;padding:16px 18px}
+.dash-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.dash-bar-label{width:110px;flex-shrink:0;color:var(--g700);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-bar-track{flex:1;background:var(--g100);border-radius:99px;height:10px;overflow:hidden}
+.dash-bar-fill{height:100%;border-radius:99px;transition:width .4s}
+.dash-bar-count{width:32px;text-align:right;color:var(--g500);flex-shrink:0}
+.dash-month-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.dash-month-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+.dash-month-col-bar{width:100%;background:var(--g100);border-radius:6px;position:relative;height:60px;display:flex;align-items:flex-end}
+.dash-month-col-fill{width:100%;border-radius:6px;background:var(--navy);transition:height .4s;min-height:2px}
+.dash-month-col-lbl{font-size:10px;color:var(--g500);font-weight:600}
+.dash-month-col-val{font-size:11px;font-weight:700;color:var(--navy)}
+.dash-next-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--g100);align-items:flex-start}
+.dash-next-item:last-child{border-bottom:none}
+.dash-next-date{font-size:11px;font-weight:700;color:var(--g400);white-space:nowrap;min-width:70px}
+.dash-next-name{font-size:13px;font-weight:700;color:var(--navy)}
+.dash-next-cat{display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:1px 7px;margin-top:2px}
+@media(max-width:700px){.dash-kpi-grid{grid-template-columns:repeat(2,1fr)}.dash-row{grid-template-columns:1fr}.dash-month-grid{grid-template-columns:repeat(4,1fr)}}
+/* Balanceamento financeiro */
+.bal-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.bal-summary-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;padding:16px 20px;text-align:center}
+.bal-summary-card .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--g400);margin-bottom:6px}
+.bal-summary-card .val{font-size:22px;font-weight:900;color:var(--navy)}
+.bal-min-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.bal-min-hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer;gap:12px;flex-wrap:wrap}
+.bal-min-hdr:hover{background:#f8fafc}
+.bal-min-name{font-size:15px;font-weight:800;color:var(--navy)}
+.bal-min-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.bal-min-body{border-top:1px solid var(--g100);padding:12px 16px;display:none}
+.bal-min-body.open{display:block}
+.bal-rep-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--g100);font-size:13px;flex-wrap:wrap;gap:6px}
+.bal-rep-row:last-child{border-bottom:none}
+@media(max-width:600px){.bal-summary{grid-template-columns:1fr}}
 .past-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:12px;flex-wrap:wrap}
 .past-hdr h2{font-size:18px;font-weight:900;color:var(--navy);margin:0}
 .past-hdr p{font-size:12px;color:var(--g400);margin:2px 0 0}
@@ -579,20 +629,50 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   <!-- ABA: ADMINISTRAÇÃO PASTORAL -->
   <div id="tab-pastoral" style="display:none">
     <div class="past-wrap">
-      <div class="past-hdr">
-        <div>
-          <h2>&#128214; Administração Pastoral</h2>
-          <p>Gabinetes e Reuniões — com anotações privadas</p>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <!-- Sub-abas -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--g200);margin-bottom:20px">
+        <button class="past-sub-btn on" id="past-sub-btn-agenda" onclick="switchPastoralSub('agenda')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--navy);border:none;border-bottom:3px solid var(--navy);margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128197; Agenda Pastoral</button>
+        <button class="past-sub-btn" id="past-sub-btn-financeiro" onclick="switchPastoralSub('financeiro')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128200; Balanceamento Financeiro</button>
+        <button class="past-sub-btn" id="past-sub-btn-dashboard" onclick="switchPastoralSub('dashboard')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#9729; Dashboard</button>
+      </div>
+
+      <!-- Sub: Agenda Pastoral -->
+      <div id="past-sub-agenda">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px">
           <label style="font-size:12px;font-weight:700;color:var(--g500)">De</label>
           <input type="date" id="past-filter-from" style="border:1.5px solid var(--g200);border-radius:7px;padding:5px 8px;font-size:12px;font-family:inherit" onchange="renderPastoralTab()">
           <label style="font-size:12px;font-weight:700;color:var(--g500)">Até</label>
           <input type="date" id="past-filter-to" style="border:1.5px solid var(--g200);border-radius:7px;padding:5px 8px;font-size:12px;font-family:inherit" onchange="renderPastoralTab()">
           <button class="btn btn-out btn-sm" onclick="document.getElementById('past-filter-from').value='';document.getElementById('past-filter-to').value='';renderPastoralTab()">Limpar</button>
         </div>
+        <div id="pastoral-list"></div>
       </div>
-      <div id="pastoral-list"></div>
+
+      <!-- Sub: Balanceamento Financeiro -->
+      <div id="past-sub-financeiro" style="display:none">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">De</label>
+          <input type="date" id="bal-filter-from" style="border:1.5px solid var(--g200);border-radius:7px;padding:5px 8px;font-size:12px;font-family:inherit" onchange="renderBalanceamento()">
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Até</label>
+          <input type="date" id="bal-filter-to" style="border:1.5px solid var(--g200);border-radius:7px;padding:5px 8px;font-size:12px;font-family:inherit" onchange="renderBalanceamento()">
+          <button class="btn btn-out btn-sm" onclick="document.getElementById('bal-filter-from').value='';document.getElementById('bal-filter-to').value='';renderBalanceamento()">Limpar</button>
+        </div>
+        <div id="bal-content"></div>
+      </div>
+
+      <!-- Sub: Dashboard -->
+      <div id="past-sub-dashboard" style="display:none">
+        <div class="dash-filters">
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Ano</label>
+          <select id="dash-filter-year" onchange="renderDashboard()"></select>
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Categoria</label>
+          <select id="dash-filter-cat" onchange="renderDashboard()">
+            <option value="">Todas</option>
+          </select>
+          <button class="btn btn-out btn-sm" onclick="initDashFilters();renderDashboard()">Limpar</button>
+        </div>
+        <div id="dash-content"></div>
+      </div>
     </div>
   </div>
 
@@ -656,7 +736,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         </div>
         <div class="fgrp">
           <label>Data *</label>
-          <input type="date" id="ef-date" required onchange="checkCflt()">
+          <input type="text" id="ef-date" placeholder="dd/mm/aaaa" maxlength="10" required
+            oninput="maskDateInput(this)" onchange="checkCflt()">
         </div>
         <div class="trow">
           <div class="fgrp">
@@ -1295,9 +1376,10 @@ function renderList() {
 
 // ─── CONFLITO ─────────────────────────────────────────────────
 function checkCflt() {
-  const dv = document.getElementById('ef-date').value;
+  const raw = document.getElementById('ef-date').value;
+  const dv  = brToISO(raw);
   const eid = document.getElementById('ef-id').value;
-  if (!dv) { hideCflt(); return; }
+  if (!dv || !isValidISO(dv)) { hideCflt(); return; }
   const ex = allEvtsDate(dv).filter(e => e.id !== eid);
   if (ex.length) showCflt(dv, ex); else hideCflt();
 }
@@ -1307,7 +1389,7 @@ function showCflt(ds, exEvts) {
   btns.innerHTML = '';
   freeDates(ds, 3).forEach(fd => {
     const b = el('button','sgbtn'); b.type='button'; b.textContent = fmtBR(fd);
-    b.onclick = () => { document.getElementById('ef-date').value = fd; checkCflt(); };
+    b.onclick = () => { document.getElementById('ef-date').value = isoToBR(fd); checkCflt(); };
     btns.append(b);
   });
   document.getElementById('cflt').classList.add('on');
@@ -1336,7 +1418,7 @@ function openEvtModal(id=null, prefill=null) {
     document.getElementById('evt-modal-title').textContent = 'Editar Evento';
     if (ev) {
       document.getElementById('ef-name').value  = ev.name;
-      document.getElementById('ef-date').value  = ev.date;
+      document.getElementById('ef-date').value  = isoToBR(ev.date);
       document.getElementById('ef-start').value = ev.start||'';
       document.getElementById('ef-end').value   = ev.end||'';
       document.getElementById('ef-cat').value   = ev.cat;
@@ -1347,7 +1429,7 @@ function openEvtModal(id=null, prefill=null) {
     document.getElementById('evt-modal-title').innerHTML = 'Novo Evento'
       + (getRole()==='lider' ? ' <span style="font-size:11px;font-weight:600;color:var(--g400)">(enviado para aprovação)</span>' : '');
     document.getElementById('evt-form').reset();
-    if (prefill) { document.getElementById('ef-date').value = prefill; checkCflt(); }
+    if (prefill) { document.getElementById('ef-date').value = isoToBR(prefill); checkCflt(); }
   }
   document.getElementById('evt-overlay').classList.add('on');
   updateEvtLitBar();
@@ -1358,7 +1440,8 @@ async function saveEvt(e) {
   e.preventDefault();
   const id   = document.getElementById('ef-id').value;
   const name = document.getElementById('ef-name').value.trim();
-  const date = document.getElementById('ef-date').value;
+  const date = brToISO(document.getElementById('ef-date').value);
+  if (!isValidISO(date)) { alert('Data inválida. Use o formato dd/mm/aaaa.'); return; }
   const start= document.getElementById('ef-start').value;
   const end  = document.getElementById('ef-end').value;
   const cat  = document.getElementById('ef-cat').value;
@@ -1517,6 +1600,20 @@ function dateOffset(ds, n) {
   return fmtISO(d.getFullYear(),d.getMonth()+1,d.getDate());
 }
 function esc(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+// Converte ISO (yyyy-mm-dd) → BR (dd/mm/yyyy) para exibir no campo
+function isoToBR(iso) { if (!iso || iso.length < 10) return iso||''; const [y,m,d]=iso.split('-'); return d+'/'+m+'/'+y; }
+// Converte BR (dd/mm/yyyy) → ISO (yyyy-mm-dd) para salvar
+function brToISO(br) { if (!br || br.length < 10) return ''; const [d,m,y]=br.split('/'); return y+'-'+m+'-'+d; }
+// Verifica se string ISO é data válida
+function isValidISO(s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false; const d=new Date(s+'T00:00:00'); return !isNaN(d.getTime()); }
+// Máscara automática dd/mm/aaaa ao digitar
+function maskDateInput(input) {
+  let v = input.value.replace(/\D/g,'');
+  if (v.length > 8) v = v.slice(0,8);
+  if (v.length > 4) v = v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+  else if (v.length > 2) v = v.slice(0,2)+'/'+v.slice(2);
+  input.value = v;
+}
 
 // ─── LITURGIA ─────────────────────────────────────────────────
 let litItems = [];
@@ -1762,7 +1859,7 @@ function switchTab(tab) {
   document.getElementById('tab-membros').style.display = isMembros ? 'block' : 'none';
   window.scrollTo({top: 0, behavior: 'instant'});
   if (isRegistros) renderMinisterios();
-  if (isPastoral) renderPastoralTab();
+  if (isPastoral) { switchPastoralSub('agenda'); renderPastoralTab(); }
   if (isMembros) { loadMembros().then(() => renderMembros()); }
 }
 
@@ -1962,6 +2059,289 @@ async function deletePastoralNote(evtId) {
   delete window._pastoralNoteCache[evtId];
   const ta = document.getElementById('past-ta-'+evtId);
   if (ta) ta.value = '';
+}
+
+// ─── SUB-ABAS PASTORAL ───────────────────────────────────────
+function switchPastoralSub(sub) {
+  const subs = ['agenda','financeiro','dashboard'];
+  subs.forEach(s => {
+    const btn = document.getElementById('past-sub-btn-'+s);
+    const panel = document.getElementById('past-sub-'+s);
+    const active = s === sub;
+    if (btn) { btn.style.color = active ? 'var(--navy)' : 'var(--g500)'; btn.style.borderBottomColor = active ? 'var(--navy)' : 'transparent'; }
+    if (panel) panel.style.display = active ? '' : 'none';
+  });
+  if (sub === 'financeiro') renderBalanceamento();
+  if (sub === 'dashboard') { initDashFilters(); renderDashboard(); }
+}
+
+function initDashFilters() {
+  const yearSel = document.getElementById('dash-filter-year');
+  if (!yearSel) return;
+  const cur = yearSel.value || String(new Date().getFullYear());
+  const years = new Set((S.events||[]).map(e => e.date.slice(0,4)));
+  [String(new Date().getFullYear()-1), String(new Date().getFullYear()), String(new Date().getFullYear()+1)].forEach(y => years.add(y));
+  // Remove onchange temporariamente para evitar disparo ao popular o select
+  const savedYearOnchange = yearSel.onchange;
+  yearSel.onchange = null;
+  yearSel.innerHTML = [...years].sort().reverse().map(y => '<option value="'+y+'"'+(y===cur?' selected':'')+'>'+y+'</option>').join('');
+  yearSel.onchange = savedYearOnchange;
+
+  const catSel = document.getElementById('dash-filter-cat');
+  if (catSel) {
+    const curCat = catSel.value || '';
+    const savedCatOnchange = catSel.onchange;
+    catSel.onchange = null;
+    catSel.innerHTML = '<option value="">Todas</option>'
+      + Object.keys(CATS).filter(c => c !== 'Gabinete').map(c => '<option value="'+c+'"'+(c===curCat?' selected':'')+'>'+c+'</option>').join('');
+    catSel.onchange = savedCatOnchange;
+  }
+}
+
+async function renderDashboard() {
+  const cont = document.getElementById('dash-content');
+  if (!cont || cont.closest('#past-sub-dashboard')?.style.display === 'none') return;
+
+  // Garante que membros estejam carregados
+  if (!window._membros || !Array.isArray(window._membros)) window._membros = [];
+  if (window._membros.length === 0) await loadMembros();
+
+  const year    = document.getElementById('dash-filter-year')?.value || String(new Date().getFullYear());
+  const catFilt = document.getElementById('dash-filter-cat')?.value || '';
+
+  cont.innerHTML = '<p style="text-align:center;color:var(--g400);padding:30px 0">Carregando...</p>';
+
+  // Filtra eventos do ano
+  let evts = (S.events||[]).filter(e => e.date.startsWith(year));
+  if (catFilt) evts = evts.filter(e => e.cat === catFilt);
+  const evtsAprov = evts.filter(e => e.status === 'aprovado');
+
+  // Dados de membros
+  const totalMembros = (window._membros||[]).length;
+  const totalMins    = (S.ministerios||[]).length;
+  const pendentes    = S.events.filter(e => e.status === 'pendente').length;
+
+  // Financeiro do ano
+  let finEntrada = 0, finSaida = 0;
+  try {
+    const { data: finData } = await DB.from('ibcj_financial_reports')
+      .select('income_total,expense_total')
+      .gte('period_start', year+'-01-01')
+      .lte('period_end',   year+'-12-31');
+    (finData||[]).forEach(r => { finEntrada += r.income_total||0; finSaida += r.expense_total||0; });
+  } catch(e) {}
+  const finSaldo = finEntrada - finSaida;
+
+  // Próximos eventos (todos os aprovados a partir de hoje)
+  const today = new Date().toISOString().slice(0,10);
+  const proximos = S.events.filter(e => e.status==='aprovado' && e.date >= today)
+    .sort((a,b) => a.date.localeCompare(b.date)).slice(0,8);
+
+  // Eventos por categoria
+  const byCat = {};
+  evtsAprov.forEach(e => { byCat[e.cat] = (byCat[e.cat]||0)+1; });
+  const sortedCats = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const maxCat = sortedCats[0]?.[1] || 1;
+
+  // Eventos por mês
+  const MESES_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const byMonth = Array(12).fill(0);
+  evtsAprov.forEach(e => { const m = parseInt(e.date.slice(5,7),10)-1; byMonth[m]++; });
+  const maxMonth = Math.max(...byMonth, 1);
+
+  // Membros por departamento
+  const byDepto = {};
+  (window._membros||[]).forEach(m => { const d = m.departamento||'Sem departamento'; byDepto[d] = (byDepto[d]||0)+1; });
+  const sortedDeptos = Object.entries(byDepto).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxDepto = sortedDeptos[0]?.[1] || 1;
+
+  // ── RENDER ──
+  let html = '';
+
+  // KPIs
+  html += '<div class="dash-kpi-grid">'
+    + kpi('blue',  '📅', 'Eventos em '+year, evtsAprov.length, catFilt?'categoria: '+catFilt:'aprovados')
+    + kpi('orange','⏳', 'Pendentes de Aprovação', pendentes, 'aguardando revisão')
+    + kpi('purple','🏛️', 'Ministérios Ativos', totalMins, 'cadastrados')
+    + kpi('blue',  '👤', 'Membros Cadastrados', totalMembros, 'na lista de membros')
+    + kpi('green', '⬆️', 'Entradas em '+year, 'R$ '+fmtMoney(finEntrada).replace('R$','').trim(), 'relatórios financeiros')
+    + kpi('red',   '⬇️', 'Saídas em '+year,   'R$ '+fmtMoney(finSaida).replace('R$','').trim(),   'relatórios financeiros')
+    + kpi(finSaldo>=0?'green':'red', '💰', 'Saldo em '+year, 'R$ '+fmtMoney(Math.abs(finSaldo)).replace('R$','').trim(), finSaldo>=0?'superávit':'déficit')
+    + (pendentes > 0 ? kpi('orange','🔔','Aprovações', pendentes, 'eventos aguardando') : '')
+    + '</div>';
+
+  // Linha: eventos por mês + próximos eventos
+  html += '<div class="dash-row">';
+
+  // Eventos por mês
+  html += '<div class="dash-card"><div class="dash-section-title">Eventos por Mês — '+year+'</div>'
+    + '<div class="dash-month-grid">'
+    + byMonth.map((cnt,i) => {
+        const h = maxMonth > 0 ? Math.round((cnt/maxMonth)*56) : 0;
+        return '<div class="dash-month-col">'
+          + '<div class="dash-month-col-val">'+(cnt||'')+'</div>'
+          + '<div class="dash-month-col-bar"><div class="dash-month-col-fill" style="height:'+h+'px"></div></div>'
+          + '<div class="dash-month-col-lbl">'+MESES_SHORT[i]+'</div>'
+          + '</div>';
+      }).join('')
+    + '</div></div>';
+
+  // Próximos eventos
+  html += '<div class="dash-card"><div class="dash-section-title">Próximos Eventos</div>';
+  if (!proximos.length) {
+    html += '<p style="color:var(--g400);font-size:13px;text-align:center;padding:16px 0">Nenhum evento futuro.</p>';
+  } else {
+    html += proximos.map(ev => {
+      const cat = CATS[ev.cat]||CATS['Outro'];
+      return '<div class="dash-next-item">'
+        + '<div class="dash-next-date">'+fmtDateBR(ev.date)+'</div>'
+        + '<div><div class="dash-next-name">'+escH(ev.name)+'</div>'
+        + '<span class="dash-next-cat" style="background:'+cat.bg+';color:'+cat.c+'">'+escH(ev.cat)+'</span></div>'
+        + '</div>';
+    }).join('');
+  }
+  html += '</div>';
+  html += '</div>'; // fim dash-row
+
+  // Linha: por categoria + por departamento
+  html += '<div class="dash-row">';
+
+  // Por categoria
+  html += '<div class="dash-card"><div class="dash-section-title">Eventos por Categoria</div>';
+  if (!sortedCats.length) {
+    html += '<p style="color:var(--g400);font-size:13px;text-align:center;padding:16px 0">Sem dados.</p>';
+  } else {
+    html += sortedCats.map(([cat,cnt]) => {
+      const c = CATS[cat]||CATS['Outro'];
+      const pct = Math.round((cnt/maxCat)*100);
+      return '<div class="dash-bar-row">'
+        + '<div class="dash-bar-label" title="'+escH(cat)+'">'+escH(cat)+'</div>'
+        + '<div class="dash-bar-track"><div class="dash-bar-fill" style="width:'+pct+'%;background:'+c.c+'"></div></div>'
+        + '<div class="dash-bar-count">'+cnt+'</div>'
+        + '</div>';
+    }).join('');
+  }
+  html += '</div>';
+
+  // Por departamento
+  html += '<div class="dash-card"><div class="dash-section-title">Membros por Departamento</div>';
+  if (!sortedDeptos.length) {
+    html += '<p style="color:var(--g400);font-size:13px;text-align:center;padding:16px 0">Nenhum membro cadastrado.</p>';
+  } else {
+    html += sortedDeptos.map(([dep,cnt]) => {
+      const pct = Math.round((cnt/maxDepto)*100);
+      return '<div class="dash-bar-row">'
+        + '<div class="dash-bar-label" title="'+escH(dep)+'">'+escH(dep)+'</div>'
+        + '<div class="dash-bar-track"><div class="dash-bar-fill" style="width:'+pct+'%;background:var(--navy)"></div></div>'
+        + '<div class="dash-bar-count">'+cnt+'</div>'
+        + '</div>';
+    }).join('');
+  }
+  html += '</div>';
+
+  html += '</div>'; // fim dash-row
+  cont.innerHTML = html;
+}
+
+function kpi(color, icon, label, val, sub) {
+  return '<div class="dash-kpi '+color+'">'
+    + '<div class="dash-kpi-lbl">'+label+'</div>'
+    + '<div class="dash-kpi-val">'+val+'</div>'
+    + (sub?'<div class="dash-kpi-sub">'+sub+'</div>':'')
+    + '</div>';
+}
+
+async function renderBalanceamento() {
+  const cont = document.getElementById('bal-content');
+  cont.innerHTML = '<p style="text-align:center;color:var(--g400);padding:30px 0">Carregando...</p>';
+
+  const from = document.getElementById('bal-filter-from')?.value || '';
+  const to   = document.getElementById('bal-filter-to')?.value   || '';
+
+  // Busca todos os relatórios financeiros de todos os ministérios
+  let q = DB.from('ibcj_financial_reports').select('*').order('period_start', {ascending: false});
+  if (from) q = q.gte('period_start', from);
+  if (to)   q = q.lte('period_end',   to);
+  const { data: reports, error } = await q;
+  if (error) { cont.innerHTML = '<p style="color:#dc2626;padding:20px">Erro ao carregar: '+escH(error.message)+'</p>'; return; }
+  if (!reports || !reports.length) {
+    cont.innerHTML = '<p style="text-align:center;color:var(--g400);padding:40px 0">Nenhum relatório financeiro encontrado para o período.</p>';
+    return;
+  }
+
+  // Totais gerais
+  const totalEntrada = reports.reduce((s,r) => s + (r.income_total||0), 0);
+  const totalSaida   = reports.reduce((s,r) => s + (r.expense_total||0), 0);
+  const totalBal     = totalEntrada - totalSaida;
+
+  // Agrupa por ministério
+  const byMin = {};
+  reports.forEach(r => {
+    if (!byMin[r.ministerio_id]) byMin[r.ministerio_id] = [];
+    byMin[r.ministerio_id].push(r);
+  });
+
+  // Nomes dos ministérios
+  const minMap = {};
+  (S.ministerios || []).forEach(m => { minMap[m.id] = m.name; });
+
+  let html = '';
+
+  // Cards de resumo geral
+  html += '<div class="bal-summary">'
+    + '<div class="bal-summary-card"><div class="lbl">Total Entradas</div><div class="val" style="color:#15803d">'+fmtMoney(totalEntrada)+'</div></div>'
+    + '<div class="bal-summary-card"><div class="lbl">Total Saídas</div><div class="val" style="color:#dc2626">'+fmtMoney(totalSaida)+'</div></div>'
+    + '<div class="bal-summary-card"><div class="lbl">Saldo Geral</div><div class="val" style="color:'+(totalBal>=0?'#15803d':'#dc2626')+'">'+fmtMoney(totalBal)+'</div></div>'
+    + '</div>';
+
+  // Cards por ministério
+  Object.entries(byMin).forEach(([minId, reps]) => {
+    const minNome = minMap[minId] || 'Ministério desconhecido';
+    const minEntrada = reps.reduce((s,r) => s + (r.income_total||0), 0);
+    const minSaida   = reps.reduce((s,r) => s + (r.expense_total||0), 0);
+    const minBal     = minEntrada - minSaida;
+    const cardId     = 'bal-min-'+minId.replace(/[^a-z0-9]/gi,'_');
+
+    html += '<div class="bal-min-card">'
+      + '<div class="bal-min-hdr" onclick="toggleBalMin(\''+cardId+'\')">'
+        + '<div class="bal-min-name">'+escH(minNome)+'</div>'
+        + '<div class="bal-min-chips">'
+          + '<span class="fin-chip fin-chip-in">&#8593; '+fmtMoney(minEntrada)+'</span>'
+          + '<span class="fin-chip fin-chip-out">&#8595; '+fmtMoney(minSaida)+'</span>'
+          + '<span class="fin-chip" style="background:'+(minBal>=0?'#dcfce7':'#fee2e2')+';color:'+(minBal>=0?'#15803d':'#dc2626')+'">Saldo '+fmtMoney(minBal)+'</span>'
+          + '<span style="font-size:13px;color:var(--g400)">&#9660;</span>'
+        + '</div>'
+      + '</div>'
+      + '<div class="bal-min-body" id="'+cardId+'">'
+        + reps.map(r => {
+            const bal = (r.income_total||0) - (r.expense_total||0);
+            const per = fmtDateBR(r.period_start) + ' – ' + fmtDateBR(r.period_end);
+            return '<div class="bal-rep-row">'
+              + '<div>'
+                + '<div style="font-weight:600;color:var(--navy)">'+escH(per)+'</div>'
+                + (r.notes ? '<div style="font-size:12px;color:var(--g400);margin-top:2px">'+escH(r.notes)+'</div>' : '')
+              + '</div>'
+              + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+                + '<span class="fin-chip fin-chip-in" style="font-size:11px">&#8593; '+fmtMoney(r.income_total||0)+'</span>'
+                + '<span class="fin-chip fin-chip-out" style="font-size:11px">&#8595; '+fmtMoney(r.expense_total||0)+'</span>'
+                + '<span style="font-weight:700;font-size:13px;color:'+(bal>=0?'#15803d':'#dc2626')+'">'+fmtMoney(bal)+'</span>'
+              + '</div>'
+            + '</div>';
+          }).join('')
+      + '</div>'
+    + '</div>';
+  });
+
+  cont.innerHTML = html;
+}
+
+function toggleBalMin(cardId) {
+  const body = document.getElementById(cardId);
+  if (!body) return;
+  body.classList.toggle('open');
+  // Gira o ícone de seta
+  const arrow = body.previousElementSibling?.querySelector('span:last-child');
+  if (arrow) arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
 }
 
 // ─── NOTAS DO GABINETE ────────────────────────────────────────
@@ -2353,15 +2733,36 @@ async function renderMinisterios() {
 }
 function openMinisterioModal() {
   document.getElementById('min-name').value = '';
+  document.getElementById('min-name-error').style.display = 'none';
   document.getElementById('min-overlay').classList.add('on');
+  setTimeout(() => document.getElementById('min-name').focus(), 50);
 }
 function closeMinisterioModal() { document.getElementById('min-overlay').classList.remove('on'); }
 async function saveMinisterio() {
   const name = document.getElementById('min-name').value.trim();
   if (!name) return;
-  await DB.from('ibcj_ministerios').insert({id:uid(), name, created_by: currentUser.email});
-  closeMinisterioModal();
-  renderMinisterios();
+  const btn = document.querySelector('#min-overlay .btn-navy');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  try {
+    // Verifica duplicidade entre TODOS os ministérios (independente de visibilidade)
+    const { data: todos } = await DB.from('ibcj_ministerios').select('name, created_by');
+    const existente = (todos || []).find(m => m.name.trim().toLowerCase() === name.toLowerCase());
+    if (existente) {
+      const criador = existente.created_by || 'outro usuário';
+      const msgEl = document.getElementById('min-name-error');
+      msgEl.innerHTML = '&#9888;&#65039; O ministério <strong>"'+escH(existente.name)+'"</strong> já existe.'
+        + '<br>Foi criado por <strong>'+escH(criador)+'</strong>.'
+        + '<br>Entre em contato com ele para solicitar acesso.';
+      msgEl.style.display = 'block';
+      return;
+    }
+    document.getElementById('min-name-error').style.display = 'none';
+    await DB.from('ibcj_ministerios').insert({id:uid(), name, created_by: currentUser.email});
+    closeMinisterioModal();
+    renderMinisterios();
+  } finally {
+    btn.textContent = 'Salvar'; btn.disabled = false;
+  }
 }
 
 async function openMinisterio(minId, minNome) {
@@ -2369,7 +2770,7 @@ async function openMinisterio(minId, minNome) {
   document.getElementById('reg-min-nome').textContent = minNome;
   document.getElementById('reg-view-ministerios').style.display = 'none';
   document.getElementById('reg-view-registros').style.display = 'block';
-  document.getElementById('btn-del-min').style.display = isAdmin() ? '' : 'none';
+  document.getElementById('btn-del-min').style.display = hasRole('admin','pastor','secretaria') ? '' : 'none';
   await renderRegistros();
   await renderFinancialReports();
 }
@@ -2379,7 +2780,7 @@ function backToMinisterios() {
   document.getElementById('reg-view-registros').style.display = 'none';
 }
 async function deleteMinisterio(minId) {
-  if (!isAdmin()) return;
+  if (!hasRole('admin','pastor','secretaria')) return;
   const nome = document.getElementById('reg-min-nome').textContent;
   if (!confirm('Excluir o ministério "' + nome + '" e todos os seus registros e relatórios?\nEsta ação não pode ser desfeita.')) return;
   await DB.from('ibcj_financial_reports').delete().eq('ministerio_id', minId);
@@ -2539,7 +2940,7 @@ function renderMembros() {
     if (search && !m.nome.toLowerCase().includes(search)) return false;
     if (fDepto  && (m.departamento||'') !== fDepto) return false;
     return true;
-  });
+  }).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', {sensitivity:'base'}));
 
   const tbody = document.getElementById('mbr-tbody');
   if (!tbody) return;
@@ -2723,8 +3124,9 @@ checkSess();
     <div class="mbody">
       <div class="fgrp">
         <label>Nome do Ministério *</label>
-        <input type="text" id="min-name" placeholder="Ex: Música, Jovens, EBD..." maxlength="60">
+        <input type="text" id="min-name" placeholder="Ex: Música, Jovens, EBD..." maxlength="60" oninput="document.getElementById('min-name-error').style.display='none'">
       </div>
+      <div id="min-name-error" style="display:none;background:#fef3c7;border:1.5px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e;line-height:1.6;margin-top:4px"></div>
     </div>
     <div class="mftr">
       <button class="btn btn-out" onclick="closeMinisterioModal()">Cancelar</button>
