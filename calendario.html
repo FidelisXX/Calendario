@@ -336,6 +336,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .ra-vot-row-full{grid-column:1/-1}
 .ra-vot-del{background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;font-weight:700;justify-self:end}
 @media(max-width:600px){.ra-vot-row{grid-template-columns:1fr}}
+/* ── Dashboard Reunião Administrativa ── */
+.rad-header{background:linear-gradient(135deg,var(--navy) 0%,#1e3a5f 100%);color:#fff;border-radius:14px;padding:24px 28px;margin-bottom:20px}
+.rad-title{font-size:20px;font-weight:900;letter-spacing:.3px;margin-bottom:6px}
+.rad-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px}
+.rad-meta-item{display:flex;align-items:center;gap:5px;font-size:13px;opacity:.9}
+.rad-badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-top:8px}
+.rad-badge-ord{background:#d1fae5;color:#065f46}
+.rad-badge-ext{background:#fef3c7;color:#92400e}
+.rad-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.rad-card-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--g400);margin-bottom:10px;padding-bottom:8px;border-bottom:1.5px solid var(--g100)}
+.rad-text{font-size:14px;color:var(--g800);line-height:1.7;white-space:pre-wrap}
+.rad-vot-table{width:100%;border-collapse:collapse;font-size:13px}
+.rad-vot-table th{background:var(--g50);padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.4px}
+.rad-vot-table td{padding:10px 12px;border-bottom:1px solid var(--g100)}
+.rad-vot-table tr:last-child td{border-bottom:none}
+.rad-empty{text-align:center;padding:60px 0;color:var(--g400);font-size:14px}
+.rad-select-wrap{background:#fff;border-radius:12px;padding:16px 20px;border:1.5px solid var(--g200);margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 /* ── Relatório dos Cultos ── */
 .culto-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;transition:box-shadow .15s}
 .culto-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.07)}
@@ -702,6 +719,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
       <div style="display:flex;gap:0;border-bottom:2px solid var(--g200);margin-bottom:20px">
         <button id="sec-sub-btn-membros" onclick="switchSecretariaSub('membros')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--navy);border:none;border-bottom:3px solid var(--navy);margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128100; Lista de Membros</button>
         <button id="sec-sub-btn-cultos" onclick="switchSecretariaSub('cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128221; Relatório dos Cultos</button>
+        <button id="sec-sub-btn-rad" onclick="switchSecretariaSub('rad')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128203; Dashboard Reuniões</button>
       </div>
 
       <!-- Sub: Lista de Membros -->
@@ -754,6 +772,27 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
           <input type="text" id="culto-search" placeholder="Buscar evento..." oninput="renderCultosList()" style="border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;min-width:160px">
         </div>
         <div id="cultos-list"></div>
+      </div>
+
+      <!-- Sub: Dashboard Reuniões Administrativas -->
+      <div id="sec-sub-rad" style="display:none">
+        <div class="mbr-hdr">
+          <div>
+            <h2>&#128203; Dashboard Reuniões Administrativas</h2>
+            <p>Visualize o relatório completo de cada reunião</p>
+          </div>
+        </div>
+
+        <div class="rad-select-wrap">
+          <label style="font-size:12px;font-weight:700;color:var(--g500);white-space:nowrap">Selecionar Reunião</label>
+          <select id="rad-meeting-sel" onchange="renderRaDashboard()" style="flex:1;min-width:240px;border:1.5px solid var(--g200);border-radius:7px;padding:8px 12px;font-size:13px;font-family:inherit;background:#fff">
+            <option value="">— Escolha uma reunião —</option>
+          </select>
+        </div>
+
+        <div id="rad-content">
+          <div class="rad-empty">&#128203; Selecione uma reunião acima para ver o dashboard</div>
+        </div>
       </div>
     </div>
   </div>
@@ -3365,7 +3404,7 @@ async function deleteReunAdminRep() {
 
 // ─── ADMINISTRAÇÃO SECRETARIA ────────────────────────────────
 function switchSecretariaSub(sub) {
-  const subs = ['membros','cultos'];
+  const subs = ['membros','cultos','rad'];
   subs.forEach(s => {
     const btn   = document.getElementById('sec-sub-btn-'+s);
     const panel = document.getElementById('sec-sub-'+s);
@@ -3374,6 +3413,154 @@ function switchSecretariaSub(sub) {
     if (panel) panel.style.display = active ? '' : 'none';
   });
   if (sub === 'cultos') initCultosFilters();
+  if (sub === 'rad')    initRaDashboard();
+}
+
+// ─── DASHBOARD REUNIÕES ADMINISTRATIVAS ──────────────────────
+async function initRaDashboard() {
+  if (!Array.isArray(_raReports) || _raReports.length === 0) await loadRaReports();
+  const sel = document.getElementById('rad-meeting-sel');
+  if (!sel) return;
+  const cur = sel.value;
+
+  const raEvts = (S.events||[])
+    .filter(e => e.cat === 'Reunião Administrativa' && e.status === 'aprovado')
+    .filter(e => _raReports.some(r => r.event_id === e.id))
+    .sort((a,b) => b.date.localeCompare(a.date));
+
+  sel.innerHTML = '<option value="">— Escolha uma reunião —</option>'
+    + raEvts.map(e => '<option value="'+e.id+'"'+(e.id===cur?' selected':'')+'>'+fmtDateBR(e.date)+' · '+escH(e.name)+'</option>').join('');
+
+  if (!raEvts.length) {
+    document.getElementById('rad-content').innerHTML =
+      '<div class="rad-empty">Nenhuma Reunião Administrativa com relatório preenchido.</div>';
+    return;
+  }
+  if (cur && raEvts.find(e => e.id === cur)) {
+    renderRaDashboard();
+  } else {
+    sel.value = '';
+    document.getElementById('rad-content').innerHTML =
+      '<div class="rad-empty">&#128203; Selecione uma reunião acima para ver o dashboard</div>';
+  }
+}
+
+async function renderRaDashboard() {
+  const sel  = document.getElementById('rad-meeting-sel');
+  const cont = document.getElementById('rad-content');
+  if (!sel || !cont) return;
+  const eventId = sel.value;
+  if (!eventId) {
+    cont.innerHTML = '<div class="rad-empty">&#128203; Selecione uma reunião acima para ver o dashboard</div>';
+    return;
+  }
+
+  cont.innerHTML = '<div class="rad-empty">Carregando...</div>';
+
+  const ev  = (S.events||[]).find(e => e.id === eventId);
+  const rep = (_raReports||[]).find(r => r.event_id === eventId);
+  if (!ev || !rep) { cont.innerHTML = '<div class="rad-empty">Relatório não encontrado.</div>'; return; }
+
+  const isExt = rep.extraordinaria === true || rep.extraordinaria === 'true';
+  const votacoes = rep.votacoes ? (typeof rep.votacoes === 'string' ? JSON.parse(rep.votacoes) : rep.votacoes) : [];
+
+  // Busca financeiro dos ministérios — usa período que o relatório foi criado como referência
+  const repDate = rep.created_at ? rep.created_at.slice(0,10) : ev.date;
+  const finDe   = new Date(repDate); finDe.setMonth(finDe.getMonth()-3);
+  const finDeStr  = finDe.toISOString().slice(0,10);
+
+  const { data: finReports } = await DB.from('ibcj_financial_reports')
+    .select('ministerio_id,income_total,expense_total,period_start')
+    .gte('period_start', finDeStr)
+    .lte('period_start', repDate)
+    .order('period_start');
+
+  const minMap = {};
+  (S.ministerios||[]).forEach(m => { minMap[m.id] = m.name; });
+  const byMin = {};
+  (S.ministerios||[]).forEach(m => { byMin[m.id] = {entrada:0, saida:0}; });
+  (finReports||[]).forEach(r => {
+    if (!byMin[r.ministerio_id]) byMin[r.ministerio_id] = {entrada:0, saida:0};
+    byMin[r.ministerio_id].entrada += r.income_total||0;
+    byMin[r.ministerio_id].saida   += r.expense_total||0;
+  });
+
+  // Totais gerais ministérios
+  let totalEntrada = 0, totalSaida = 0;
+  Object.values(byMin).forEach(v => { totalEntrada += v.entrada; totalSaida += v.saida; });
+  const totalSaldo = totalEntrada - totalSaida;
+
+  let html = '';
+
+  // Cabeçalho
+  html += '<div class="rad-header">'
+    + '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.65;margin-bottom:4px">Reunião Administrativa</div>'
+    + '<div class="rad-title">'+escH(ev.name)+'</div>'
+    + '<div class="rad-meta">'
+    + '<div class="rad-meta-item">&#128197; '+fmtDateBR(ev.date)+'</div>'
+    + (rep.horario_inicio ? '<div class="rad-meta-item">&#9200; Início: '+rep.horario_inicio+'</div>' : '')
+    + (rep.qtd_membros   ? '<div class="rad-meta-item">&#128101; '+rep.qtd_membros+' membros presentes</div>' : '')
+    + '</div>'
+    + '<div>'
+    + (rep.leitura_biblica ? '<div style="margin-top:8px;font-size:13px;opacity:.85">&#128218; '+escH(rep.leitura_biblica)+'</div>' : '')
+    + (rep.oracao_inicial  ? '<div style="margin-top:4px;font-size:13px;opacity:.85">&#128591; Oração: '+escH(rep.oracao_inicial)+'</div>' : '')
+    + '</div>'
+    + '<div><span class="rad-badge '+(isExt?'rad-badge-ext':'rad-badge-ord')+'">'+(isExt?'Reunião Extraordinária':'Reunião Ordinária')+'</span></div>'
+    + '</div>';
+
+  // Relatório financeiro da Igreja
+  if (rep.relatorio_fin_igreja) {
+    html += '<div class="rad-card">'
+      + '<div class="rad-card-title">&#128176; Relatório Financeiro da Igreja</div>'
+      + '<div class="rad-text">'+escH(rep.relatorio_fin_igreja)+'</div>'
+      + '</div>';
+  }
+
+  // Financeiro dos ministérios
+  html += '<div class="rad-card">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1.5px solid var(--g100)">'
+    + '<div class="rad-card-title" style="margin:0;border:none;padding:0">&#128200; Financeiro dos Ministérios</div>'
+    + '<div style="font-size:11px;color:var(--g400)">Período de referência: '+fmtDateBR(finDeStr)+' a '+fmtDateBR(repDate)+'</div>'
+    + '</div>'
+    + '<div class="ra-fin-grid">'
+    + Object.entries(byMin).sort((a,b)=>(minMap[a[0]]||'').localeCompare(minMap[b[0]]||'')).map(([minId,v]) => {
+        const saldo = v.entrada - v.saida;
+        return '<div class="ra-fin-card">'
+          + '<div class="ra-fin-card-name" title="'+(minMap[minId]||'?')+'">'+escH(minMap[minId]||'?')+'</div>'
+          + '<div style="font-size:11px;color:#15803d">&#8593; '+fmtMoney(v.entrada)+'</div>'
+          + '<div style="font-size:11px;color:#dc2626">&#8595; '+fmtMoney(v.saida)+'</div>'
+          + '<div style="font-size:12px;font-weight:700;margin-top:3px;color:'+(saldo>=0?'#15803d':'#dc2626')+'">'+fmtMoney(saldo)+'</div>'
+          + '</div>';
+      }).join('')
+    + '</div>'
+    + '<div style="margin-top:10px;padding-top:10px;border-top:1.5px solid var(--g100);display:flex;gap:20px;flex-wrap:wrap">'
+    + '<span style="font-size:13px;color:#15803d;font-weight:700">&#8593; Total entradas: '+fmtMoney(totalEntrada)+'</span>'
+    + '<span style="font-size:13px;color:#dc2626;font-weight:700">&#8595; Total saídas: '+fmtMoney(totalSaida)+'</span>'
+    + '<span style="font-size:13px;font-weight:800;color:'+(totalSaldo>=0?'#15803d':'#dc2626')+'">Saldo geral: '+fmtMoney(totalSaldo)+'</span>'
+    + '</div>'
+    + '</div>';
+
+  // Votações (se extraordinária)
+  if (isExt && votacoes.length) {
+    html += '<div class="rad-card">'
+      + '<div class="rad-card-title">&#128499; Pautas Votadas</div>'
+      + '<table class="rad-vot-table"><thead><tr><th>Pauta</th><th>A favor</th><th>Contra</th><th>Apoiadores / Obs.</th></tr></thead><tbody>'
+      + votacoes.map(v =>
+          '<tr>'
+          + '<td>'+escH(v.descricao||'—')+'</td>'
+          + '<td style="color:#15803d;font-weight:700">'+((v.a_favor??'')===''?'—':v.a_favor)+'</td>'
+          + '<td style="color:#dc2626;font-weight:700">'+((v.contra??'')===''?'—':v.contra)+'</td>'
+          + '<td style="color:var(--g600)">'+escH(v.apoiadores||'—')+'</td>'
+          + '</tr>'
+        ).join('')
+      + '</tbody></table>'
+      + '</div>';
+  } else if (isExt) {
+    html += '<div class="rad-card"><div class="rad-card-title">&#128499; Pautas Votadas</div>'
+      + '<p style="font-size:13px;color:var(--g400)">Nenhuma pauta registrada.</p></div>';
+  }
+
+  cont.innerHTML = html;
 }
 
 // ─── RELATÓRIO DOS CULTOS ─────────────────────────────────────
