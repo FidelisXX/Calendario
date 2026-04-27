@@ -326,6 +326,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .past-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:12px;flex-wrap:wrap}
 .past-hdr h2{font-size:18px;font-weight:900;color:var(--navy);margin:0}
 .past-hdr p{font-size:12px;color:var(--g400);margin:2px 0 0}
+/* ── Reunião Administrativa ── */
+.ra-section{margin-bottom:18px}
+.ra-section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--g400);margin-bottom:8px;padding-bottom:5px;border-bottom:1.5px solid var(--g200)}
+.ra-fin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:4px}
+.ra-fin-card{background:#f8fafc;border:1.5px solid var(--g200);border-radius:8px;padding:10px 12px}
+.ra-fin-card-name{font-size:11px;font-weight:800;color:var(--navy);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-vot-row{background:#f8fafc;border:1.5px solid var(--g200);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:grid;grid-template-columns:1fr 80px 80px;gap:8px;align-items:start}
+.ra-vot-row-full{grid-column:1/-1}
+.ra-vot-del{background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;font-weight:700;justify-self:end}
+@media(max-width:600px){.ra-vot-row{grid-template-columns:1fr}}
+/* ── Relatório dos Cultos ── */
+.culto-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;transition:box-shadow .15s}
+.culto-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.culto-card-info{flex:1;min-width:0}
+.culto-card-date{font-size:11px;color:var(--g400);font-weight:600;margin-bottom:2px}
+.culto-card-name{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.culto-has-report{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 8px}
+.culto-no-report{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#f1f5f9;color:var(--g400);border-radius:20px;padding:2px 8px}
 /* ── Lista de Membros ── */
 .mbr-wrap{padding:20px 24px;max-width:1100px;margin:0 auto}
 .mbr-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:12px;flex-wrap:wrap}
@@ -536,7 +554,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
     <button class="main-tab on" id="tab-btn-calendar" onclick="switchTab('calendar')">&#128197; Calendário</button>
     <button class="main-tab" id="tab-btn-registros" onclick="switchTab('registros')">&#128221; Registro Semanal</button>
     <button class="main-tab" id="tab-btn-pastoral" onclick="switchTab('pastoral')" style="display:none">&#128214; Administração Pastoral</button>
-    <button class="main-tab" id="tab-btn-membros" onclick="switchTab('membros')" style="display:none">&#128100; Lista de Membros</button>
+    <button class="main-tab" id="tab-btn-membros" onclick="switchTab('membros')" style="display:none">&#128203; Administração Secretaria</button>
   </div>
 
   <!-- TOOLBAR -->
@@ -556,6 +574,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         <option value="Culto">Culto</option>
         <option value="Celebração da Ceia">Celebração da Ceia</option>
         <option value="Reunião">Reunião</option>
+        <option value="Reunião Administrativa" id="opt-cat-reuniao-admin" style="display:none">Reunião Administrativa</option>
         <option value="Acampamento">Acampamento</option>
         <option value="Aniversário">Aniversário</option>
         <option value="EBD">EBD</option>
@@ -676,37 +695,66 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
     </div>
   </div>
 
-  <!-- ── LISTA DE MEMBROS ── -->
+  <!-- ── ADMINISTRAÇÃO SECRETARIA ── -->
   <div id="tab-membros" style="display:none">
     <div class="mbr-wrap">
-      <div class="mbr-hdr">
-        <div>
-          <h2>&#128100; Lista de Membros</h2>
-          <p>Membros cadastrados na Igreja</p>
+      <!-- Sub-abas secretaria -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--g200);margin-bottom:20px">
+        <button id="sec-sub-btn-membros" onclick="switchSecretariaSub('membros')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--navy);border:none;border-bottom:3px solid var(--navy);margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128100; Lista de Membros</button>
+        <button id="sec-sub-btn-cultos" onclick="switchSecretariaSub('cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128221; Relatório dos Cultos</button>
+      </div>
+
+      <!-- Sub: Lista de Membros -->
+      <div id="sec-sub-membros">
+        <div class="mbr-hdr">
+          <div>
+            <h2>&#128100; Lista de Membros</h2>
+            <p>Membros cadastrados na Igreja</p>
+          </div>
+          <button class="btn btn-navy" onclick="openMembroModal()">+ Novo Membro</button>
         </div>
-        <button class="btn btn-navy" onclick="openMembroModal()">+ Novo Membro</button>
+        <div class="mbr-search-bar">
+          <input type="text" id="mbr-search" placeholder="Buscar por nome..." oninput="renderMembros()">
+          <select id="mbr-filter-depto" onchange="renderMembros()">
+            <option value="">Todos os departamentos</option>
+          </select>
+        </div>
+        <div class="mbr-table-wrap">
+          <table class="mbr-table">
+            <thead>
+              <tr>
+                <th>Nome Completo</th>
+                <th>Nascimento</th>
+                <th>Convenção / Batismo</th>
+                <th>Departamento</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="mbr-tbody"></tbody>
+          </table>
+        </div>
+        <div id="mbr-count" style="font-size:12px;color:var(--g400);margin-top:10px;text-align:right"></div>
       </div>
-      <div class="mbr-search-bar">
-        <input type="text" id="mbr-search" placeholder="Buscar por nome..." oninput="renderMembros()">
-        <select id="mbr-filter-depto" onchange="renderMembros()">
-          <option value="">Todos os departamentos</option>
-        </select>
+
+      <!-- Sub: Relatório dos Cultos -->
+      <div id="sec-sub-cultos" style="display:none">
+        <div class="mbr-hdr">
+          <div>
+            <h2>&#128221; Relatório dos Cultos</h2>
+            <p>Selecione um evento do calendário para preencher o relatório</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Ano</label>
+          <select id="culto-filter-year" onchange="renderCultosList()" style="border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;background:#fff"></select>
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Categoria</label>
+          <select id="culto-filter-cat" onchange="renderCultosList()" style="border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;background:#fff">
+            <option value="">Todas</option>
+          </select>
+          <input type="text" id="culto-search" placeholder="Buscar evento..." oninput="renderCultosList()" style="border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;min-width:160px">
+        </div>
+        <div id="cultos-list"></div>
       </div>
-      <div class="mbr-table-wrap">
-        <table class="mbr-table">
-          <thead>
-            <tr>
-              <th>Nome Completo</th>
-              <th>Nascimento</th>
-              <th>Convenção / Batismo</th>
-              <th>Departamento</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="mbr-tbody"></tbody>
-        </table>
-      </div>
-      <div id="mbr-count" style="font-size:12px;color:var(--g400);margin-top:10px;text-align:right"></div>
     </div>
   </div>
 
@@ -755,6 +803,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
             <option value="Culto">Culto</option>
             <option value="Celebração da Ceia">Celebração da Ceia</option>
             <option value="Reunião">Reunião</option>
+            <option value="Reunião Administrativa" id="opt-reuniao-admin" style="display:none">Reunião Administrativa</option>
             <option value="Acampamento">Acampamento</option>
             <option value="Aniversário">Aniversário</option>
             <option value="EBD">EBD</option>
@@ -838,6 +887,7 @@ const CATS = {
   'EBD':                 {c:'#c2410c',bg:'#ffedd5'},
   'Jovens':             {c:'#0e7490',bg:'#cffafe'},
   'Ensaio':             {c:'#065f46',bg:'#d1fae5'},
+  'Reunião Administrativa': {c:'#1e3a5f',bg:'#e0e7ff'},
   'Outro':              {c:'#4b5563',bg:'#f3f4f6'},
   'Gabinete':           {c:'#374151',bg:'#f9fafb'},
 };
@@ -1211,6 +1261,11 @@ async function showApp(user) {
   // Gabinete option no select
   if (canSeeGabinete()) {
     document.getElementById('opt-gabinete').style.display = '';
+  }
+  // Reunião Administrativa só para admin/pastor/secretaria
+  if (hasRole('admin','pastor','secretaria')) {
+    document.getElementById('opt-reuniao-admin').style.display = '';
+    document.getElementById('opt-cat-reuniao-admin').style.display = '';
   }
 
   await Promise.all([loadEvts(), loadLiturgias()]);
@@ -1834,7 +1889,7 @@ function updateEvtLitBar(){
 }
 
 // ─── FECHAR MODALS AO CLICAR FORA ────────────────────────────
-['evt-overlay','day-overlay','del-overlay','lit-overlay','lit-list-overlay','lit-view-overlay','membro-overlay'].forEach(id => {
+['evt-overlay','day-overlay','del-overlay','lit-overlay','lit-list-overlay','lit-view-overlay','membro-overlay','culto-rep-overlay','reuniao-admin-overlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('on');
   });
@@ -1860,7 +1915,7 @@ function switchTab(tab) {
   window.scrollTo({top: 0, behavior: 'instant'});
   if (isRegistros) renderMinisterios();
   if (isPastoral) { switchPastoralSub('agenda'); renderPastoralTab(); }
-  if (isMembros) { loadMembros().then(() => renderMembros()); }
+  if (isMembros) { switchSecretariaSub('membros'); loadMembros().then(() => renderMembros()); }
 }
 
 // ─── NOTIFICAÇÕES ────────────────────────────────────────────
@@ -2297,6 +2352,13 @@ async function renderBalanceamento() {
   // Cards por ministério
   Object.entries(byMin).forEach(([minId, reps]) => {
     const minNome = minMap[minId] || 'Ministério desconhecido';
+    // Ordena do mais antigo para acumular saldo
+    const repsAsc = [...reps].sort((a,b) => a.period_start.localeCompare(b.period_start));
+    let acum = 0;
+    const repsComAcum = repsAsc.map(r => {
+      acum += (r.income_total||0) - (r.expense_total||0);
+      return { ...r, _acum: acum };
+    }).reverse();
     const minEntrada = reps.reduce((s,r) => s + (r.income_total||0), 0);
     const minSaida   = reps.reduce((s,r) => s + (r.expense_total||0), 0);
     const minBal     = minEntrada - minSaida;
@@ -2308,25 +2370,73 @@ async function renderBalanceamento() {
         + '<div class="bal-min-chips">'
           + '<span class="fin-chip fin-chip-in">&#8593; '+fmtMoney(minEntrada)+'</span>'
           + '<span class="fin-chip fin-chip-out">&#8595; '+fmtMoney(minSaida)+'</span>'
-          + '<span class="fin-chip" style="background:'+(minBal>=0?'#dcfce7':'#fee2e2')+';color:'+(minBal>=0?'#15803d':'#dc2626')+'">Saldo '+fmtMoney(minBal)+'</span>'
+          + '<span class="fin-chip" style="background:'+(minBal>=0?'#dcfce7':'#fee2e2')+';color:'+(minBal>=0?'#15803d':'#dc2626')+'">Caixa '+fmtMoney(minBal)+'</span>'
           + '<span style="font-size:13px;color:var(--g400)">&#9660;</span>'
         + '</div>'
       + '</div>'
       + '<div class="bal-min-body" id="'+cardId+'">'
-        + reps.map(r => {
-            const bal = (r.income_total||0) - (r.expense_total||0);
+        + repsComAcum.map(r => {
+            const items = typeof r.items==='string' ? JSON.parse(r.items||'[]') : (r.items||[]);
+            const balPer = (r.income_total||0) - (r.expense_total||0);
             const per = fmtDateBR(r.period_start) + ' – ' + fmtDateBR(r.period_end);
-            return '<div class="bal-rep-row">'
-              + '<div>'
-                + '<div style="font-weight:600;color:var(--navy)">'+escH(per)+'</div>'
-                + (r.notes ? '<div style="font-size:12px;color:var(--g400);margin-top:2px">'+escH(r.notes)+'</div>' : '')
-              + '</div>'
-              + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-                + '<span class="fin-chip fin-chip-in" style="font-size:11px">&#8593; '+fmtMoney(r.income_total||0)+'</span>'
-                + '<span class="fin-chip fin-chip-out" style="font-size:11px">&#8595; '+fmtMoney(r.expense_total||0)+'</span>'
-                + '<span style="font-weight:700;font-size:13px;color:'+(bal>=0?'#15803d':'#dc2626')+'">'+fmtMoney(bal)+'</span>'
-              + '</div>'
-            + '</div>';
+            const imgs = items.filter(i=>i.image_url);
+            const entradas = items.filter(i=>i.type==='entrada');
+            const saidas   = items.filter(i=>i.type==='saida');
+
+            let rowHtml = '<div class="bal-rep-row" style="flex-direction:column;align-items:stretch;gap:8px">'
+              + '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'
+                + '<div>'
+                  + '<div style="font-weight:700;color:var(--navy)">'+escH(per)+'</div>'
+                  + (r.notes?'<div style="font-size:12px;color:var(--g400)">'+escH(r.notes)+'</div>':'')
+                + '</div>'
+                + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+                  + '<span class="fin-chip fin-chip-in" style="font-size:11px">&#8593; '+fmtMoney(r.income_total||0)+'</span>'
+                  + '<span class="fin-chip fin-chip-out" style="font-size:11px">&#8595; '+fmtMoney(r.expense_total||0)+'</span>'
+                  + '<span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:'+(balPer>=0?'#dcfce7':'#fee2e2')+';color:'+(balPer>=0?'#15803d':'#dc2626')+'">Período '+fmtMoney(balPer)+'</span>'
+                  + '<span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:'+(r._acum>=0?'#dbeafe':'#fee2e2')+';color:'+(r._acum>=0?'#1d4ed8':'#dc2626')+'">Caixa '+fmtMoney(r._acum)+'</span>'
+                + '</div>'
+              + '</div>';
+
+            // Itens detalhados
+            if (entradas.length || saidas.length) {
+              rowHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">';
+              if (entradas.length) {
+                rowHtml += '<div><div style="font-weight:700;color:#15803d;margin-bottom:4px">&#8593; Entradas</div>'
+                  + entradas.map(i=>'<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--g100)">'
+                    +'<span style="color:var(--g700)">'+escH(i.description||'—')+'</span>'
+                    +'<span style="font-weight:600;color:#15803d">'+fmtMoney(i.amount||0)+'</span>'
+                    +'</div>').join('')
+                  +'</div>';
+              }
+              if (saidas.length) {
+                rowHtml += '<div><div style="font-weight:700;color:#dc2626;margin-bottom:4px">&#8595; Saídas</div>'
+                  + saidas.map(i=>'<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--g100)">'
+                    +'<span style="color:var(--g700)">'+escH(i.description||'—')+'</span>'
+                    +'<span style="font-weight:600;color:#dc2626">'+fmtMoney(i.amount||0)+'</span>'
+                    +'</div>').join('')
+                  +'</div>';
+              }
+              rowHtml += '</div>';
+            }
+
+            // Comprovantes
+            if (imgs.length) {
+              rowHtml += '<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">';
+              imgs.forEach((i,idx) => {
+                const safeName = encodeURIComponent((i.description||('comprovante-'+(idx+1))).replace(/[^a-zA-Z0-9\-_]/g,'_'));
+                rowHtml += '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'
+                  + '<a href="'+i.image_url+'" target="_blank">'
+                  + '<img src="'+i.image_url+'" style="width:52px;height:52px;object-fit:cover;border-radius:6px;border:1.5px solid var(--g200)" loading="lazy"></a>'
+                  + '<div style="display:flex;gap:3px">'
+                  + '<a href="'+i.image_url+'" target="_blank" style="font-size:10px;color:var(--navy);text-decoration:none;background:var(--g100);border-radius:4px;padding:2px 5px">&#128065;</a>'
+                  + '<button onclick="downloadComprovante(\''+i.image_url+'\',\''+safeName+'\')" style="font-size:10px;background:var(--navy);color:#fff;border:none;border-radius:4px;padding:2px 5px;cursor:pointer">&#8595;</button>'
+                  + '</div></div>';
+              });
+              rowHtml += '</div>';
+            }
+
+            rowHtml += '</div>';
+            return rowHtml;
           }).join('')
       + '</div>'
     + '</div>';
@@ -2623,17 +2733,30 @@ async function renderFinancialReports() {
   await loadFinancialReports(S.currentMinisterioId);
   if (!S.financialReports.length) { sec.style.display='none'; return; }
   sec.style.display = 'block';
-  list.innerHTML = (S.financialReports||[]).map(rep => {
-    const items = typeof rep.items === 'string' ? JSON.parse(rep.items||'[]') : (rep.items||[]);
+  // Ordena do mais antigo para o mais recente para calcular saldo acumulado
+  const repsOrdenados = [...(S.financialReports||[])].sort((a,b) => a.period_start.localeCompare(b.period_start));
+  let saldoAcumulado = 0;
+  const repsSaldos = repsOrdenados.map(rep => {
     const bal = (rep.income_total||0) - (rep.expense_total||0);
+    saldoAcumulado += bal;
+    return { ...rep, _balPeriodo: bal, _saldoAcum: saldoAcumulado };
+  }).reverse(); // exibe do mais recente
+
+  list.innerHTML = repsSaldos.map(rep => {
+    const items = typeof rep.items === 'string' ? JSON.parse(rep.items||'[]') : (rep.items||[]);
     const imgs = items.filter(i=>i.image_url);
     return '<div class="fin-card">'
       + '<div class="fin-card-top">'
-      + '<div><div class="fin-card-period">'+fmtDateBR(rep.period_start)+' → '+fmtDateBR(rep.period_end)+'</div>'
-      + '<div class="fin-card-balance" style="color:'+(bal>=0?'#15803d':'#dc2626')+'">'+fmtMoney(bal)+'</div></div>'
+      + '<div>'
+        + '<div class="fin-card-period">'+fmtDateBR(rep.period_start)+' → '+fmtDateBR(rep.period_end)+'</div>'
+        + '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">'
+          + '<div class="fin-card-balance" style="color:'+(rep._balPeriodo>=0?'#15803d':'#dc2626')+'" title="Saldo do período">'+fmtMoney(rep._balPeriodo)+'</div>'
+          + '<div style="font-size:12px;font-weight:700;color:'+(rep._saldoAcum>=0?'#15803d':'#dc2626')+';background:'+(rep._saldoAcum>=0?'#dcfce7':'#fee2e2')+';border-radius:99px;padding:2px 9px" title="Saldo acumulado">Caixa: '+fmtMoney(rep._saldoAcum)+'</div>'
+        + '</div>'
+      + '</div>'
       + '<div style="display:flex;gap:6px">'
-      + (canEditRegistros()?'<button class="btn btn-out btn-sm" onclick="openFinancialModal(\''+rep.id+'\')">&#9998;</button>':'')
-      + (canEditRegistros()?'<button class="btn btn-out btn-sm" style="color:var(--red);border-color:var(--red)" onclick="deleteFinancialReport(\''+rep.id+'\')">&#128465;</button>':'')
+      + '<button class="btn btn-out btn-sm" onclick="openFinancialModal(\''+rep.id+'\')">&#9998;</button>'
+      + '<button class="btn btn-out btn-sm" style="color:var(--red);border-color:var(--red)" onclick="deleteFinancialReport(\''+rep.id+'\')">&#128465;</button>'
       + '</div></div>'
       + '<div class="fin-card-chips">'
       + '<span class="fin-chip fin-chip-in">&#8593; '+fmtMoney(rep.income_total||0)+'</span>'
@@ -3044,6 +3167,365 @@ async function deleteMembroConfirm() {
   renderMembros();
 }
 
+// ─── REUNIÃO ADMINISTRATIVA ──────────────────────────────────
+var _votIdx = 0;
+var _raReports = [];
+
+async function loadRaReports() {
+  const { data } = await DB.from('ibcj_reuniao_admin_reports').select('*');
+  _raReports = data || [];
+}
+
+async function openReunAdminModal(eventId) {
+  const ev  = (S.events||[]).find(e => e.id === eventId);
+  if (!ev) return;
+  // Garante que a lista de culto reports considera este eventId também
+  if (!Array.isArray(_raReports)) _raReports = [];
+  if (_raReports.length === 0) await loadRaReports();
+  const rep = _raReports.find(r => r.event_id === eventId);
+
+  document.getElementById('ra-event-id').value = eventId;
+  document.getElementById('ra-id').value        = rep?.id || '';
+  document.getElementById('ra-evt-name').textContent = ev.name;
+  document.getElementById('ra-evt-date').textContent = fmtDateBR(ev.date) + (ev.start?' · '+ev.start:'');
+  document.getElementById('ra-modal-title').textContent = rep ? 'Editar Relatório — Reunião Administrativa' : 'Novo Relatório — Reunião Administrativa';
+
+  document.getElementById('ra-horario').value    = rep?.horario_inicio  || ev.start || '';
+  document.getElementById('ra-membros').value    = rep?.qtd_membros     ?? '';
+  document.getElementById('ra-leitura').value    = rep?.leitura_biblica || '';
+  document.getElementById('ra-oracao').value     = rep?.oracao_inicial  || '';
+  document.getElementById('ra-fin-igreja').value = rep?.relatorio_fin_igreja || '';
+
+  // Radio extraordinária
+  const isExt = rep?.extraordinaria === true || rep?.extraordinaria === 'true';
+  document.getElementById('ra-ext-nao').checked = !isExt;
+  document.getElementById('ra-ext-sim').checked =  isExt;
+
+  // Votações
+  _votIdx = 0;
+  document.getElementById('ra-votacoes-list').innerHTML = '';
+  const votacoes = rep?.votacoes ? (typeof rep.votacoes === 'string' ? JSON.parse(rep.votacoes) : rep.votacoes) : [];
+  votacoes.forEach(v => addVotacaoRow(v));
+  document.getElementById('ra-votacoes-section').style.display = isExt ? '' : 'none';
+
+  document.getElementById('ra-del-btn').style.display = rep ? '' : 'none';
+
+  // Define período padrão: últimos 3 meses
+  const hoje = new Date();
+  const ate3m = hoje.toISOString().slice(0,10);
+  const de3m  = new Date(hoje.getFullYear(), hoje.getMonth()-3, 1).toISOString().slice(0,10);
+  document.getElementById('ra-fin-de').value  = de3m;
+  document.getElementById('ra-fin-ate').value = ate3m;
+  loadRaFinMin();
+
+  document.getElementById('reuniao-admin-overlay').classList.add('on');
+  setTimeout(() => document.getElementById('ra-horario').focus(), 50);
+}
+
+async function loadRaFinMin() {
+  const cont = document.getElementById('ra-fin-ministerios');
+  if (!cont) return;
+  cont.innerHTML = '<p style="color:var(--g400);font-size:12px">Carregando...</p>';
+
+  const deInp  = document.getElementById('ra-fin-de');
+  const ateInp = document.getElementById('ra-fin-ate');
+  const from = deInp?.value  || '';
+  const to   = ateInp?.value || '';
+
+  let query = DB.from('ibcj_financial_reports')
+    .select('ministerio_id,income_total,expense_total,period_start,period_end')
+    .order('period_start');
+  if (from) query = query.gte('period_start', from);
+  if (to)   query = query.lte('period_start', to);
+
+  const { data: reports } = await query;
+
+  const minMap = {};
+  (S.ministerios||[]).forEach(m => { minMap[m.id] = m.name; });
+
+  // Inicializa todos os ministérios com zero
+  const byMin = {};
+  (S.ministerios||[]).forEach(m => { byMin[m.id] = {entrada:0, saida:0}; });
+
+  (reports||[]).forEach(r => {
+    if (!byMin[r.ministerio_id]) byMin[r.ministerio_id] = {entrada:0, saida:0};
+    byMin[r.ministerio_id].entrada += r.income_total||0;
+    byMin[r.ministerio_id].saida   += r.expense_total||0;
+  });
+
+  const periodLabel = (from || to)
+    ? ((from ? fmtDateBR(from) : 'início') + ' até ' + (to ? fmtDateBR(to) : 'hoje'))
+    : 'Todo o período';
+
+  cont.innerHTML = '<div class="ra-fin-grid">'
+    + Object.entries(byMin)
+        .sort((a,b) => (minMap[a[0]]||'').localeCompare(minMap[b[0]]||''))
+        .map(([minId, v]) => {
+          const saldo = v.entrada - v.saida;
+          return '<div class="ra-fin-card">'
+            + '<div class="ra-fin-card-name" title="'+(minMap[minId]||'?')+'">'+escH(minMap[minId]||'?')+'</div>'
+            + '<div style="font-size:11px;color:#15803d">&#8593; '+fmtMoney(v.entrada)+'</div>'
+            + '<div style="font-size:11px;color:#dc2626">&#8595; '+fmtMoney(v.saida)+'</div>'
+            + '<div style="font-size:12px;font-weight:700;margin-top:3px;color:'+(saldo>=0?'#15803d':'#dc2626')+'">'+fmtMoney(saldo)+'</div>'
+            + '</div>';
+        }).join('')
+    + '</div>'
+    + '<p style="font-size:11px;color:var(--g400);margin-top:6px">Período: '+periodLabel+'</p>';
+}
+
+function toggleVotacoes() {
+  const isExt = document.getElementById('ra-ext-sim').checked;
+  document.getElementById('ra-votacoes-section').style.display = isExt ? '' : 'none';
+}
+
+function addVotacaoRow(data) {
+  const rid = 'vot'+(++_votIdx);
+  const div = document.createElement('div');
+  div.className = 'ra-vot-row';
+  div.id = rid;
+  div.innerHTML =
+    '<div class="ra-vot-row-full" style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      + '<input type="text" placeholder="Descrição da pauta votada" value="'+escH(data?.descricao||'')+'" style="flex:1;border:1.5px solid var(--g200);border-radius:6px;padding:6px 8px;font-size:13px;font-family:inherit">'
+      + '<button type="button" class="ra-vot-del" onclick="document.getElementById(\''+rid+'\').remove()">&#215;</button>'
+    + '</div>'
+    + '<div><label style="font-size:11px;font-weight:700;color:var(--g500);display:block;margin-bottom:3px">A favor</label>'
+      + '<input type="number" min="0" placeholder="0" value="'+(data?.a_favor??'')+'" style="width:100%;border:1.5px solid var(--g200);border-radius:6px;padding:6px 8px;font-size:13px;font-family:inherit"></div>'
+    + '<div><label style="font-size:11px;font-weight:700;color:var(--g500);display:block;margin-bottom:3px">Contra</label>'
+      + '<input type="number" min="0" placeholder="0" value="'+(data?.contra??'')+'" style="width:100%;border:1.5px solid var(--g200);border-radius:6px;padding:6px 8px;font-size:13px;font-family:inherit"></div>'
+    + '<div class="ra-vot-row-full"><label style="font-size:11px;font-weight:700;color:var(--g500);display:block;margin-bottom:3px">Quem apoiou / observações</label>'
+      + '<input type="text" placeholder="Ex: Aprovado por Maria, apoiado por João" value="'+escH(data?.apoiadores||'')+'" style="width:100%;border:1.5px solid var(--g200);border-radius:6px;padding:6px 8px;font-size:13px;font-family:inherit;box-sizing:border-box"></div>';
+  document.getElementById('ra-votacoes-list').append(div);
+}
+
+function closeReunAdminModal() {
+  document.getElementById('reuniao-admin-overlay').classList.remove('on');
+}
+
+async function saveReunAdminRep() {
+  const horario = document.getElementById('ra-horario').value;
+  if (!horario) { alert('Informe o horário de início.'); return; }
+  const btn = document.getElementById('ra-save-btn');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+
+  // Coleta votações
+  const votacoes = [];
+  document.querySelectorAll('#ra-votacoes-list .ra-vot-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const descricao  = inputs[0]?.value.trim() || '';
+    const a_favor    = parseInt(inputs[1]?.value) || 0;
+    const contra     = parseInt(inputs[2]?.value) || 0;
+    const apoiadores = inputs[3]?.value.trim() || '';
+    if (descricao || a_favor || contra || apoiadores) votacoes.push({descricao, a_favor, contra, apoiadores});
+  });
+
+  const rec = {
+    event_id:              document.getElementById('ra-event-id').value,
+    horario_inicio:        horario,
+    qtd_membros:           parseInt(document.getElementById('ra-membros').value) || 0,
+    leitura_biblica:       document.getElementById('ra-leitura').value.trim() || null,
+    oracao_inicial:        document.getElementById('ra-oracao').value.trim()  || null,
+    relatorio_fin_igreja:  document.getElementById('ra-fin-igreja').value.trim() || null,
+    extraordinaria:        document.getElementById('ra-ext-sim').checked,
+    votacoes:              JSON.stringify(votacoes),
+    created_by:            currentUser.email,
+  };
+
+  const id = document.getElementById('ra-id').value;
+  let err;
+  try {
+    if (id) {
+      const r = await DB.from('ibcj_reuniao_admin_reports').update(rec).eq('id', id);
+      err = r.error;
+    } else {
+      rec.id = uid();
+      const r = await DB.from('ibcj_reuniao_admin_reports').insert(rec);
+      err = r.error;
+    }
+  } finally {
+    btn.textContent = 'Salvar'; btn.disabled = false;
+  }
+  if (err) { alert('Erro ao salvar: '+err.message); return; }
+  closeReunAdminModal();
+  await loadRaReports();
+  // Atualiza badge na lista de cultos
+  const allRep = [...(_cultoReports||[]), ..._raReports];
+  const reportedIds = new Set(allRep.map(r => r.event_id));
+  renderCultosList();
+}
+
+async function deleteReunAdminRep() {
+  const id = document.getElementById('ra-id').value;
+  if (!id || !confirm('Excluir este relatório?')) return;
+  const { error } = await DB.from('ibcj_reuniao_admin_reports').delete().eq('id', id);
+  if (error) { alert('Erro: '+error.message); return; }
+  closeReunAdminModal();
+  await loadRaReports();
+  renderCultosList();
+}
+
+// ─── ADMINISTRAÇÃO SECRETARIA ────────────────────────────────
+function switchSecretariaSub(sub) {
+  const subs = ['membros','cultos'];
+  subs.forEach(s => {
+    const btn   = document.getElementById('sec-sub-btn-'+s);
+    const panel = document.getElementById('sec-sub-'+s);
+    const active = s === sub;
+    if (btn)   { btn.style.color = active ? 'var(--navy)' : 'var(--g500)'; btn.style.borderBottomColor = active ? 'var(--navy)' : 'transparent'; }
+    if (panel) panel.style.display = active ? '' : 'none';
+  });
+  if (sub === 'cultos') initCultosFilters();
+}
+
+// ─── RELATÓRIO DOS CULTOS ─────────────────────────────────────
+var _cultoReports = [];
+
+async function loadCultoReports() {
+  const { data, error } = await DB.from('ibcj_culto_reports').select('*');
+  if (error) { console.warn('loadCultoReports:', error.message); return; }
+  _cultoReports = data || [];
+}
+
+function initCultosFilters() {
+  const yearSel = document.getElementById('culto-filter-year');
+  if (!yearSel) return;
+  const cur = yearSel.value || String(new Date().getFullYear());
+  const years = new Set((S.events||[]).map(e => e.date.slice(0,4)));
+  [String(new Date().getFullYear()-1), String(new Date().getFullYear())].forEach(y => years.add(y));
+  const saved = yearSel.onchange; yearSel.onchange = null;
+  yearSel.innerHTML = [...years].sort().reverse().map(y => '<option value="'+y+'"'+(y===cur?' selected':'')+'>'+y+'</option>').join('');
+  yearSel.onchange = saved;
+
+  const catSel = document.getElementById('culto-filter-cat');
+  if (catSel && catSel.options.length <= 1) {
+    const savedC = catSel.onchange; catSel.onchange = null;
+    catSel.innerHTML = '<option value="">Todas</option>'
+      + Object.keys(CATS).filter(c=>c!=='Gabinete').map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+    catSel.onchange = savedC;
+  }
+  Promise.all([loadCultoReports(), loadRaReports()]).then(() => renderCultosList());
+}
+
+function renderCultosList() {
+  const year   = document.getElementById('culto-filter-year')?.value || String(new Date().getFullYear());
+  const cat    = document.getElementById('culto-filter-cat')?.value  || '';
+  const search = (document.getElementById('culto-search')?.value || '').toLowerCase();
+  const cont   = document.getElementById('cultos-list');
+  if (!cont) return;
+
+  let evts = (S.events||[])
+    .filter(e => e.date.startsWith(year) && e.status === 'aprovado')
+    .filter(e => !cat    || e.cat === cat)
+    .filter(e => !search || e.name.toLowerCase().includes(search))
+    .sort((a,b) => a.date.localeCompare(b.date));
+
+  if (!evts.length) {
+    cont.innerHTML = '<p style="text-align:center;color:var(--g400);padding:40px 0">Nenhum evento encontrado.</p>';
+    return;
+  }
+
+  const reportedIds = new Set([...(_cultoReports||[]), ...(_raReports||[])].map(r => r.event_id));
+
+  cont.innerHTML = evts.map(ev => {
+    const cat = CATS[ev.cat]||CATS['Outro'];
+    const hasRep = reportedIds.has(ev.id);
+    return '<div class="culto-card">'
+      + '<div class="culto-card-info">'
+        + '<div class="culto-card-date">'+fmtDateBR(ev.date)+(ev.start?' · '+ev.start:'')+'</div>'
+        + '<div class="culto-card-name">'+escH(ev.name)+'</div>'
+        + '<span style="display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;background:'+cat.bg+';color:'+cat.c+'">'+escH(ev.cat)+'</span>'
+        + '&nbsp;'
+        + (hasRep
+            ? '<span class="culto-has-report">&#10003; Relatório preenchido</span>'
+            : '<span class="culto-no-report">Sem relatório</span>')
+      + '</div>'
+      + '<button class="btn '+(hasRep?'btn-out':'btn-navy')+'" style="white-space:nowrap;font-size:12px" onclick="openCultoRepModal(\''+ev.id+'\')">'
+        + (hasRep ? '&#9998; Ver / Editar' : '+ Preencher Relatório')
+      + '</button>'
+      + '</div>';
+  }).join('');
+}
+
+function openCultoRepModal(eventId) {
+  const ev = (S.events||[]).find(e => e.id === eventId);
+  if (!ev) return;
+  if (ev.cat === 'Reunião Administrativa') { openReunAdminModal(eventId); return; }
+  const rep = (_cultoReports||[]).find(r => r.event_id === eventId);
+
+  document.getElementById('culto-rep-event-id').value  = eventId;
+  document.getElementById('culto-rep-id').value        = rep?.id || '';
+  document.getElementById('culto-rep-evt-name').textContent = ev.name;
+  document.getElementById('culto-rep-evt-date').textContent = fmtDateBR(ev.date) + (ev.start?' · '+ev.start:'');
+  document.getElementById('culto-rep-title').textContent = rep ? 'Editar Relatório' : 'Novo Relatório';
+
+  document.getElementById('culto-rep-presentes').value  = rep?.presentes  ?? '';
+  document.getElementById('culto-rep-convertidos').value= rep?.convertidos ?? '';
+  document.getElementById('culto-rep-pregador').value   = rep?.pregador    || '';
+  document.getElementById('culto-rep-texto').value      = rep?.texto_biblico || '';
+  document.getElementById('culto-rep-diaconos').value   = rep?.diaconos   || '';
+  document.getElementById('culto-rep-lideres').value    = rep?.lideres     || '';
+  document.getElementById('culto-rep-talento').value    = rep?.talento     || '';
+  document.getElementById('culto-rep-obs').value        = rep?.observacao  || '';
+
+  document.getElementById('culto-rep-del-btn').style.display = rep ? '' : 'none';
+  document.getElementById('culto-rep-overlay').classList.add('on');
+  setTimeout(() => document.getElementById('culto-rep-presentes').focus(), 50);
+}
+
+function closeCultoRepModal() {
+  document.getElementById('culto-rep-overlay').classList.remove('on');
+}
+
+async function saveCultoRep() {
+  const presentes = parseInt(document.getElementById('culto-rep-presentes').value) || 0;
+  const pregador  = document.getElementById('culto-rep-pregador').value.trim();
+  if (!pregador) { alert('Informe o pregador(a).'); return; }
+
+  const btn = document.getElementById('culto-rep-save-btn');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+
+  const rec = {
+    event_id:      document.getElementById('culto-rep-event-id').value,
+    presentes,
+    convertidos:   parseInt(document.getElementById('culto-rep-convertidos').value) || 0,
+    pregador,
+    texto_biblico: document.getElementById('culto-rep-texto').value.trim()    || null,
+    diaconos:      document.getElementById('culto-rep-diaconos').value.trim() || null,
+    lideres:       document.getElementById('culto-rep-lideres').value.trim()  || null,
+    talento:       document.getElementById('culto-rep-talento').value.trim()  || null,
+    observacao:    document.getElementById('culto-rep-obs').value.trim()      || null,
+    created_by:    currentUser.email,
+  };
+
+  const id = document.getElementById('culto-rep-id').value;
+  let err;
+  try {
+    if (id) {
+      const r = await DB.from('ibcj_culto_reports').update(rec).eq('id', id);
+      err = r.error;
+    } else {
+      rec.id = uid();
+      const r = await DB.from('ibcj_culto_reports').insert(rec);
+      err = r.error;
+    }
+  } finally {
+    btn.textContent = 'Salvar'; btn.disabled = false;
+  }
+  if (err) { alert('Erro ao salvar: '+err.message); return; }
+  closeCultoRepModal();
+  await loadCultoReports();
+  renderCultosList();
+}
+
+async function deleteCultoRep() {
+  const id = document.getElementById('culto-rep-id').value;
+  if (!id || !confirm('Excluir este relatório? Esta ação não pode ser desfeita.')) return;
+  const { error } = await DB.from('ibcj_culto_reports').delete().eq('id', id);
+  if (error) { alert('Erro ao excluir: '+error.message); return; }
+  closeCultoRepModal();
+  await loadCultoReports();
+  renderCultosList();
+}
+
 // ─── INICIALIZAÇÃO ────────────────────────────────────────────
 checkSess();
 </script>
@@ -3408,6 +3890,151 @@ checkSess();
       <div style="display:flex;gap:8px;margin-left:auto">
         <button class="btn btn-out" onclick="closeMembroModal()">Cancelar</button>
         <button class="btn btn-navy" id="membro-save-btn" onclick="saveMembro()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RELATÓRIO REUNIÃO ADMINISTRATIVA -->
+<div class="mover" id="reuniao-admin-overlay">
+  <div class="modal" style="max-width:740px">
+    <div class="mhdr">
+      <h2 class="mtitle" id="ra-modal-title">Relatório — Reunião Administrativa</h2>
+      <button class="mclose" onclick="closeReunAdminModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="ra-id">
+      <input type="hidden" id="ra-event-id">
+      <div style="background:#e0e7ff;border:1.5px solid #a5b4fc;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#1e3a5f">
+        <strong id="ra-evt-name"></strong>
+        <span style="color:#4338ca;margin-left:8px" id="ra-evt-date"></span>
+      </div>
+
+      <!-- Dados gerais -->
+      <div class="ra-section">
+        <div class="ra-section-title">Dados da Reunião</div>
+        <div class="reg-form-grid">
+          <div class="fgrp">
+            <label>Horário de início *</label>
+            <input type="time" id="ra-horario" required>
+          </div>
+          <div class="fgrp">
+            <label>Quantidade de membros presentes</label>
+            <input type="number" id="ra-membros" min="0" placeholder="0">
+          </div>
+          <div class="fgrp" style="grid-column:1/-1">
+            <label>Leitura bíblica</label>
+            <input type="text" id="ra-leitura" placeholder="Ex: Hebreus 10:24-25">
+          </div>
+          <div class="fgrp" style="grid-column:1/-1">
+            <label>Quem fez a oração inicial</label>
+            <input type="text" id="ra-oracao" placeholder="Nome do responsável">
+          </div>
+          <div class="fgrp" style="grid-column:1/-1">
+            <label>Relatório financeiro da Igreja</label>
+            <textarea id="ra-fin-igreja" rows="3" placeholder="Resumo do relatório financeiro geral da Igreja..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financeiro dos ministérios — com filtro de período -->
+      <div class="ra-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+          <div class="ra-section-title" style="margin-bottom:0">&#128200; Financeiro dos Ministérios</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <label style="font-size:11px;font-weight:700;color:var(--g500)">De</label>
+            <input type="date" id="ra-fin-de" onchange="loadRaFinMin()" style="border:1.5px solid var(--g200);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit">
+            <label style="font-size:11px;font-weight:700;color:var(--g500)">Até</label>
+            <input type="date" id="ra-fin-ate" onchange="loadRaFinMin()" style="border:1.5px solid var(--g200);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit">
+          </div>
+        </div>
+        <div id="ra-fin-ministerios"><p style="color:var(--g400);font-size:12px">Carregando...</p></div>
+      </div>
+
+      <!-- Reunião extraordinária -->
+      <div class="ra-section">
+        <div class="ra-section-title">Tipo da Reunião</div>
+        <div style="display:flex;gap:20px;margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+            <input type="radio" name="ra-extraordinaria" value="nao" id="ra-ext-nao" onchange="toggleVotacoes()" checked> Reunião Ordinária
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+            <input type="radio" name="ra-extraordinaria" value="sim" id="ra-ext-sim" onchange="toggleVotacoes()"> Reunião Extraordinária
+          </label>
+        </div>
+        <div id="ra-votacoes-section" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:700;color:var(--g500)">Pautas votadas</span>
+            <button type="button" class="btn btn-out btn-sm" onclick="addVotacaoRow()">+ Adicionar pauta</button>
+          </div>
+          <div id="ra-votacoes-list"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mftr" style="justify-content:space-between">
+      <button class="btn btn-out" id="ra-del-btn" onclick="deleteReunAdminRep()" style="display:none;color:#dc2626;border-color:#dc2626">&#128465; Excluir</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-out" onclick="closeReunAdminModal()">Cancelar</button>
+        <button class="btn btn-navy" id="ra-save-btn" onclick="saveReunAdminRep()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RELATÓRIO DO CULTO -->
+<div class="mover" id="culto-rep-overlay">
+  <div class="modal" style="max-width:680px">
+    <div class="mhdr">
+      <h2 class="mtitle" id="culto-rep-title">Relatório do Culto</h2>
+      <button class="mclose" onclick="closeCultoRepModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="culto-rep-id">
+      <input type="hidden" id="culto-rep-event-id">
+      <div style="background:#f0f4ff;border:1.5px solid #c7d2fe;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--navy)">
+        <strong id="culto-rep-evt-name"></strong>
+        <span style="color:var(--g500);margin-left:8px" id="culto-rep-evt-date"></span>
+      </div>
+      <div class="reg-form-grid">
+        <div class="fgrp">
+          <label>Quantidade de presentes *</label>
+          <input type="number" id="culto-rep-presentes" min="0" placeholder="0" required>
+        </div>
+        <div class="fgrp">
+          <label>Pessoas convertidas</label>
+          <input type="number" id="culto-rep-convertidos" min="0" placeholder="0">
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Quem foi o pregador(a)? *</label>
+          <input type="text" id="culto-rep-pregador" placeholder="Nome do pregador" required>
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Texto Bíblico lido</label>
+          <input type="text" id="culto-rep-texto" placeholder="Ex: 1 Coríntios 1:1-5">
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Diáconos ausentes</label>
+          <textarea id="culto-rep-diaconos" placeholder="Nome dos diáconos ausentes (opcional)" rows="2"></textarea>
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Líderes de departamento ausentes</label>
+          <textarea id="culto-rep-lideres" placeholder="Nome dos líderes ausentes (opcional)" rows="2"></textarea>
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Talento descoberto (nome, talento e telefone)</label>
+          <textarea id="culto-rep-talento" placeholder="Ex: Maria Silva — canto — (81) 99999-0000" rows="2"></textarea>
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Observação Geral / Fatos relevantes</label>
+          <textarea id="culto-rep-obs" rows="3" placeholder="Anotações gerais sobre o culto..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="mftr" style="justify-content:space-between">
+      <button class="btn btn-out" id="culto-rep-del-btn" onclick="deleteCultoRep()" style="display:none;color:#dc2626;border-color:#dc2626">&#128465; Excluir</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-out" onclick="closeCultoRepModal()">Cancelar</button>
+        <button class="btn btn-navy" id="culto-rep-save-btn" onclick="saveCultoRep()">Salvar</button>
       </div>
     </div>
   </div>
