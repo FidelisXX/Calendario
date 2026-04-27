@@ -169,6 +169,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   #grid-view{display:block!important}
   body.print-lit #lit-print-area{display:block!important;padding:32px}
   body.print-lit *:not(#lit-print-area):not(#lit-print-area *){display:none!important}
+  body.print-fin #fin-print-area{display:block!important;padding:32px}
+  body.print-fin *:not(#fin-print-area):not(#fin-print-area *){display:none!important}
+  body.print-bal #bal-print-area{display:block!important;padding:32px}
+  body.print-bal *:not(#bal-print-area):not(#bal-print-area *){display:none!important}
 }
 
 /* ── LITURGIA PREVIEW ─────────────────────────────────── */
@@ -190,6 +194,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .lp-ftr-logo{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .lp-ftr-txt{line-height:1.5}
 
+/* ── LITURGIA LIST ────────────────────────────────────── */
+.lit-list-row{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--g100);transition:background .12s}
+.lit-list-row:last-child{border-bottom:none}
+.lit-list-row:hover{background:var(--g50)}
+.lit-date-badge{flex-shrink:0;width:48px;background:var(--navy);color:#fff;border-radius:10px;text-align:center;padding:8px 4px}
+.lit-date-badge-day{font-size:20px;font-weight:900;line-height:1}
+.lit-date-badge-mon{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;opacity:.75;margin-top:2px}
+.lit-date-badge-none{flex-shrink:0;width:48px;background:var(--g200);color:var(--g400);border-radius:10px;text-align:center;padding:14px 4px;font-size:18px}
+.lit-list-info{flex:1;min-width:0}
+.lit-list-title{font-size:14px;font-weight:800;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lit-list-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center}
+.lit-list-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--g100);color:var(--g600)}
+.lit-list-chip-ev{background:#ede9fe;color:#7c3aed}
+.lit-list-actions{display:flex;gap:5px;flex-shrink:0}
 /* ── LITURGIA ITEM EDITOR ─────────────────────────────── */
 .lit-item-row{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:10px;overflow:hidden}
 .lit-row-main{display:flex;align-items:center;gap:8px;padding:10px 12px}
@@ -996,7 +1014,9 @@ async function delLiturgiaDB(id) {
   return error;
 }
 async function loadLiturgias() {
-  const { data } = await DB.from('ibcj_liturgias').select('*').order('created_at', {ascending: false});
+  let q = DB.from('ibcj_liturgias').select('*').order('created_at', {ascending: false});
+  if (getRole() === 'lider') q = q.eq('created_by', currentUser.email);
+  const { data } = await q;
   S.liturgias = (data || []).map(l => ({...l, items: l.items || []}));
 }
 
@@ -1759,27 +1779,47 @@ function closeLitList(){ document.getElementById('lit-list-overlay').classList.r
 function renderLitList(){
   const body=document.getElementById('lit-list-body');
   if(!S.liturgias.length){
-    body.innerHTML='<div style="text-align:center;padding:32px;color:var(--g400)"><div style="font-size:36px;margin-bottom:8px">&#128196;</div><p style="font-size:13px">Nenhuma liturgia criada ainda.</p></div>';
+    body.innerHTML='<div style="text-align:center;padding:48px 24px;color:var(--g400)">'
+      +'<div style="font-size:40px;margin-bottom:10px">&#128196;</div>'
+      +'<p style="font-size:14px;font-weight:600">Nenhuma liturgia criada ainda.</p>'
+      +'<p style="font-size:12px;margin-top:4px">Clique em <strong>+ Nova Liturgia</strong> para começar.</p></div>';
     return;
   }
   body.innerHTML='';
   S.liturgias.forEach(function(lit){
     const d=lit.date?new Date(lit.date+'T00:00:00'):null;
     const ev=lit.event_id?S.events.find(e=>e.id===lit.event_id):null;
+    const canManage=hasRole('admin','pastor','secretaria')||lit.created_by===currentUser.email;
     const row=el('div','lit-list-row');
-    row.innerHTML='<div class="lit-list-date"><div class="lit-list-day">'+(d?d.getDate():'--')+'</div>'
-      +'<div class="lit-list-mon">'+(d?MESESC[d.getMonth()]:'')+'</div></div>'
-      +'<div class="lit-list-info"><div class="lit-list-title">'+escH(lit.title)+'</div>'
-      +'<div class="lit-list-meta">'+(lit.time||'')+(ev?' &middot; '+escH(ev.name):'')+'</div></div>'
+    const dateBadge=d
+      ?'<div class="lit-date-badge"><div class="lit-date-badge-day">'+d.getDate()+'</div><div class="lit-date-badge-mon">'+MESESC[d.getMonth()]+'</div></div>'
+      :'<div class="lit-date-badge-none">&#128197;</div>';
+    const statusBadge=lit.status==='pendente'
+      ?'<span class="pending-badge">Pendente</span>'
+      :lit.status==='rejected'
+        ?'<span class="pending-badge" style="background:#fee2e2;color:#dc2626">Rejeitada</span>'
+        :'';
+    const chips=(lit.time?'<span class="lit-list-chip">&#128336; '+escH(lit.time)+'</span>':'')
+      +(ev?'<span class="lit-list-chip lit-list-chip-ev">&#128279; '+escH(ev.name)+'</span>':'');
+    row.innerHTML=dateBadge
+      +'<div class="lit-list-info">'
+        +'<div class="lit-list-title">'+escH(lit.title)+statusBadge+'</div>'
+        +(chips?'<div class="lit-list-meta">'+chips+'</div>':'')
+      +'</div>'
       +'<div class="lit-list-actions">'
-      +'<button class="btn btn-out btn-sm" onclick="openLitView(\''+lit.id+'\')">&#128065; Ver</button> '
-      +'<button class="btn btn-out btn-sm" onclick="closeLitList();openLitModal(\''+lit.id+'\')">&#9999;&#65039;</button> '
-      +'<button class="btn btn-out btn-sm" style="color:var(--red);border-color:var(--red)" onclick="askDelLit(\''+lit.id+'\')">&#128465;</button>'
+        +'<button class="btn btn-out btn-sm" title="Visualizar" onclick="openLitView(\''+lit.id+'\')">&#128065;</button>'
+        +(canManage
+          ?'<button class="btn btn-out btn-sm" title="Editar" onclick="closeLitList();openLitModal(\''+lit.id+'\')">&#9998;</button>'
+           +'<button class="btn btn-sm" title="Excluir" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5" onclick="askDelLit(\''+lit.id+'\')">&#128465;</button>'
+          :'')
       +'</div>';
     body.append(row);
   });
 }
 async function askDelLit(id){
+  const lit=S.liturgias.find(l=>l.id===id);
+  if(!lit) return;
+  if(!hasRole('admin','pastor','secretaria')&&lit.created_by!==currentUser.email) return;
   if(!confirm('Excluir esta liturgia?')) return;
   S.liturgias=S.liturgias.filter(l=>l.id!==id);
   await delLiturgiaDB(id);
@@ -1790,8 +1830,20 @@ function openLitModal(litId,eventId){
   litId=litId||null; eventId=eventId||null;
   litItems=[];
   document.getElementById('lit-id').value=litId||'';
-  document.getElementById('lit-event-id').value=eventId||'';
   document.getElementById('lit-modal-title').textContent=litId?'Editar Liturgia':'Nova Liturgia';
+
+  // Popula o select de eventos
+  const evSel=document.getElementById('lit-event-id');
+  evSel.innerHTML='<option value="">\u2014 Nenhum evento \u2014</option>';
+  const today=new Date().toISOString().slice(0,10);
+  const sortedEvs=[...(S.events||[])].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  sortedEvs.forEach(function(ev){
+    const opt=document.createElement('option');
+    opt.value=ev.id;
+    opt.textContent=fmtDateBR(ev.date)+' \u00b7 '+ev.name;
+    evSel.append(opt);
+  });
+
   if(litId){
     const lit=S.liturgias.find(l=>l.id===litId);
     if(lit){
@@ -1801,11 +1853,13 @@ function openLitModal(litId,eventId){
       document.getElementById('lit-slogan').value=lit.slogan||'';
       document.getElementById('lit-footer').value=lit.footer||'';
       litItems=JSON.parse(JSON.stringify(lit.items||[]));
+      evSel.value=lit.event_id||'';
     }
   } else {
     document.getElementById('lit-title').value='';
     document.getElementById('lit-slogan').value='No Poder do Esp\u00edrito e da Palavra de Deus';
     document.getElementById('lit-footer').value='Rua Em\u00edlio Monteiro Fonseca, 1368 - Ibura, Recife - PE,\nCEP 51240-490  CNPJ 02.783.591/0001-46\nPr. Pres. Lucas Wayney Bezerra';
+    evSel.value=eventId||'';
     if(eventId){
       const ev=S.events.find(e=>e.id===eventId);
       document.getElementById('lit-date').value=ev?ev.date:'';
@@ -1862,17 +1916,23 @@ async function saveLit(){
   if(!title){ alert('Informe o t\u00edtulo do culto.'); return; }
   const id=document.getElementById('lit-id').value||uid();
   const evId=document.getElementById('lit-event-id').value||null;
+  const existing=S.liturgias.find(l=>l.id===id);
+  const newStatus=existing ? (existing.status||'aprovado') : (getRole()==='lider'?'pendente':'aprovado');
   const lit={id,event_id:evId,title,
     date:document.getElementById('lit-date').value,
     time:document.getElementById('lit-time').value.trim(),
     slogan:document.getElementById('lit-slogan').value.trim(),
     footer:document.getElementById('lit-footer').value.trim(),
-    items:litItems.filter(it=>it.desc.trim())};
+    items:litItems.filter(it=>it.desc.trim()),
+    status: newStatus,
+    created_by: existing ? (existing.created_by || currentUser.email) : currentUser.email};
   const idx=S.liturgias.findIndex(l=>l.id===id);
   if(idx!==-1) S.liturgias[idx]=lit; else S.liturgias.unshift(lit);
   await syncLiturgia(lit);
   closeLitModal();
   updateEvtLitBar();
+  updateNotifBadge();
+  if(newStatus==='pendente'&&!existing) alert('Liturgia enviada para aprovação! ✓');
 }
 
 function openLitView(id){
@@ -1880,7 +1940,8 @@ function openLitView(id){
   const lit=S.liturgias.find(l=>l.id===id);
   if(!lit) return;
   document.getElementById('lit-view-body').innerHTML=buildLitHTML(lit);
-  document.getElementById('lit-view-edit-btn').style.display='';
+  const _canEdit=hasRole('admin','pastor','secretaria')||(lit&&lit.created_by===currentUser.email);
+  document.getElementById('lit-view-edit-btn').style.display=_canEdit?'':'none';
   document.getElementById('lit-view-overlay').classList.add('on');
 }
 function closeLitView(){ document.getElementById('lit-view-overlay').classList.remove('on'); litViewingId=null; }
@@ -1925,6 +1986,7 @@ function updateEvtLitBar(){
   const lit=getLitByEvent(evId);
   if(lit){ label.textContent='Liturgia: '+lit.title; btn.textContent='Editar Liturgia'; }
   else { label.textContent='Nenhuma liturgia vinculada'; btn.textContent='Criar Liturgia'; }
+  btn.style.display='';
 }
 
 // ─── FECHAR MODALS AO CLICAR FORA ────────────────────────────
@@ -1961,9 +2023,31 @@ function switchTab(tab) {
 function getPendingEvts() {
   return S.events.filter(e => e.status === 'pendente');
 }
+function getPendingLits() {
+  return (S.liturgias||[]).filter(l => l.status === 'pendente');
+}
+async function approveLit(litId) {
+  if (!canApprove()) return;
+  await DB.from('ibcj_liturgias').update({status:'aprovado'}).eq('id', litId);
+  const l = S.liturgias.find(l=>l.id===litId);
+  if (l) l.status = 'aprovado';
+  updateNotifBadge();
+  renderNotifPanel();
+}
+async function rejectLit(litId) {
+  if (!canApprove()) return;
+  const reason = prompt('Motivo da rejeição (obrigatório):');
+  if (reason === null) return;
+  if (!reason.trim()) { alert('Informe o motivo.'); return; }
+  await DB.from('ibcj_liturgias').update({status:'rejected'}).eq('id', litId);
+  const l = S.liturgias.find(l=>l.id===litId);
+  if (l) l.status = 'rejected';
+  updateNotifBadge();
+  renderNotifPanel();
+}
 function updateNotifBadge() {
   if (!canApprove()) return;
-  const count = getPendingEvts().length;
+  const count = getPendingEvts().length + getPendingLits().length;
   const badge = document.getElementById('bell-badge');
   badge.textContent = count;
   badge.classList.toggle('on', count > 0);
@@ -1976,23 +2060,48 @@ function toggleNotifPanel() {
 }
 function renderNotifPanel() {
   const list = document.getElementById('notif-list');
-  const pending = getPendingEvts();
-  if (!pending.length) {
-    list.innerHTML = '<div class="notif-empty">Nenhum evento pendente &#10003;</div>';
+  const pendingEvts = getPendingEvts();
+  const pendingLits = getPendingLits();
+  if (!pendingEvts.length && !pendingLits.length) {
+    list.innerHTML = '<div class="notif-empty">Nada pendente de aprovação &#10003;</div>';
     return;
   }
   list.innerHTML = '';
-  pending.forEach(ev => {
-    const item = document.createElement('div');
-    item.className = 'notif-item';
-    item.innerHTML = '<div class="notif-title">' + escH(ev.name) + '</div>'
-      + '<div class="notif-sub">' + fmtBR(ev.date) + (ev.start?' &bull; '+ev.start:'') + ' &bull; por ' + escH(ev.created_by||'?') + '</div>'
-      + '<div class="notif-actions">'
-      + '<button class="btn btn-sm btn-navy" onclick="openApprovalModal(\''+ev.id+'\',\'aprovado\');toggleNotifPanel()">Aprovar</button>'
-      + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="openApprovalModal(\''+ev.id+'\',\'rejected\');toggleNotifPanel()">Rejeitar</button>'
-      + '</div>';
-    list.append(item);
-  });
+  if (pendingEvts.length) {
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'padding:8px 16px 4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--g400)';
+    hdr.textContent = 'Eventos';
+    list.append(hdr);
+    pendingEvts.forEach(ev => {
+      const item = document.createElement('div');
+      item.className = 'notif-item';
+      item.innerHTML = '<div class="notif-title">' + escH(ev.name) + '</div>'
+        + '<div class="notif-sub">' + fmtBR(ev.date) + (ev.start?' &bull; '+ev.start:'') + ' &bull; por ' + escH(ev.created_by||'?') + '</div>'
+        + '<div class="notif-actions">'
+        + '<button class="btn btn-sm btn-navy" onclick="openApprovalModal(\''+ev.id+'\',\'aprovado\');toggleNotifPanel()">Aprovar</button>'
+        + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="openApprovalModal(\''+ev.id+'\',\'rejected\');toggleNotifPanel()">Rejeitar</button>'
+        + '</div>';
+      list.append(item);
+    });
+  }
+  if (pendingLits.length) {
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'padding:8px 16px 4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--g400);border-top:'+(pendingEvts.length?'1px solid var(--g100)':'none');
+    hdr.textContent = 'Liturgias';
+    list.append(hdr);
+    pendingLits.forEach(lit => {
+      const item = document.createElement('div');
+      item.className = 'notif-item';
+      item.innerHTML = '<div class="notif-title">&#128196; ' + escH(lit.title) + '</div>'
+        + '<div class="notif-sub">' + (lit.date?fmtDateBR(lit.date):'Sem data') + (lit.time?' &bull; '+escH(lit.time):'') + ' &bull; por ' + escH(lit.created_by||'?') + '</div>'
+        + '<div class="notif-actions">'
+        + '<button class="btn btn-sm btn-navy" onclick="approveLit(\''+lit.id+'\')">Aprovar</button>'
+        + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="rejectLit(\''+lit.id+'\')">Rejeitar</button>'
+        + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openLitView(\''+lit.id+'\')">&#128065; Ver</button>'
+        + '</div>';
+      list.append(item);
+    });
+  }
 }
 // Fechar notif ao clicar fora
 document.addEventListener('click', e => {
@@ -2345,7 +2454,13 @@ function kpi(color, icon, label, val, sub) {
     + '</div>';
 }
 
+var _balReports = {};
+var _balMinReports = {};
+var _finSaveCallback = null;
+
 async function renderBalanceamento() {
+  _balReports = {};
+  _balMinReports = {};
   const cont = document.getElementById('bal-content');
   cont.innerHTML = '<p style="text-align:center;color:var(--g400);padding:30px 0">Carregando...</p>';
 
@@ -2403,6 +2518,8 @@ async function renderBalanceamento() {
     const minBal     = minEntrada - minSaida;
     const cardId     = 'bal-min-'+minId.replace(/[^a-z0-9]/gi,'_');
 
+    _balMinReports[minId] = { nome: minNome, reps: repsComAcum };
+
     html += '<div class="bal-min-card">'
       + '<div class="bal-min-hdr" onclick="toggleBalMin(\''+cardId+'\')">'
         + '<div class="bal-min-name">'+escH(minNome)+'</div>'
@@ -2410,11 +2527,14 @@ async function renderBalanceamento() {
           + '<span class="fin-chip fin-chip-in">&#8593; '+fmtMoney(minEntrada)+'</span>'
           + '<span class="fin-chip fin-chip-out">&#8595; '+fmtMoney(minSaida)+'</span>'
           + '<span class="fin-chip" style="background:'+(minBal>=0?'#dcfce7':'#fee2e2')+';color:'+(minBal>=0?'#15803d':'#dc2626')+'">Caixa '+fmtMoney(minBal)+'</span>'
+          + '<button onclick="event.stopPropagation();exportBalMinCSV(\''+minId+'\')" title="Baixar Excel" style="font-size:11px;background:var(--g100);border:1.5px solid var(--g200);border-radius:6px;padding:2px 8px;cursor:pointer;font-family:inherit;font-weight:700;color:var(--g600)">&#128196; Excel</button>'
+          + '<button onclick="event.stopPropagation();exportBalMinPDF(\''+minId+'\')" title="Baixar PDF" style="font-size:11px;background:var(--navy);color:#fff;border:none;border-radius:6px;padding:2px 8px;cursor:pointer;font-family:inherit;font-weight:700">&#11015; PDF</button>'
           + '<span style="font-size:13px;color:var(--g400)">&#9660;</span>'
         + '</div>'
       + '</div>'
       + '<div class="bal-min-body" id="'+cardId+'">'
         + repsComAcum.map(r => {
+            _balReports[r.id] = r;
             const items = typeof r.items==='string' ? JSON.parse(r.items||'[]') : (r.items||[]);
             const balPer = (r.income_total||0) - (r.expense_total||0);
             const per = fmtDateBR(r.period_start) + ' – ' + fmtDateBR(r.period_end);
@@ -2433,6 +2553,7 @@ async function renderBalanceamento() {
                   + '<span class="fin-chip fin-chip-out" style="font-size:11px">&#8595; '+fmtMoney(r.expense_total||0)+'</span>'
                   + '<span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:'+(balPer>=0?'#dcfce7':'#fee2e2')+';color:'+(balPer>=0?'#15803d':'#dc2626')+'">Período '+fmtMoney(balPer)+'</span>'
                   + '<span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:'+(r._acum>=0?'#dbeafe':'#fee2e2')+';color:'+(r._acum>=0?'#1d4ed8':'#dc2626')+'">Caixa '+fmtMoney(r._acum)+'</span>'
+                  + (hasRole('admin','pastor','secretaria') ? '<button class="btn btn-out btn-sm" onclick="openFinancialModalBal(\''+r.id+'\')" title="Editar relatório" style="font-size:11px;padding:2px 9px">&#9998;</button>' : '')
                 + '</div>'
               + '</div>';
 
@@ -2491,6 +2612,80 @@ function toggleBalMin(cardId) {
   // Gira o ícone de seta
   const arrow = body.previousElementSibling?.querySelector('span:last-child');
   if (arrow) arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function openFinancialModalBal(repId) {
+  const rep = _balReports[repId];
+  if (!rep) return;
+  S.financialReports = [rep];
+  S.currentMinisterioId = rep.ministerio_id;
+  _finSaveCallback = function() { _finSaveCallback = null; renderBalanceamento(); };
+  openFinancialModal(repId);
+}
+
+function exportBalMinPDF(minId) {
+  const entry = _balMinReports[minId];
+  if (!entry) return;
+  const { nome, reps } = entry;
+  let html = '<div style="font-family:\'Segoe UI\',sans-serif;max-width:720px;margin:0 auto;color:#000">';
+  html += '<div style="text-align:center;border-bottom:3px solid #1a2744;padding-bottom:14px;margin-bottom:22px">'
+    + '<div style="font-size:18px;font-weight:900;color:#1a2744">IBCJ — RELATÓRIO FINANCEIRO</div>'
+    + '<div style="font-size:15px;font-weight:700;color:#4b5563;margin-top:4px">'+escH(nome)+'</div>'
+    + '</div>';
+  reps.forEach(r => {
+    const items    = typeof r.items==='string' ? JSON.parse(r.items||'[]') : (r.items||[]);
+    const entradas = items.filter(i => i.type==='entrada');
+    const saidas   = items.filter(i => i.type==='saida');
+    const balPer   = (r.income_total||0) - (r.expense_total||0);
+    html += '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin-bottom:14px;break-inside:avoid">';
+    html += '<div style="font-weight:800;font-size:13px;color:#1a2744;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid #e5e7eb">'
+      + escH(fmtDateBR(r.period_start))+' — '+escH(fmtDateBR(r.period_end))
+      + '<span style="float:right;font-size:12px;font-weight:700;color:'+(balPer>=0?'#15803d':'#dc2626')+'">Saldo: '+fmtMoney(balPer)+'</span>'
+      + (r.notes ? '<div style="font-size:11px;color:#6b7280;font-weight:400;margin-top:2px">'+escH(r.notes)+'</div>' : '')
+      + '</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+    if (entradas.length) {
+      html += '<tr><td colspan="2" style="padding:4px 0;font-weight:800;color:#166534;font-size:11px">&#8593; ENTRADAS</td></tr>';
+      entradas.forEach(i => { html += '<tr><td style="padding:3px 0;border-bottom:1px solid #f3f4f6">'+escH(i.description||'—')+'</td><td style="padding:3px 0;border-bottom:1px solid #f3f4f6;text-align:right;color:#15803d;font-weight:600">'+fmtMoney(i.amount||0)+'</td></tr>'; });
+      html += '<tr><td style="padding:5px 0;font-weight:700">Total Entradas</td><td style="padding:5px 0;text-align:right;font-weight:700;color:#15803d">'+fmtMoney(r.income_total||0)+'</td></tr>';
+    }
+    if (saidas.length) {
+      html += '<tr><td colspan="2" style="padding:4px 0;font-weight:800;color:#991b1b;font-size:11px">&#8595; SAÍDAS</td></tr>';
+      saidas.forEach(i => { html += '<tr><td style="padding:3px 0;border-bottom:1px solid #f3f4f6">'+escH(i.description||'—')+'</td><td style="padding:3px 0;border-bottom:1px solid #f3f4f6;text-align:right;color:#dc2626;font-weight:600">'+fmtMoney(i.amount||0)+'</td></tr>'; });
+      html += '<tr><td style="padding:5px 0;font-weight:700">Total Saídas</td><td style="padding:5px 0;text-align:right;font-weight:700;color:#dc2626">'+fmtMoney(r.expense_total||0)+'</td></tr>';
+    }
+    html += '<tr style="border-top:2px solid #1a2744"><td style="padding:6px 0;font-weight:900">Caixa acumulado</td><td style="padding:6px 0;text-align:right;font-weight:900;color:'+(r._acum>=0?'#1d4ed8':'#dc2626')+'">'+fmtMoney(r._acum)+'</td></tr>';
+    html += '</table></div>';
+  });
+  html += '<div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:16px;padding-top:12px;border-top:1px solid #e5e7eb">Gerado em '+new Date().toLocaleDateString('pt-BR')+'</div>';
+  html += '</div>';
+  document.getElementById('bal-print-area').innerHTML = html;
+  document.body.classList.add('print-bal');
+  window.print();
+  document.body.classList.remove('print-bal');
+}
+
+function exportBalMinCSV(minId) {
+  const entry = _balMinReports[minId];
+  if (!entry) return;
+  const { nome, reps } = entry;
+  const csvEsc = v => '"'+String(v||'').replace(/"/g,'""')+'"';
+  const rows = [['Período De','Período Até','Tipo','Descrição','Valor','Total Entradas','Total Saídas','Saldo Período','Caixa Acumulado']];
+  reps.forEach(r => {
+    const items = typeof r.items==='string' ? JSON.parse(r.items||'[]') : (r.items||[]);
+    if (items.length) {
+      items.forEach(i => {
+        rows.push([r.period_start, r.period_end, i.type==='entrada'?'Entrada':'Saída', i.description||'', String(i.amount||0).replace('.',','), '', '', '', '']);
+      });
+    }
+    const balPer = (r.income_total||0) - (r.expense_total||0);
+    rows.push([r.period_start, r.period_end, '', 'TOTAIS', '', String(r.income_total||0).replace('.',','), String(r.expense_total||0).replace('.',','), String(balPer).replace('.',','), String(r._acum||0).replace('.',',')]);
+  });
+  const csv = '﻿' + rows.map(r => r.map(csvEsc).join(';')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'Relatorio_'+nome.replace(/[^a-zA-Z0-9]/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
 }
 
 // ─── NOTAS DO GABINETE ────────────────────────────────────────
@@ -2744,7 +2939,13 @@ async function saveFinancialReport() {
   btn.textContent = 'Salvar Relatório'; btn.disabled = false;
   if (err) { alert('Erro ao salvar: '+err.message); return; }
   closeFinancialModal();
-  await renderFinancialReports();
+  if (_finSaveCallback) {
+    const cb = _finSaveCallback;
+    _finSaveCallback = null;
+    await cb();
+  } else {
+    await renderFinancialReports();
+  }
 }
 async function deleteFinancialReport(id) {
   if (!confirm('Excluir este relatório financeiro?')) return;
@@ -2794,8 +2995,9 @@ async function renderFinancialReports() {
         + '</div>'
       + '</div>'
       + '<div style="display:flex;gap:6px">'
-      + '<button class="btn btn-out btn-sm" onclick="openFinancialModal(\''+rep.id+'\')">&#9998;</button>'
-      + '<button class="btn btn-out btn-sm" style="color:var(--red);border-color:var(--red)" onclick="deleteFinancialReport(\''+rep.id+'\')">&#128465;</button>'
+      + '<button class="btn btn-out btn-sm" onclick="openFinancialView(\''+rep.id+'\')" title="Visualizar">&#128065;</button>'
+      + '<button class="btn btn-out btn-sm" onclick="openFinancialModal(\''+rep.id+'\')" title="Editar">&#9998;</button>'
+      + '<button class="btn btn-out btn-sm" style="color:var(--red);border-color:var(--red)" onclick="deleteFinancialReport(\''+rep.id+'\')" title="Excluir">&#128465;</button>'
       + '</div></div>'
       + '<div class="fin-card-chips">'
       + '<span class="fin-chip fin-chip-in">&#8593; '+fmtMoney(rep.income_total||0)+'</span>'
@@ -2815,6 +3017,123 @@ async function renderFinancialReports() {
         }).join('')+'</div>':'')
       + '</div>';
   }).join('');
+}
+
+// ─── VISUALIZAR RELATÓRIO FINANCEIRO ─────────────────────────
+var _finViewId = null;
+
+function openFinancialView(reportId) {
+  _finViewId = reportId;
+  const rep = (S.financialReports||[]).find(r => r.id === reportId);
+  if (!rep) return;
+  document.getElementById('fin-view-body').innerHTML = buildFinViewHTML(rep);
+  document.getElementById('fin-view-overlay').classList.add('on');
+}
+
+function closeFinancialView() {
+  document.getElementById('fin-view-overlay').classList.remove('on');
+  _finViewId = null;
+}
+
+function buildFinViewHTML(rep) {
+  const items = typeof rep.items === 'string' ? JSON.parse(rep.items||'[]') : (rep.items||[]);
+  const entradas = items.filter(i => i.type === 'entrada');
+  const saidas   = items.filter(i => i.type === 'saida');
+  const imgs     = items.filter(i => i.image_url);
+  const balPer   = (rep.income_total||0) - (rep.expense_total||0);
+  let html = '<div>';
+  html += '<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Período</div>'
+    + '<div style="font-size:15px;font-weight:800;color:var(--navy)">'+escH(fmtDateBR(rep.period_start))+' — '+escH(fmtDateBR(rep.period_end))+'</div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px">'
+    + '<div style="background:#dcfce7;border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;font-weight:700;color:#166534;text-transform:uppercase;margin-bottom:3px">Entradas</div><div style="font-size:18px;font-weight:900;color:#15803d">'+fmtMoney(rep.income_total||0)+'</div></div>'
+    + '<div style="background:#fee2e2;border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;font-weight:700;color:#991b1b;text-transform:uppercase;margin-bottom:3px">Saídas</div><div style="font-size:18px;font-weight:900;color:#dc2626">'+fmtMoney(rep.expense_total||0)+'</div></div>'
+    + '<div style="background:'+(balPer>=0?'#dbeafe':'#fee2e2')+';border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;font-weight:700;color:'+(balPer>=0?'#1e40af':'#991b1b')+';text-transform:uppercase;margin-bottom:3px">Saldo</div><div style="font-size:18px;font-weight:900;color:'+(balPer>=0?'#1d4ed8':'#dc2626')+'">'+fmtMoney(balPer)+'</div></div>'
+    + '</div>';
+  if (entradas.length) {
+    html += '<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1.5px solid #dcfce7">&#8593; Entradas</div>'
+      + entradas.map(i => '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--g100)"><span style="color:var(--g700)">'+escH(i.description||'—')+'</span><span style="font-weight:700;color:#15803d">'+fmtMoney(i.amount||0)+'</span></div>').join('')
+      + '</div>';
+  }
+  if (saidas.length) {
+    html += '<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1.5px solid #fee2e2">&#8595; Saídas</div>'
+      + saidas.map(i => '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--g100)"><span style="color:var(--g700)">'+escH(i.description||'—')+'</span><span style="font-weight:700;color:#dc2626">'+fmtMoney(i.amount||0)+'</span></div>').join('')
+      + '</div>';
+  }
+  if (rep.notes) {
+    html += '<div style="background:var(--g50);border-radius:8px;padding:10px 12px;margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:var(--g500);margin-bottom:3px">Observações</div><div style="font-size:13px;color:var(--g700)">'+escH(rep.notes)+'</div></div>';
+  }
+  if (imgs.length) {
+    html += '<div><div style="font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Comprovantes</div><div style="display:flex;gap:8px;flex-wrap:wrap">';
+    imgs.forEach((i, idx) => {
+      const safeName = encodeURIComponent((i.description||('comprovante-'+(idx+1))).replace(/[^a-zA-Z0-9\-_]/g,'_'));
+      html += '<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
+        + '<a href="'+i.image_url+'" target="_blank"><img src="'+i.image_url+'" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid var(--g200)" loading="lazy"></a>'
+        + '<div style="display:flex;gap:3px">'
+        + '<a href="'+i.image_url+'" target="_blank" style="font-size:10px;color:var(--navy);text-decoration:none;background:var(--g100);border-radius:4px;padding:2px 6px">&#128065;</a>'
+        + '<button onclick="downloadComprovante(\''+i.image_url+'\',\''+safeName+'\')" style="font-size:10px;background:var(--navy);color:#fff;border:none;border-radius:4px;padding:2px 6px;cursor:pointer">&#8595;</button>'
+        + '</div></div>';
+    });
+    html += '</div></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function exportFinPDF() {
+  if (!_finViewId) return;
+  const rep = (S.financialReports||[]).find(r => r.id === _finViewId);
+  if (!rep) return;
+  const minName = (S.ministerios||[]).find(m => m.id === rep.ministerio_id)?.name || 'Ministério';
+  const items   = typeof rep.items === 'string' ? JSON.parse(rep.items||'[]') : (rep.items||[]);
+  const entradas = items.filter(i => i.type === 'entrada');
+  const saidas   = items.filter(i => i.type === 'saida');
+  const balPer   = (rep.income_total||0) - (rep.expense_total||0);
+  let html = '<div style="font-family:\'Segoe UI\',sans-serif;max-width:640px;margin:0 auto;color:#000">';
+  html += '<div style="text-align:center;border-bottom:3px solid #1a2744;padding-bottom:14px;margin-bottom:22px">'
+    + '<div style="font-size:18px;font-weight:900;color:#1a2744">IBCJ — RELATÓRIO FINANCEIRO</div>'
+    + '<div style="font-size:14px;font-weight:700;color:#4b5563;margin-top:4px">'+escH(minName)+'</div>'
+    + '<div style="font-size:12px;color:#6b7280;margin-top:3px">'+escH(fmtDateBR(rep.period_start))+' a '+escH(fmtDateBR(rep.period_end))+'</div>'
+    + '</div>';
+  html += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px">';
+  html += '<tr style="background:#1a2744"><th style="color:#fff;padding:8px 12px;text-align:left;font-size:12px">Descrição</th><th style="color:#fff;padding:8px 12px;text-align:right;font-size:12px">Valor</th></tr>';
+  if (entradas.length) {
+    html += '<tr><td colspan="2" style="padding:6px 12px;font-weight:800;font-size:12px;background:#dcfce7;color:#166534">&#8593; ENTRADAS</td></tr>';
+    entradas.forEach(i => { html += '<tr><td style="padding:6px 12px;font-size:13px;border-bottom:1px solid #f3f4f6">'+escH(i.description||'—')+'</td><td style="padding:6px 12px;font-size:13px;text-align:right;font-weight:600;color:#15803d;border-bottom:1px solid #f3f4f6">'+fmtMoney(i.amount||0)+'</td></tr>'; });
+  }
+  if (saidas.length) {
+    html += '<tr><td colspan="2" style="padding:6px 12px;font-weight:800;font-size:12px;background:#fee2e2;color:#991b1b">&#8595; SAÍDAS</td></tr>';
+    saidas.forEach(i => { html += '<tr><td style="padding:6px 12px;font-size:13px;border-bottom:1px solid #f3f4f6">'+escH(i.description||'—')+'</td><td style="padding:6px 12px;font-size:13px;text-align:right;font-weight:600;color:#dc2626;border-bottom:1px solid #f3f4f6">'+fmtMoney(i.amount||0)+'</td></tr>'; });
+  }
+  html += '<tr style="border-top:2px solid #1a2744"><td style="padding:10px 12px;font-weight:900;font-size:14px">TOTAL ENTRADAS</td><td style="padding:10px 12px;font-weight:900;font-size:14px;text-align:right;color:#15803d">'+fmtMoney(rep.income_total||0)+'</td></tr>';
+  html += '<tr><td style="padding:10px 12px;font-weight:900;font-size:14px">TOTAL SAÍDAS</td><td style="padding:10px 12px;font-weight:900;font-size:14px;text-align:right;color:#dc2626">'+fmtMoney(rep.expense_total||0)+'</td></tr>';
+  html += '<tr style="background:'+(balPer>=0?'#dcfce7':'#fee2e2')+'"><td style="padding:10px 12px;font-weight:900;font-size:14px">SALDO DO PERÍODO</td><td style="padding:10px 12px;font-weight:900;font-size:14px;text-align:right;color:'+(balPer>=0?'#15803d':'#dc2626')+'">'+fmtMoney(balPer)+'</td></tr>';
+  html += '</table>';
+  if (rep.notes) html += '<div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;margin-bottom:16px"><div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:4px">OBSERVAÇÕES</div><div style="font-size:13px">'+escH(rep.notes)+'</div></div>';
+  html += '<div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:20px;padding-top:14px;border-top:1px solid #e5e7eb">Gerado em '+new Date().toLocaleDateString('pt-BR')+'</div>';
+  html += '</div>';
+  document.getElementById('fin-print-area').innerHTML = html;
+  document.body.classList.add('print-fin');
+  window.print();
+  document.body.classList.remove('print-fin');
+}
+
+function exportFinCSV() {
+  if (!_finViewId) return;
+  const rep = (S.financialReports||[]).find(r => r.id === _finViewId);
+  if (!rep) return;
+  const minName = (S.ministerios||[]).find(m => m.id === rep.ministerio_id)?.name || 'Ministerio';
+  const items   = typeof rep.items === 'string' ? JSON.parse(rep.items||'[]') : (rep.items||[]);
+  const csvEsc  = v => '"'+String(v||'').replace(/"/g,'""')+'"';
+  const rows    = [['Tipo','Descrição','Valor']];
+  items.forEach(i => rows.push([i.type==='entrada'?'Entrada':'Saída', i.description||'', String(i.amount||0).replace('.',',')]));
+  rows.push(['','Total Entradas', String(rep.income_total||0).replace('.',',')]);
+  rows.push(['','Total Saídas',   String(rep.expense_total||0).replace('.',',')]);
+  rows.push(['','Saldo',          String((rep.income_total||0)-(rep.expense_total||0)).replace('.',',')]);
+  const csv = '﻿' + rows.map(r => r.map(csvEsc).join(';')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'Relatorio_'+minName.replace(/[^a-zA-Z0-9]/g,'_')+'_'+rep.period_start+'.csv';
+  a.click();
 }
 
 // ─── COMPARTILHAR MINISTÉRIO ──────────────────────────────────
@@ -3727,7 +4046,7 @@ checkSess();
     <div class="mbody" id="lit-list-body" style="min-height:120px"></div>
     <div class="mftr">
       <button class="btn btn-out" onclick="closeLitList()">Fechar</button>
-      <button class="btn btn-navy" onclick="closeLitList();openLitModal()">+ Nova Liturgia</button>
+      <button class="btn btn-navy" id="lit-nova-btn" onclick="closeLitList();openLitModal()">+ Nova Liturgia</button>
     </div>
   </div>
 </div>
@@ -3754,6 +4073,10 @@ checkSess();
           <input type="text" id="lit-time" placeholder="Ex: 18H30">
         </div>
         <div class="fgrp" style="grid-column:1/-1">
+          <label>Evento vinculado</label>
+          <select id="lit-event-id"><option value="">— Nenhum evento —</option></select>
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
           <label>Slogan</label>
           <input type="text" id="lit-slogan">
         </div>
@@ -3772,7 +4095,6 @@ checkSess();
     </div>
     <div class="mftr">
       <input type="hidden" id="lit-id">
-      <input type="hidden" id="lit-event-id">
       <button class="btn btn-out" onclick="closeLitModal()">Cancelar</button>
       <button class="btn btn-out" onclick="previewLit()">&#128065; Visualizar</button>
       <button class="btn btn-navy" onclick="saveLit()">Salvar</button>
@@ -3798,6 +4120,9 @@ checkSess();
 
 <!-- ÁREA DE IMPRESSÃO DA LITURGIA -->
 <div id="lit-print-area" style="display:none"></div>
+<!-- ÁREAS DE IMPRESSÃO FINANCEIRO / BALANCEAMENTO -->
+<div id="fin-print-area" style="display:none"></div>
+<div id="bal-print-area" style="display:none"></div>
 
 <!-- MODAL: NOVO MINISTÉRIO -->
 <div class="mover" id="min-overlay">
@@ -4012,6 +4337,22 @@ checkSess();
     <div class="mftr">
       <button class="btn btn-out" onclick="closeFinancialModal()">Cancelar</button>
       <button class="btn btn-navy" id="fin-save-btn" onclick="saveFinancialReport()">Salvar Relatório</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: VISUALIZAR RELATÓRIO FINANCEIRO -->
+<div class="mover" id="fin-view-overlay">
+  <div class="modal" style="max-width:620px">
+    <div class="mhdr">
+      <h2 class="mtitle">&#128200; Relatório Financeiro</h2>
+      <button class="mclose" onclick="closeFinancialView()">&#215;</button>
+    </div>
+    <div class="mbody" id="fin-view-body"></div>
+    <div class="mftr">
+      <button class="btn btn-out" onclick="closeFinancialView()">Fechar</button>
+      <button class="btn btn-out" onclick="exportFinCSV()">&#128196; Excel</button>
+      <button class="btn btn-navy" onclick="exportFinPDF()">&#11015; Baixar PDF</button>
     </div>
   </div>
 </div>
