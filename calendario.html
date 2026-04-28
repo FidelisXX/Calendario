@@ -96,6 +96,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .mevlist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .mevlist-txt{font-size:10px;color:var(--g800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4}
 .mevlist-more{font-size:10px;color:var(--g400);padding:2px 3px;font-style:italic}
+.mevlist-hidden{display:none}
 
 /* ── LEGEND ── */
 .legend{display:flex;flex-wrap:wrap;gap:10px;padding:14px 24px;background:#fff;border-top:1px solid var(--g200)}
@@ -173,6 +174,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   body.print-fin *:not(#fin-print-area):not(#fin-print-area *){display:none!important}
   body.print-bal #bal-print-area{display:block!important;padding:32px}
   body.print-bal *:not(#bal-print-area):not(#bal-print-area *){display:none!important}
+  body.print-diac #diac-print-area{display:block!important;padding:32px}
+  body.print-diac *:not(#diac-print-area):not(#diac-print-area *){display:none!important}
+  .mevlist-hidden{display:flex!important}
+  .mevlist-more{display:none!important}
 }
 
 /* ── LITURGIA PREVIEW ─────────────────────────────────── */
@@ -577,6 +582,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         </div>
       </div>
       <button class="btn btn-out" style="color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.25)" onclick="openLitList()">&#128196; Liturgias</button>
+      <button class="btn btn-out" style="color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.25)" onclick="openDiacList()">&#128203; Serviço Diaconal</button>
       <button class="btn btn-gold" id="btn-novo-evento" onclick="openEvtModal()">+ Novo Evento</button>
       <!-- Gestão de usuários (admin) -->
       <button class="btn btn-out btn-sm" id="btn-admin-users" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2);display:none" onclick="openAdminUsers()">&#9881; Usuários</button>
@@ -842,7 +848,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         <div class="fgrp">
           <label>Data *</label>
           <input type="text" id="ef-date" placeholder="dd/mm/aaaa" maxlength="10" required
-            oninput="maskDateInput(this)" onchange="checkCflt()">
+            oninput="maskDateInput(this)" onchange="checkCflt();updateRecHint()">
         </div>
         <div class="trow">
           <div class="fgrp">
@@ -876,11 +882,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         </div>
         <div class="fgrp">
           <label>Recorrência</label>
-          <select id="ef-rec">
+          <select id="ef-rec" onchange="updateRecHint()">
             <option value="unique">Único</option>
-            <option value="monthly">Mensal (mesmo dia, todos os meses do ano)</option>
+            <option value="weekly">Semanal (mesmo dia da semana)</option>
+            <option value="monthly">Mensal (mesmo dia da semana do mês)</option>
             <option value="annual">Anual (mesma data todo ano)</option>
           </select>
+          <div id="rec-hint" style="font-size:11px;color:var(--g500);margin-top:5px;display:none"></div>
         </div>
       </form>
     </div>
@@ -1019,6 +1027,20 @@ async function loadLiturgias() {
   const { data } = await q;
   S.liturgias = (data || []).map(l => ({...l, items: l.items || []}));
 }
+async function loadDiaconal() {
+  let q = DB.from('ibcj_diaconal').select('*').order('created_at', {ascending: false});
+  if (getRole() === 'lider') q = q.eq('created_by', currentUser.email);
+  const { data } = await q;
+  S.diaconal = (data || []).map(d => ({...d, items: d.items || []}));
+}
+async function syncDiaconal(diac) {
+  const { error } = await DB.from('ibcj_diaconal').upsert(diac);
+  return error;
+}
+async function delDiaconalDB(id) {
+  const { error } = await DB.from('ibcj_diaconal').delete().eq('id', id);
+  return error;
+}
 
 // ─── STATE ────────────────────────────────────────────────────
 let currentUser = null;
@@ -1030,6 +1052,7 @@ let S = {
   dayDate: null,
   delId: null,
   liturgias: [],
+  diaconal: [],
   ministerios: [],
   currentMinisterioId: null,
   registros: [],
@@ -1327,7 +1350,7 @@ async function showApp(user) {
     document.getElementById('opt-cat-reuniao-admin').style.display = '';
   }
 
-  await Promise.all([loadEvts(), loadLiturgias()]);
+  await Promise.all([loadEvts(), loadLiturgias(), loadDiaconal()]);
   updateNotifBadge();
   render();
 }
@@ -1409,10 +1432,10 @@ function renderGrid() {
     if (mEvs.length > 0) {
       const evList = el('div','mevlist');
       const limit = 5;
-      mEvs.slice(0, limit).forEach(ev => {
+      mEvs.forEach((ev, i) => {
         const cat = CATS[ev.cat]||CATS['Outro'];
         const day = String(parseInt(ev.date.split('-')[2])).padStart(2,'0');
-        const it = el('div','mevlist-item');
+        const it = el('div', i < limit ? 'mevlist-item' : 'mevlist-item mevlist-hidden');
         it.title = ev.name + (ev.start?' · '+ev.start:'');
         const dot = el('span','mevlist-dot'); dot.style.background = cat.c;
         const txt = el('span','mevlist-txt');
@@ -1547,6 +1570,7 @@ function openEvtModal(id=null, prefill=null) {
   }
   document.getElementById('evt-overlay').classList.add('on');
   updateEvtLitBar();
+  updateRecHint();
 }
 function closeEvtModal() { document.getElementById('evt-overlay').classList.remove('on'); }
 
@@ -1573,13 +1597,65 @@ async function saveEvt(e) {
     if (!error) {
       const idx = S.events.findIndex(ev=>ev.id===id);
       if (idx !== -1) S.events[idx] = ev;
+      // Se mudou para recorrência, gera as novas ocorrências
+      const oldRec = existing?.rec || 'unique';
+      if (rec !== 'unique' && rec !== oldRec) {
+        const status = existing?.status || 'aprovado';
+        const created_by = existing?.created_by || currentUser.email;
+        const toInsert = [];
+        if (rec === 'weekly') {
+          const y = +date.split('-')[0];
+          const wd = new Date(date + 'T00:00:00').getDay();
+          const jan1wd = new Date(y, 0, 1).getDay();
+          let offset = wd - jan1wd; if (offset < 0) offset += 7;
+          let cur = new Date(y, 0, 1 + offset);
+          while (cur.getFullYear() === y) {
+            const nd = fmtISO(cur.getFullYear(), cur.getMonth()+1, cur.getDate());
+            if (nd !== date && !S.events.find(ev=>ev.date===nd&&ev.name===name))
+              toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'weekly', status, created_by});
+            cur.setDate(cur.getDate() + 7);
+          }
+        } else if (rec === 'annual') {
+          const md = date.slice(5);
+          for (let y = S.year; y <= S.year+9; y++) {
+            const nd = y+'-'+md;
+            if (nd !== date && !S.events.find(ev=>ev.date===nd&&ev.name===name))
+              toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'annual', status, created_by});
+          }
+        } else if (rec === 'monthly') {
+          const y = +date.split('-')[0];
+          const { weekday, n, isLast } = getMonthlyRecInfo(date);
+          for (let mo = 1; mo <= 12; mo++) {
+            const nd = isLast ? getLastWeekdayInMonth(y, mo, weekday) : getNthWeekdayInMonth(y, mo, weekday, n);
+            if (nd && nd !== date && !S.events.find(ev=>ev.date===nd&&ev.name===name))
+              toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'monthly', status, created_by});
+          }
+        }
+        if (toInsert.length) {
+          const { error: insErr } = await DB.from('ibcj_events').insert(toInsert.map(evtToDb));
+          if (!insErr) S.events.push(...toInsert);
+        }
+      }
     }
   } else {
     const isPending = getRole() === 'lider';
     const status = isPending ? 'pendente' : 'aprovado';
     const created_by = currentUser.email;
     const toInsert = [{id:uid(), name, date, start, end, cat, desc, rec, status, created_by}];
-    if (rec === 'annual') {
+    if (rec === 'weekly') {
+      const y = +date.split('-')[0];
+      const wd = new Date(date + 'T00:00:00').getDay();
+      const jan1wd = new Date(y, 0, 1).getDay();
+      let offset = wd - jan1wd;
+      if (offset < 0) offset += 7;
+      let cur = new Date(y, 0, 1 + offset);
+      while (cur.getFullYear() === y) {
+        const nd = fmtISO(cur.getFullYear(), cur.getMonth()+1, cur.getDate());
+        if (nd !== date && !S.events.find(ev=>ev.date===nd&&ev.name===name))
+          toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'weekly', status, created_by});
+        cur.setDate(cur.getDate() + 7);
+      }
+    } else if (rec === 'annual') {
       const md = date.slice(5);
       for (let y = S.year; y <= S.year+9; y++) {
         const nd = y+'-'+md;
@@ -1587,14 +1663,12 @@ async function saveEvt(e) {
           toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'annual', status, created_by});
       }
     } else if (rec === 'monthly') {
-      const [y,,d2] = date.split('-');
+      const y = +date.split('-')[0];
+      const { weekday, n, isLast } = getMonthlyRecInfo(date);
       for (let mo = 1; mo <= 12; mo++) {
-        const nd = `${y}-${String(mo).padStart(2,'0')}-${d2}`;
-        if (nd !== date) {
-          const dt = new Date(+y, mo-1, +d2);
-          if (dt.getMonth()===mo-1 && !S.events.find(ev=>ev.date===nd&&ev.name===name))
-            toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'monthly', status, created_by});
-        }
+        const nd = isLast ? getLastWeekdayInMonth(y, mo, weekday) : getNthWeekdayInMonth(y, mo, weekday, n);
+        if (nd && nd !== date && !S.events.find(ev=>ev.date===nd&&ev.name===name))
+          toInsert.push({id:uid(), name, date:nd, start, end, cat, desc, rec:'monthly', status, created_by});
       }
     }
     const { error } = await DB.from('ibcj_events').insert(toInsert.map(evtToDb));
@@ -1690,7 +1764,7 @@ function doCSV() {
     .sort((a,b)=>a.date.localeCompare(b.date))
     .forEach(ev => rows.push([
       ev.name, fmtBR(ev.date), ev.start||'', ev.end||'', ev.cat, ev.desc||'',
-      {unique:'Único',monthly:'Mensal',annual:'Anual'}[ev.rec]||'Único'
+      {unique:'Único',weekly:'Semanal',monthly:'Mensal',annual:'Anual'}[ev.rec]||'Único'
     ]));
   const csv = rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
@@ -1707,6 +1781,56 @@ function el(tag, cls) {
   return e;
 }
 function fmtISO(y,m,d) { return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+// ─── RECORRÊNCIA MENSAL — DIA DA SEMANA ───────────────────────
+const _DIAS_SEMANA = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+const _ORDINAL     = ['','1ª','2ª','3ª','4ª','5ª'];
+
+function getMonthlyRecInfo(dateStr) {
+  const d   = new Date(dateStr + 'T00:00:00');
+  const day = d.getDate();
+  const wd  = d.getDay();
+  const dim = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  const n   = Math.ceil(day / 7);
+  const isLast = (day + 7) > dim;
+  return { weekday: wd, n, isLast };
+}
+
+function getNthWeekdayInMonth(year, month, weekday, n) {
+  const firstWd = new Date(year, month - 1, 1).getDay();
+  let offset = weekday - firstWd;
+  if (offset < 0) offset += 7;
+  const date = 1 + offset + (n - 1) * 7;
+  const dim = new Date(year, month, 0).getDate();
+  return date <= dim ? fmtISO(year, month, date) : null;
+}
+
+function getLastWeekdayInMonth(year, month, weekday) {
+  const dim = new Date(year, month, 0).getDate();
+  for (let d = dim; d >= dim - 6; d--) {
+    if (new Date(year, month - 1, d).getDay() === weekday) return fmtISO(year, month, d);
+  }
+  return null;
+}
+
+function updateRecHint() {
+  const hint = document.getElementById('rec-hint');
+  if (!hint) return;
+  const rec  = document.getElementById('ef-rec').value;
+  const dateRaw = document.getElementById('ef-date').value;
+  const dateISO = brToISO(dateRaw);
+  if (!isValidISO(dateISO) || (rec !== 'monthly' && rec !== 'weekly')) { hint.style.display = 'none'; return; }
+  if (rec === 'weekly') {
+    const wd = new Date(dateISO + 'T00:00:00').getDay();
+    hint.textContent = '↻ Evento se repetirá toda ' + _DIAS_SEMANA[wd] + ' do ano.';
+    hint.style.display = 'block';
+    return;
+  }
+  const { weekday, n, isLast } = getMonthlyRecInfo(dateISO);
+  const label = isLast ? ('última ' + _DIAS_SEMANA[weekday]) : (_ORDINAL[n] + ' ' + _DIAS_SEMANA[weekday]);
+  hint.textContent = '↻ Evento se repetirá toda ' + label + ' de cada mês.';
+  hint.style.display = 'block';
+}
 function fmtBR(ds) { const [y,m,d]=ds.split('-'); return `${d}/${m}/${y}`; }
 function dateOffset(ds, n) {
   const d = new Date(ds+'T00:00:00');
@@ -1975,6 +2099,234 @@ function printLit(){
   document.body.classList.remove('print-lit');
 }
 
+// ─── SERVIÇO DIACONAL ────────────────────────────────────────
+let diaconalItems = [];
+let diacViewingId = null;
+
+function openDiacList(){ renderDiacList(); document.getElementById('diac-list-overlay').classList.add('on'); }
+function closeDiacList(){ document.getElementById('diac-list-overlay').classList.remove('on'); }
+function renderDiacList(){
+  const body=document.getElementById('diac-list-body');
+  if(!S.diaconal.length){
+    body.innerHTML='<div style="text-align:center;padding:48px 24px;color:var(--g400)"><div style="font-size:40px;margin-bottom:10px">&#128203;</div><p style="font-size:14px;font-weight:600">Nenhum serviço diaconal criado ainda.</p><p style="font-size:12px;margin-top:4px">Clique em <strong>+ Novo Serviço</strong> para começar.</p></div>';
+    return;
+  }
+  body.innerHTML='';
+  S.diaconal.forEach(function(diac){
+    const d=diac.date?new Date(diac.date+'T00:00:00'):null;
+    const ev=diac.event_id?S.events.find(e=>e.id===diac.event_id):null;
+    const canManage=hasRole('admin','pastor','secretaria')||diac.created_by===currentUser.email;
+    const row=el('div','lit-list-row');
+    const dateBadge=d
+      ?'<div class="lit-date-badge"><div class="lit-date-badge-day">'+d.getDate()+'</div><div class="lit-date-badge-mon">'+MESESC[d.getMonth()]+'</div></div>'
+      :'<div class="lit-date-badge-none">&#128197;</div>';
+    const statusBadge=diac.status==='pendente'
+      ?'<span class="pending-badge">Pendente</span>'
+      :diac.status==='rejected'
+        ?'<span class="pending-badge" style="background:#fee2e2;color:#dc2626">Rejeitado</span>'
+        :'';
+    const chips=(diac.time?'<span class="lit-list-chip">&#128336; '+escH(diac.time)+'</span>':'')
+      +(ev?'<span class="lit-list-chip lit-list-chip-ev">&#128279; '+escH(ev.name)+'</span>':'')
+      +(diac.event_ref?'<span class="lit-list-chip">'+escH(diac.event_ref)+'</span>':'');
+    row.innerHTML=dateBadge
+      +'<div class="lit-list-info">'
+        +'<div class="lit-list-title">'+escH(diac.title)+statusBadge+'</div>'
+        +(chips?'<div class="lit-list-meta">'+chips+'</div>':'')
+      +'</div>'
+      +'<div class="lit-list-actions">'
+        +'<button class="btn btn-out btn-sm" title="Visualizar" onclick="openDiacView(\''+diac.id+'\')">&#128065;</button>'
+        +(canManage
+          ?'<button class="btn btn-out btn-sm" title="Editar" onclick="closeDiacList();openDiacModal(\''+diac.id+'\')">&#9998;</button>'
+           +'<button class="btn btn-sm" title="Excluir" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5" onclick="askDelDiac(\''+diac.id+'\')">&#128465;</button>'
+          :'')
+      +'</div>';
+    body.append(row);
+  });
+}
+async function askDelDiac(id){
+  const diac=S.diaconal.find(d=>d.id===id);
+  if(!diac) return;
+  if(!hasRole('admin','pastor','secretaria')&&diac.created_by!==currentUser.email) return;
+  if(!confirm('Excluir este serviço diaconal?')) return;
+  S.diaconal=S.diaconal.filter(d=>d.id!==id);
+  await delDiaconalDB(id);
+  renderDiacList();
+}
+function openDiacModal(diacId,eventId){
+  diacId=diacId||null; eventId=eventId||null;
+  diaconalItems=[];
+  document.getElementById('diac-id').value=diacId||'';
+  document.getElementById('diac-modal-title').textContent=diacId?'Editar Serviço Diaconal':'Novo Serviço Diaconal';
+  const evSel=document.getElementById('diac-event-id');
+  evSel.innerHTML='<option value="">— Nenhum evento —</option>';
+  const sortedEvs=[...(S.events||[])].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  sortedEvs.forEach(function(ev){
+    const opt=document.createElement('option');
+    opt.value=ev.id;
+    opt.textContent=fmtDateBR(ev.date)+' · '+ev.name;
+    evSel.append(opt);
+  });
+  if(diacId){
+    const diac=S.diaconal.find(d=>d.id===diacId);
+    if(diac){
+      document.getElementById('diac-title').value=diac.title||'';
+      document.getElementById('diac-event-ref').value=diac.event_ref||'';
+      document.getElementById('diac-date').value=diac.date||'';
+      document.getElementById('diac-time').value=diac.time||'';
+      document.getElementById('diac-slogan').value=diac.slogan||'';
+      document.getElementById('diac-footer').value=diac.footer||'';
+      document.getElementById('diac-observations').value=diac.observations||'';
+      diaconalItems=JSON.parse(JSON.stringify(diac.items||[]));
+      evSel.value=diac.event_id||'';
+    }
+  } else {
+    document.getElementById('diac-title').value='SERVIÇO DIÁCONAL DA SEMANA';
+    document.getElementById('diac-event-ref').value='';
+    document.getElementById('diac-date').value='';
+    document.getElementById('diac-time').value='';
+    document.getElementById('diac-slogan').value='No Poder do Espírito e da Palavra de Deus';
+    document.getElementById('diac-footer').value='Rua Emílio Monteiro Fonseca, 1368 - Ibura, Recife - PE, 51240-490\nCNPJ 02.783.591/0001-46, Pr. Pres. Lucas Wayney Bezerra.';
+    document.getElementById('diac-observations').value='';
+    evSel.value=eventId||'';
+    if(eventId){
+      const ev=S.events.find(e=>e.id===eventId);
+      if(ev){
+        document.getElementById('diac-date').value=ev.date||'';
+        document.getElementById('diac-time').value=ev.start||'';
+        document.getElementById('diac-event-ref').value=ev.name+(ev.date?'-'+fmtDateBR(ev.date):'')+(ev.start?' –'+ev.start:'');
+      }
+    }
+  }
+  renderDiacItems();
+  document.getElementById('diac-overlay').classList.add('on');
+}
+function closeDiacModal(){ document.getElementById('diac-overlay').classList.remove('on'); }
+function renderDiacItems(){
+  const list=document.getElementById('diac-items-list');
+  if(!list) return;
+  list.innerHTML='';
+  if(!diaconalItems.length){
+    list.innerHTML='<div style="text-align:center;padding:24px;color:var(--g400);font-size:13px;border:2px dashed #e2e8f0;border-radius:8px">Nenhuma escala ainda.<br>Clique em <strong>+ Adicionar Escala</strong> para começar.</div>';
+    return;
+  }
+  const labels=document.createElement('div');
+  labels.className='lit-inp-labels';
+  labels.innerHTML='<span>Função / Escala</span><span>Responsável(is)</span>';
+  list.append(labels);
+  diaconalItems.forEach(function(it,i){
+    const row=el('div','lit-item-row');
+    row.innerHTML='<div class="lit-row-main">'
+      +'<span class="lit-row-num">'+(i+1)+'.</span>'
+      +'<input class="lit-inp" placeholder="Ex: Porta principal" value="'+escH(it.role||'')+'" oninput="diaconalItems['+i+'].role=this.value">'
+      +'<input class="lit-inp lit-inp-resp" placeholder="Ex: Diác. Roberto" value="'+escH(it.persons||'')+'" oninput="diaconalItems['+i+'].persons=this.value">'
+      +'<div class="lit-row-btns">'
+      +(i>0?'<button type="button" class="btn-icon" title="Mover para cima" onclick="moveDiacItem('+i+',-1)">↑</button>':'<span style="width:28px"></span>')
+      +(i<diaconalItems.length-1?'<button type="button" class="btn-icon" title="Mover para baixo" onclick="moveDiacItem('+i+',1)">↓</button>':'<span style="width:28px"></span>')
+      +'<button type="button" class="btn-icon" title="Remover" onclick="removeDiacItem('+i+')" style="color:var(--red)">&#128465;</button>'
+      +'</div></div>';
+    list.append(row);
+  });
+}
+function addDiacItem(){ diaconalItems.push({role:'',persons:''}); renderDiacItems(); }
+function removeDiacItem(i){ diaconalItems.splice(i,1); renderDiacItems(); }
+function moveDiacItem(i,dir){ const j=i+dir; if(j<0||j>=diaconalItems.length)return; const t=diaconalItems[i]; diaconalItems[i]=diaconalItems[j]; diaconalItems[j]=t; renderDiacItems(); }
+async function saveDiac(){
+  const title=document.getElementById('diac-title').value.trim();
+  if(!title){ alert('Informe o título do serviço.'); return; }
+  const id=document.getElementById('diac-id').value||uid();
+  const evId=document.getElementById('diac-event-id').value||null;
+  const existing=S.diaconal.find(d=>d.id===id);
+  const newStatus=existing?(existing.status||'aprovado'):(getRole()==='lider'?'pendente':'aprovado');
+  const diac={
+    id,event_id:evId,title,
+    event_ref:document.getElementById('diac-event-ref').value.trim(),
+    date:document.getElementById('diac-date').value,
+    time:document.getElementById('diac-time').value.trim(),
+    slogan:document.getElementById('diac-slogan').value.trim(),
+    footer:document.getElementById('diac-footer').value.trim(),
+    observations:document.getElementById('diac-observations').value.trim(),
+    items:diaconalItems.filter(it=>(it.role||'').trim()),
+    status:newStatus,
+    created_by:existing?(existing.created_by||currentUser.email):currentUser.email
+  };
+  const idx=S.diaconal.findIndex(d=>d.id===id);
+  if(idx!==-1) S.diaconal[idx]=diac; else S.diaconal.unshift(diac);
+  await syncDiaconal(diac);
+  closeDiacModal();
+  updateNotifBadge();
+  if(newStatus==='pendente'&&!existing) alert('Serviço diaconal enviado para aprovação! ✓');
+}
+function openDiacView(id){
+  diacViewingId=id;
+  const diac=S.diaconal.find(d=>d.id===id);
+  if(!diac) return;
+  document.getElementById('diac-view-body').innerHTML=buildDiacHTML(diac);
+  const canEdit=hasRole('admin','pastor','secretaria')||(diac&&diac.created_by===currentUser.email);
+  document.getElementById('diac-view-edit-btn').style.display=canEdit?'':'none';
+  document.getElementById('diac-view-overlay').classList.add('on');
+}
+function closeDiacView(){ document.getElementById('diac-view-overlay').classList.remove('on'); diacViewingId=null; }
+function editFromDiacView(){ if(!diacViewingId) return; closeDiacView(); openDiacModal(diacViewingId); }
+function previewDiac(){
+  const title=document.getElementById('diac-title').value.trim();
+  if(!title){ alert('Preencha o título antes de visualizar.'); return; }
+  const tmp={title,event_ref:document.getElementById('diac-event-ref').value.trim(),
+    date:document.getElementById('diac-date').value,time:document.getElementById('diac-time').value,
+    slogan:document.getElementById('diac-slogan').value,footer:document.getElementById('diac-footer').value,
+    observations:document.getElementById('diac-observations').value,
+    items:diaconalItems.filter(it=>(it.role||'').trim())};
+  diacViewingId='_preview_';
+  document.getElementById('diac-view-body').innerHTML=buildDiacHTML(tmp);
+  document.getElementById('diac-view-edit-btn').style.display='none';
+  document.getElementById('diac-view-overlay').classList.add('on');
+}
+function buildDiacHTML(diac){
+  const logo=getLogoSrc();
+  const items=(diac.items||[]).map((it,i)=>
+    '<div class="lp-row">'
+    +'<span class="lp-rnum">'+(i+1)+'.</span>'
+    +'<span class="lp-rdesc">'+escH(it.role||'')+'</span>'
+    +'<span class="lp-rfill"></span>'
+    +(it.persons?'<span class="lp-rresp">'+escH(it.persons)+'</span>':'')
+    +'</div>'
+  ).join('');
+  const obsBlock=(diac.observations||'').trim()
+    ?'<div style="margin-top:18px;font-size:12.5px;line-height:1.7;text-align:justify"><strong>Observações</strong>:<br>'+escH(diac.observations).replace(/\n/g,'<br>')+'</div>'
+    :'';
+  const footer=(diac.footer||'').replace(/\n/g,'<br>');
+  return '<div class="lp-preview">'
+    +'<div class="lp-hdr">'
+    +(logo?'<img class="lp-logo-img" src="'+logo+'"><br>':'')
+    +'<div class="lp-church">IGREJA BATISTA CENTRAL DO JORDÃO</div>'
+    +(diac.slogan?'<div class="lp-slogan"><em>'+escH(diac.slogan)+'</em></div>':'')
+    +'<div class="lp-title-line">'+escH(diac.title)+'</div>'
+    +(diac.event_ref?'<div style="font-weight:700;font-size:13px;margin-top:5px;letter-spacing:.2px">'+escH(diac.event_ref)+'</div>':'')
+    +'</div>'
+    +'<div class="lp-items">'+items+'</div>'
+    +obsBlock
+    +'<div class="lp-ftr">'
+    +(logo?'<img class="lp-ftr-logo" src="'+logo+'">':'')
+    +'<div class="lp-ftr-txt">'+footer+'</div>'
+    +'</div></div>';
+}
+function printDiac(){
+  let diac;
+  if(diacViewingId==='_preview_'){
+    diac={title:document.getElementById('diac-title').value,event_ref:document.getElementById('diac-event-ref').value,
+      date:document.getElementById('diac-date').value,time:document.getElementById('diac-time').value,
+      slogan:document.getElementById('diac-slogan').value,footer:document.getElementById('diac-footer').value,
+      observations:document.getElementById('diac-observations').value,items:diaconalItems};
+  } else {
+    diac=S.diaconal.find(d=>d.id===diacViewingId);
+  }
+  if(!diac) return;
+  document.getElementById('diac-print-area').innerHTML=buildDiacHTML(diac);
+  document.body.classList.add('print-diac');
+  window.print();
+  document.body.classList.remove('print-diac');
+}
+// ─────────────────────────────────────────────────────────────
+
 function updateEvtLitBar(){
   const evId=document.getElementById('ef-id').value;
   const bar=document.getElementById('evt-lit-bar');
@@ -1990,7 +2342,7 @@ function updateEvtLitBar(){
 }
 
 // ─── FECHAR MODALS AO CLICAR FORA ────────────────────────────
-['evt-overlay','day-overlay','del-overlay','lit-overlay','lit-list-overlay','lit-view-overlay','membro-overlay','culto-rep-overlay','reuniao-admin-overlay'].forEach(id => {
+['evt-overlay','day-overlay','del-overlay','lit-overlay','lit-list-overlay','lit-view-overlay','diac-overlay','diac-list-overlay','diac-view-overlay','membro-overlay','culto-rep-overlay','reuniao-admin-overlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('on');
   });
@@ -2026,6 +2378,28 @@ function getPendingEvts() {
 function getPendingLits() {
   return (S.liturgias||[]).filter(l => l.status === 'pendente');
 }
+function getPendingDiac() {
+  return (S.diaconal||[]).filter(d => d.status === 'pendente');
+}
+async function approveDiac(id) {
+  if (!canApprove()) return;
+  await DB.from('ibcj_diaconal').update({status:'aprovado'}).eq('id', id);
+  const d = S.diaconal.find(d=>d.id===id);
+  if (d) d.status = 'aprovado';
+  updateNotifBadge();
+  renderNotifPanel();
+}
+async function rejectDiac(id) {
+  if (!canApprove()) return;
+  const reason = prompt('Motivo da rejeição (obrigatório):');
+  if (reason === null) return;
+  if (!reason.trim()) { alert('Informe o motivo.'); return; }
+  await DB.from('ibcj_diaconal').update({status:'rejected'}).eq('id', id);
+  const d = S.diaconal.find(d=>d.id===id);
+  if (d) d.status = 'rejected';
+  updateNotifBadge();
+  renderNotifPanel();
+}
 async function approveLit(litId) {
   if (!canApprove()) return;
   await DB.from('ibcj_liturgias').update({status:'aprovado'}).eq('id', litId);
@@ -2047,7 +2421,7 @@ async function rejectLit(litId) {
 }
 function updateNotifBadge() {
   if (!canApprove()) return;
-  const count = getPendingEvts().length + getPendingLits().length;
+  const count = getPendingEvts().length + getPendingLits().length + getPendingDiac().length;
   const badge = document.getElementById('bell-badge');
   badge.textContent = count;
   badge.classList.toggle('on', count > 0);
@@ -2062,7 +2436,8 @@ function renderNotifPanel() {
   const list = document.getElementById('notif-list');
   const pendingEvts = getPendingEvts();
   const pendingLits = getPendingLits();
-  if (!pendingEvts.length && !pendingLits.length) {
+  const pendingDiac = getPendingDiac();
+  if (!pendingEvts.length && !pendingLits.length && !pendingDiac.length) {
     list.innerHTML = '<div class="notif-empty">Nada pendente de aprovação &#10003;</div>';
     return;
   }
@@ -2098,6 +2473,24 @@ function renderNotifPanel() {
         + '<button class="btn btn-sm btn-navy" onclick="approveLit(\''+lit.id+'\')">Aprovar</button>'
         + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="rejectLit(\''+lit.id+'\')">Rejeitar</button>'
         + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openLitView(\''+lit.id+'\')">&#128065; Ver</button>'
+        + '</div>';
+      list.append(item);
+    });
+  }
+  if (pendingDiac.length) {
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'padding:8px 16px 4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--g400);border-top:'+(pendingEvts.length||pendingLits.length?'1px solid var(--g100)':'none');
+    hdr.textContent = 'Serviço Diaconal';
+    list.append(hdr);
+    pendingDiac.forEach(diac => {
+      const item = document.createElement('div');
+      item.className = 'notif-item';
+      item.innerHTML = '<div class="notif-title">&#128203; ' + escH(diac.title) + '</div>'
+        + '<div class="notif-sub">' + (diac.date?fmtDateBR(diac.date):'Sem data') + (diac.time?' &bull; '+escH(diac.time):'') + ' &bull; por ' + escH(diac.created_by||'?') + '</div>'
+        + '<div class="notif-actions">'
+        + '<button class="btn btn-sm btn-navy" onclick="approveDiac(\''+diac.id+'\')">Aprovar</button>'
+        + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="rejectDiac(\''+diac.id+'\')">Rejeitar</button>'
+        + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openDiacView(\''+diac.id+'\')">&#128065; Ver</button>'
         + '</div>';
       list.append(item);
     });
@@ -4120,6 +4513,101 @@ checkSess();
 
 <!-- ÁREA DE IMPRESSÃO DA LITURGIA -->
 <div id="lit-print-area" style="display:none"></div>
+
+<!-- MODAL: LISTA DE SERVIÇOS DIACONAIS -->
+<div class="mover" id="diac-list-overlay">
+  <div class="modal" style="max-width:680px">
+    <div class="mhdr">
+      <h2 class="mtitle">&#128203; Serviço Diaconal</h2>
+      <button class="mclose" onclick="closeDiacList()">&#215;</button>
+    </div>
+    <div class="mbody" id="diac-list-body" style="min-height:120px"></div>
+    <div class="mftr">
+      <button class="btn btn-out" onclick="closeDiacList()">Fechar</button>
+      <button class="btn btn-navy" onclick="closeDiacList();openDiacModal()">+ Novo Serviço</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITOR DE SERVIÇO DIACONAL -->
+<div class="mover" id="diac-overlay">
+  <div class="modal" style="max-width:700px">
+    <div class="mhdr">
+      <h2 class="mtitle" id="diac-modal-title">Novo Serviço Diaconal</h2>
+      <button class="mclose" onclick="closeDiacModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>T&#237;tulo do Servi&#231;o *</label>
+          <input type="text" id="diac-title" placeholder="Ex: SERVI&#199;O DIÁCONAL DA SEMANA">
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Ocasi&#227;o / Refer&#234;ncia do Evento</label>
+          <input type="text" id="diac-event-ref" placeholder="Ex: FESTIVIDADE DO C&#205;RCULO DE ORA&#199;ÃO-18/04/26 –16H">
+        </div>
+        <div class="fgrp">
+          <label>Data</label>
+          <input type="date" id="diac-date">
+        </div>
+        <div class="fgrp">
+          <label>Hor&#225;rio</label>
+          <input type="text" id="diac-time" placeholder="Ex: 16H">
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Evento vinculado</label>
+          <select id="diac-event-id"><option value="">— Nenhum evento —</option></select>
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Slogan</label>
+          <input type="text" id="diac-slogan">
+        </div>
+        <div class="fgrp" style="grid-column:1/-1">
+          <label>Rodap&#233; (endere&#231;o / pastor)</label>
+          <textarea id="diac-footer" rows="2" placeholder="Endere&#231;o da igreja, CNPJ, Pastor..."></textarea>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:12px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.4px">Escalas / Atribui&#231;&#245;es</span>
+          <button type="button" class="btn btn-navy btn-sm" onclick="addDiacItem()">+ Adicionar Escala</button>
+        </div>
+        <div id="diac-items-list"></div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="fgrp">
+          <label>Observa&#231;&#245;es</label>
+          <textarea id="diac-observations" rows="5" placeholder="1. Os di&#225;conos que ficarem na recep&#231;ão...&#10;2. ...&#10;3. ..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="mftr">
+      <input type="hidden" id="diac-id">
+      <button class="btn btn-out" onclick="closeDiacModal()">Cancelar</button>
+      <button class="btn btn-out" onclick="previewDiac()">&#128065; Visualizar</button>
+      <button class="btn btn-navy" onclick="saveDiac()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: VISUALIZAR / IMPRIMIR SERVIÇO DIACONAL -->
+<div class="mover" id="diac-view-overlay">
+  <div class="modal" style="max-width:720px">
+    <div class="mhdr">
+      <h2 class="mtitle">Visualizar Servi&#231;o Diaconal</h2>
+      <button class="mclose" onclick="closeDiacView()">&#215;</button>
+    </div>
+    <div class="mbody" id="diac-view-body"></div>
+    <div class="mftr">
+      <button class="btn btn-out" onclick="closeDiacView()">Fechar</button>
+      <button class="btn btn-out" id="diac-view-edit-btn" onclick="editFromDiacView()">&#9999;&#65039; Editar</button>
+      <button class="btn btn-navy" onclick="printDiac()">&#11015; Baixar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÁREA DE IMPRESSÃO DO SERVIÇO DIACONAL -->
+<div id="diac-print-area" style="display:none"></div>
 <!-- ÁREAS DE IMPRESSÃO FINANCEIRO / BALANCEAMENTO -->
 <div id="fin-print-area" style="display:none"></div>
 <div id="bal-print-area" style="display:none"></div>
