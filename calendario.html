@@ -230,7 +230,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .lit-row-num{min-width:22px;font-weight:700;font-size:13px;color:var(--navy);flex-shrink:0}
 .lit-inp{flex:1;border:1px solid #cbd5e1;border-radius:6px;padding:7px 10px;font-size:13px;background:#fff;min-width:0}
 .lit-inp:focus{outline:none;border-color:var(--navy);background:#fff}
-.lit-inp-resp{flex:0 0 180px;font-weight:600}
+.lit-inp-resp{font-weight:600}
 .lit-row-btns{display:flex;gap:4px;flex-shrink:0}
 .lit-row-sub{border-top:1px dashed #e2e8f0;padding:6px 12px 8px 44px}
 .lit-sub-inp{width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:5px 10px;font-size:12px;background:#f1f5f9;color:#475569}
@@ -238,6 +238,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .lit-inp-labels{display:flex;gap:8px;padding:0 12px 4px 30px;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px}
 .lit-inp-labels span:first-child{flex:1}
 .lit-inp-labels span:last-child{flex:0 0 180px}
+.lit-inp-fields{display:flex;flex:1;gap:8px;min-width:0}
+.lit-inp-field{display:flex;flex-direction:column;min-width:0}
+.lit-inp-field.f-role{flex:1}
+.lit-inp-field.f-resp{flex:0 0 180px}
+.lit-inp-field > input{width:100%;box-sizing:border-box}
 
 /* ── ROLES ── */
 .role-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
@@ -466,6 +471,132 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .share-member-row:last-child{border-bottom:none}
 .min-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--g100)}
 .min-card-owner{font-size:10px;color:var(--g400);font-weight:600}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVIDADE — IBCJ Calendário
+   Breakpoints: 768 (tablet) · 480 (phone) · 360 (mini)
+   ════════════════════════════════════════════════════════════ */
+html{overflow-x:hidden}
+body{overflow-x:hidden}
+
+/* Sub-tab bars: rolagem horizontal, botões sem quebra */
+.subtab-bar{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.subtab-bar::-webkit-scrollbar{display:none}
+.subtab-bar > button,.past-sub-btn,[id^="sec-sub-btn-"]{white-space:nowrap;flex-shrink:0}
+
+/* ── 768 px — Tablet ── */
+@media(max-width:768px){
+  .hdr{padding:0 14px}
+  .hdr-s,.hdr-role{display:none}
+  .main-tabs{padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .main-tabs::-webkit-scrollbar{display:none}
+  .main-tab{padding:10px 14px;font-size:12px;white-space:nowrap;flex-shrink:0}
+  .toolbar{padding:10px 14px}
+  .notif-panel{width:calc(100vw - 28px);right:-8px}
+  .mover{padding:10px}
+  .modal,.modal-sm,.modal-xs{max-width:calc(100vw - 20px)!important}
+  .mbody{padding:16px}
+  .mhdr{padding:14px 16px 0}
+  .mftr{padding:0 16px 14px}
+  .cal-wrap{padding:12px}
+  .lview{padding:14px}
+  .reg-wrap,.past-wrap,.mbr-wrap{padding:14px 16px}
+  .dash-kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .dash-kpi-val{font-size:22px}
+  .bal-summary{grid-template-columns:repeat(2,1fr)}
+  .trow{grid-template-columns:1fr}
+  .mbr-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .user-table,.rad-vot-table{min-width:480px}
+  .dash-card{overflow-x:auto}
+  .dash-culto-table{min-width:440px}
+  .reg-form-grid{grid-template-columns:1fr}
+}
+
+/* ── 480 px — Phone ── */
+@media(max-width:480px){
+  .hdr{padding:0 10px;height:52px;gap:8px}
+  .hdr-t{font-size:12px;letter-spacing:0}
+  .hdr-logo{width:32px;height:32px}
+  .btn-icon{width:26px;height:26px;font-size:13px}
+  .main-tab{padding:9px 11px;font-size:11px}
+  .past-sub-btn,[id^="sec-sub-btn-"]{padding:7px 10px!important;font-size:11px!important}
+  .toolbar{padding:8px 10px;justify-content:flex-start}
+  .yr-ctrl{flex:0 0 auto}
+  .toolbar-r{flex-wrap:wrap;gap:6px}
+  .yr-num{font-size:20px;min-width:54px}
+  .yr-btn{width:30px;height:30px;font-size:18px}
+  .vbtn{padding:5px 9px;font-size:11px}
+  .fsel{font-size:11px;padding:5px 8px}
+  .btn-sm{font-size:11px;padding:5px 9px}
+  .dash-kpi{padding:12px 14px}
+  .dash-kpi-val{font-size:20px}
+  .dash-row{grid-template-columns:1fr}
+  .dash-month-grid{grid-template-columns:repeat(3,1fr)}
+  .bal-summary{grid-template-columns:1fr}
+  .fin-row{grid-template-columns:1fr;gap:6px}
+  .fin-totals-row{grid-template-columns:1fr}
+  .mbr-search-bar{flex-direction:column;align-items:stretch}
+  .mbr-search-bar input,.mbr-search-bar select{min-width:0;width:100%}
+  .cal-wrap{padding:8px}
+  .reg-wrap,.past-wrap,.mbr-wrap{padding:10px 12px}
+  .mover{padding:6px}
+  .modal,.modal-sm,.modal-xs{border-radius:10px;max-width:calc(100vw - 12px)!important}
+  .mbody{padding:14px}
+  .mhdr{padding:12px 14px 0}
+  .mftr{padding:0 14px 14px;flex-wrap:wrap;gap:6px}
+  .mftr .btn{flex:1;justify-content:center;min-width:80px}
+  .culto-card{flex-direction:column;align-items:flex-start}
+  .min-grid{grid-template-columns:1fr 1fr}
+  .lit-inp-labels{display:none!important}
+  .lit-inp-fields{flex-direction:column;gap:6px}
+  .lit-inp-field.f-role,.lit-inp-field.f-resp{flex:0 0 auto;width:100%}
+  .lit-inp-field::before{display:block;content:attr(data-label);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:3px}
+  .ra-fin-grid{grid-template-columns:1fr 1fr}
+  .dash-bar-label{width:80px}
+  .dash-next-date{min-width:56px}
+}
+
+/* ── 360 px — Mini phone ── */
+@media(max-width:360px){
+  .hdr{height:48px}
+  .hdr-t{font-size:11px}
+  .main-tab{padding:8px 9px;font-size:10px}
+  .yr-num{font-size:18px}
+  .dash-kpi-grid{grid-template-columns:1fr}
+  .dash-month-grid{grid-template-columns:repeat(2,1fr)}
+  .min-grid{grid-template-columns:1fr}
+  .ra-fin-grid{grid-template-columns:1fr}
+}
+
+/* ── Hamburguer & Drawer de navegação ── */
+.mob-menu-btn{display:none;width:36px;height:36px;border-radius:8px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:22px;align-items:center;justify-content:center;transition:background .15s;line-height:1;padding:0;font-family:inherit;flex-shrink:0}
+.mob-menu-btn:hover{background:rgba(255,255,255,.18)}
+.mob-drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;backdrop-filter:blur(2px)}
+.mob-drawer-overlay.on{display:block}
+.mob-drawer{position:fixed;top:0;right:-300px;width:280px;height:100vh;background:var(--navy);z-index:1000;transition:right .25s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.35)}
+.mob-drawer.open{right:0}
+.mob-drawer-hdr{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0}
+.mob-drawer-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:.3px}
+.mob-drawer-close{width:32px;height:32px;flex-shrink:0;border-radius:8px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s;line-height:1}
+.mob-drawer-close:hover{background:rgba(255,255,255,.2);color:#fff}
+.mob-nav-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.35);padding:14px 20px 5px}
+.mob-nav-sep{height:1px;background:rgba(255,255,255,.1);margin:6px 0}
+.mob-nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;font-size:13px;font-weight:700;color:rgba(255,255,255,.7);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s;font-family:inherit;border-left:3px solid transparent}
+.mob-nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.mob-nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,162,39,.1)}
+.mob-nav-icon{font-size:16px;flex-shrink:0}
+.mob-nav-new{margin:12px 16px 4px;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+.mob-nav-new:hover{background:var(--gold3)}
+.mob-nav-sair{margin:6px 16px 20px;padding:11px;background:rgba(220,38,38,.12);color:#fca5a5;border:1.5px solid rgba(220,38,38,.25);border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+.mob-nav-sair:hover{background:rgba(220,38,38,.22)}
+.mob-tab-strip{display:none;background:var(--navy);color:rgba(255,255,255,.7);padding:7px 16px;font-size:12px;font-weight:700;gap:6px;align-items:center;border-bottom:2px solid rgba(255,255,255,.08)}
+.mob-tab-strip-name{color:var(--gold)}
+@media(max-width:768px){
+  .mob-menu-btn{display:flex}
+  .main-tabs{display:none!important}
+  .hdr-r>*:not(#bell-wrap):not(#mob-ham-btn){display:none!important}
+  .mob-tab-strip{display:flex}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -607,8 +738,63 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
       <!-- Gestão de usuários (admin) -->
       <button class="btn btn-out btn-sm" id="btn-admin-users" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2);display:none" onclick="openAdminUsers()">&#9881; Usuários</button>
       <button class="btn btn-out" style="color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.25)" onclick="doLogout()">Sair</button>
+      <button id="mob-ham-btn" class="mob-menu-btn" onclick="openMobDrawer()" aria-label="Abrir menu">&#9776;</button>
     </div>
   </header>
+
+  <!-- MOBILE: INDICADOR DE SEÇÃO ATIVA -->
+  <div id="mob-tab-strip" class="mob-tab-strip">
+    <span style="opacity:.45;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Seção</span>
+    <span style="opacity:.3">›</span>
+    <span id="mob-tab-strip-name" class="mob-tab-strip-name">&#128197; Calendário</span>
+  </div>
+
+  <!-- MOBILE: OVERLAY DO DRAWER -->
+  <div id="mob-drawer-overlay" class="mob-drawer-overlay" onclick="closeMobDrawer()"></div>
+
+  <!-- MOBILE: DRAWER DE NAVEGAÇÃO -->
+  <div id="mob-drawer" class="mob-drawer">
+    <div class="mob-drawer-hdr">
+      <div>
+        <div class="mob-drawer-title">IBCJ — Gestão</div>
+        <div id="mob-drawer-user" style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px"></div>
+      </div>
+      <button class="mob-drawer-close" onclick="closeMobDrawer()">&#10005;</button>
+    </div>
+
+    <div class="mob-nav-label">Navegação</div>
+    <button class="mob-nav-item active" id="mob-nav-calendar" data-tab="calendar" onclick="mobNavGo('calendar')">
+      <span class="mob-nav-icon">&#128197;</span> Calendário
+    </button>
+    <button class="mob-nav-item" id="mob-nav-registros" data-tab="registros" onclick="mobNavGo('registros')">
+      <span class="mob-nav-icon">&#128221;</span> Registro Semanal
+    </button>
+    <button class="mob-nav-item" id="mob-nav-pastoral" data-tab="pastoral" onclick="mobNavGo('pastoral')" style="display:none">
+      <span class="mob-nav-icon">&#128214;</span> Adm. Pastoral
+    </button>
+    <button class="mob-nav-item" id="mob-nav-membros" data-tab="membros" onclick="mobNavGo('membros')" style="display:none">
+      <span class="mob-nav-icon">&#128203;</span> Adm. Secretaria
+    </button>
+
+    <div class="mob-nav-sep"></div>
+    <div class="mob-nav-label">Recursos</div>
+    <button class="mob-nav-item" onclick="closeMobDrawer();openLitList()">
+      <span class="mob-nav-icon">&#128196;</span> Liturgias
+    </button>
+    <button class="mob-nav-item" id="mob-nav-diaconal" onclick="closeMobDrawer();openDiacList()" style="display:none">
+      <span class="mob-nav-icon">&#128203;</span> Serviço Diaconal
+    </button>
+    <button class="mob-nav-item" id="mob-nav-agenda" onclick="closeMobDrawer();openAgendaList()" style="display:none">
+      <span class="mob-nav-icon">&#128197;</span> Agenda Semanal
+    </button>
+    <button class="mob-nav-item" id="mob-nav-admin" onclick="closeMobDrawer();openAdminUsers()" style="display:none">
+      <span class="mob-nav-icon">&#9881;</span> Gestão de Usuários
+    </button>
+
+    <div class="mob-nav-sep"></div>
+    <button class="mob-nav-new" onclick="closeMobDrawer();openEvtModal()">+ Novo Evento</button>
+    <button class="mob-nav-sair" onclick="closeMobDrawer();doLogout()">Sair da conta</button>
+  </div>
 
   <!-- TABS PRINCIPAIS -->
   <div class="main-tabs" id="main-tabs">
@@ -710,7 +896,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   <div id="tab-pastoral" style="display:none">
     <div class="past-wrap">
       <!-- Sub-abas -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--g200);margin-bottom:20px">
+      <div class="subtab-bar" style="display:flex;gap:0;border-bottom:2px solid var(--g200);margin-bottom:20px">
         <button class="past-sub-btn on" id="past-sub-btn-agenda" onclick="switchPastoralSub('agenda')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--navy);border:none;border-bottom:3px solid var(--navy);margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128197; Agenda Pastoral</button>
         <button class="past-sub-btn" id="past-sub-btn-financeiro" onclick="switchPastoralSub('financeiro')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128200; Balanceamento Financeiro</button>
         <button class="past-sub-btn" id="past-sub-btn-dashboard" onclick="switchPastoralSub('dashboard')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#9729; Dashboard</button>
@@ -779,7 +965,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   <div id="tab-membros" style="display:none">
     <div class="mbr-wrap">
       <!-- Sub-abas secretaria -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--g200);margin-bottom:20px">
+      <div class="subtab-bar" style="display:flex;gap:0;border-bottom:2px solid var(--g200);margin-bottom:20px">
         <button id="sec-sub-btn-membros" onclick="switchSecretariaSub('membros')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--navy);border:none;border-bottom:3px solid var(--navy);margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128100; Lista de Membros</button>
         <button id="sec-sub-btn-cultos" onclick="switchSecretariaSub('cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128221; Relatório dos Cultos</button>
         <button id="sec-sub-btn-rad" onclick="switchSecretariaSub('rad')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128203; Dashboard Reuniões</button>
@@ -2098,8 +2284,10 @@ function renderLitItems(){
     const row=el('div','lit-item-row');
     row.innerHTML='<div class="lit-row-main">'
       +'<span class="lit-row-num">'+(i+1)+'.</span>'
-      +'<input class="lit-inp" placeholder="Ex: Louvor congregacional" value="'+escH(it.desc)+'" oninput="litItems['+i+'].desc=this.value">'
-      +'<input class="lit-inp lit-inp-resp" placeholder="Ex: Min. de Louvor" value="'+escH(it.resp)+'" oninput="litItems['+i+'].resp=this.value">'
+      +'<div class="lit-inp-fields">'
+      +'<div class="lit-inp-field f-role" data-label="Descrição do item"><input class="lit-inp" placeholder="Ex: Louvor congregacional" value="'+escH(it.desc)+'" oninput="litItems['+i+'].desc=this.value"></div>'
+      +'<div class="lit-inp-field f-resp" data-label="Responsável"><input class="lit-inp lit-inp-resp" placeholder="Ex: Min. de Louvor" value="'+escH(it.resp)+'" oninput="litItems['+i+'].resp=this.value"></div>'
+      +'</div>'
       +'<div class="lit-row-btns">'
       +(i>0?'<button type="button" class="btn-icon" title="Mover para cima" onclick="moveLitItem('+i+',-1)">↑</button>':'<span style="width:28px"></span>')
       +(i<litItems.length-1?'<button type="button" class="btn-icon" title="Mover para baixo" onclick="moveLitItem('+i+',1)">↓</button>':'<span style="width:28px"></span>')
@@ -2299,8 +2487,10 @@ function renderDiacItems(){
     const row=el('div','lit-item-row');
     row.innerHTML='<div class="lit-row-main">'
       +'<span class="lit-row-num">'+(i+1)+'.</span>'
-      +'<input class="lit-inp" placeholder="Ex: Porta principal" value="'+escH(it.role||'')+'" oninput="diaconalItems['+i+'].role=this.value">'
-      +'<input class="lit-inp lit-inp-resp" placeholder="Ex: Diác. Roberto" value="'+escH(it.persons||'')+'" oninput="diaconalItems['+i+'].persons=this.value">'
+      +'<div class="lit-inp-fields">'
+      +'<div class="lit-inp-field f-role" data-label="Função / Escala"><input class="lit-inp" placeholder="Ex: Porta principal" value="'+escH(it.role||'')+'" oninput="diaconalItems['+i+'].role=this.value"></div>'
+      +'<div class="lit-inp-field f-resp" data-label="Responsável(is)"><input class="lit-inp lit-inp-resp" placeholder="Ex: Diác. Roberto" value="'+escH(it.persons||'')+'" oninput="diaconalItems['+i+'].persons=this.value"></div>'
+      +'</div>'
       +'<div class="lit-row-btns">'
       +(i>0?'<button type="button" class="btn-icon" title="Mover para cima" onclick="moveDiacItem('+i+',-1)">↑</button>':'<span style="width:28px"></span>')
       +(i<diaconalItems.length-1?'<button type="button" class="btn-icon" title="Mover para baixo" onclick="moveDiacItem('+i+',1)">↓</button>':'<span style="width:28px"></span>')
@@ -2464,6 +2654,8 @@ function switchTab(tab) {
   if (isRegistros) renderMinisterios();
   if (isPastoral) { switchPastoralSub('agenda'); renderPastoralTab(); }
   if (isMembros) { switchSecretariaSub('membros'); loadMembros().then(() => renderMembros()); }
+  updateMobTabStrip();
+  updateMobNav();
 }
 
 // ─── NOTIFICAÇÕES ────────────────────────────────────────────
@@ -4744,14 +4936,14 @@ function renderAgendaDays() {
     } else {
       day.items.forEach((it, ii) => {
         const row = document.createElement('div');
-        row.style.cssText = 'display:grid;grid-template-columns:70px 1fr 100px auto;gap:6px;align-items:start;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--g100)';
+        row.style.cssText = 'display:grid;grid-template-columns:70px 1fr auto;gap:6px;align-items:start;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--g100)';
         row.innerHTML = '<input class="finp" placeholder="Horário" value="'+escH(it.time||'')+'" oninput="agendaDays['+di+'].items['+ii+'].time=this.value" style="font-size:12px;padding:4px 6px">'
           + '<div>'
             + '<input class="finp" placeholder="Descrição" value="'+escH(it.desc||'')+'" oninput="agendaDays['+di+'].items['+ii+'].desc=this.value" style="font-size:12px;padding:4px 6px;width:100%">'
             + '<input class="finp" placeholder="Observação ex: (Nova Disciplina)" value="'+escH(it.note||'')+'" oninput="agendaDays['+di+'].items['+ii+'].note=this.value" style="font-size:12px;padding:4px 6px;width:100%;margin-top:4px">'
             + '<textarea class="finp" placeholder="Sub-itens (um por linha)&#10;Ex: Participação: Depto Infantil" rows="2" oninput="agendaDays['+di+'].items['+ii+'].subs=this.value.split(\'\\n\')" style="font-size:12px;padding:4px 6px;width:100%;margin-top:4px;resize:vertical">'+escH((it.subs||[]).join('\n'))+'</textarea>'
           + '</div>'
-          + '<label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;margin-top:4px"><input type="checkbox" '+(it.bullet?'checked':'')+' onchange="agendaDays['+di+'].items['+ii+'].bullet=this.checked"> ❖ Bullet</label>'
+          + ''
           + '<button type="button" style="color:var(--red);background:none;border:none;cursor:pointer;font-size:16px;padding:0;margin-top:2px" onclick="removeAgendaItem('+di+','+ii+')">🗑</button>';
         body.append(row);
       });
@@ -4796,6 +4988,24 @@ async function saveAgenda() {
   if (newStatus==='pendente' && !existing) alert('Agenda enviada para aprovação! ✓');
 }
 
+function previewAgenda() {
+  const title = document.getElementById('agenda-title').value.trim();
+  if (!title) { alert('Preencha o título antes de visualizar.'); return; }
+  agendaViewingId = '_preview_';
+  const ag = {
+    title,
+    date_start: document.getElementById('agenda-date-start').value || null,
+    date_end:   document.getElementById('agenda-date-end').value || null,
+    slogan:     document.getElementById('agenda-slogan').value || '',
+    note:       document.getElementById('agenda-note').value || '',
+    footer:     document.getElementById('agenda-footer').value || '',
+    days:       agendaDays
+  };
+  document.getElementById('agenda-view-body').innerHTML = buildAgendaHTML(ag);
+  document.getElementById('agenda-view-edit-btn').style.display = 'none';
+  document.getElementById('agenda-view-overlay').classList.add('on');
+}
+
 function openAgendaView(id) {
   agendaViewingId = id;
   const ag = S.agenda.find(a=>a.id===id);
@@ -4809,8 +5019,21 @@ function closeAgendaView() { document.getElementById('agenda-view-overlay').clas
 function editFromAgendaView() { if (!agendaViewingId) return; closeAgendaView(); openAgendaModal(agendaViewingId); }
 
 function printAgenda() {
-  const ag = S.agenda.find(a=>a.id===agendaViewingId);
-  if (!ag) return;
+  let ag;
+  if (agendaViewingId === '_preview_') {
+    ag = {
+      title:      document.getElementById('agenda-title')?.value || '',
+      date_start: document.getElementById('agenda-date-start')?.value || null,
+      date_end:   document.getElementById('agenda-date-end')?.value || null,
+      slogan:     document.getElementById('agenda-slogan')?.value || '',
+      note:       document.getElementById('agenda-note')?.value || '',
+      footer:     document.getElementById('agenda-footer')?.value || '',
+      days:       agendaDays
+    };
+  } else {
+    ag = S.agenda.find(a=>a.id===agendaViewingId);
+    if (!ag) return;
+  }
   const html = buildAgendaHTML(ag);
   const layout = (document.getElementById('agenda-print-layout')||{}).value||'single';
   document.getElementById('agenda-print-area').innerHTML = layout==='double'
@@ -4973,6 +5196,60 @@ async function deleteCultoRep() {
 
 // ─── INICIALIZAÇÃO ────────────────────────────────────────────
 checkSess();
+
+// ── HAMBURGUER / DRAWER ──────────────────────────────────────
+function openMobDrawer() {
+  // Espelha visibilidade das abas principais
+  const tabMap = {calendar:'mob-nav-calendar',registros:'mob-nav-registros',pastoral:'mob-nav-pastoral',membros:'mob-nav-membros'};
+  Object.entries(tabMap).forEach(([t,drawerBtnId]) => {
+    const main = document.getElementById('tab-btn-'+t);
+    const dr   = document.getElementById(drawerBtnId);
+    if (dr && main) dr.style.display = (main.style.display === 'none') ? 'none' : '';
+  });
+  // Espelha visibilidade dos botões de recursos
+  const actMap = {'btn-diaconal':'mob-nav-diaconal','btn-agenda':'mob-nav-agenda','btn-admin-users':'mob-nav-admin'};
+  Object.entries(actMap).forEach(([mainId,drawerBtnId]) => {
+    const main = document.getElementById(mainId);
+    const dr   = document.getElementById(drawerBtnId);
+    if (dr && main) dr.style.display = main.style.display;
+  });
+  // Nome do usuário
+  const userEl = document.getElementById('mob-drawer-user');
+  if (userEl && S && S.user) {
+    const name = S.user.user_metadata?.name || S.user.email || '';
+    const roleEl = document.getElementById('hdr-role-badge');
+    userEl.textContent = name + (roleEl ? ' · ' + roleEl.textContent : '');
+  }
+  updateMobNav();
+  document.getElementById('mob-drawer').classList.add('open');
+  document.getElementById('mob-drawer-overlay').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobDrawer() {
+  document.getElementById('mob-drawer').classList.remove('open');
+  document.getElementById('mob-drawer-overlay').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+function mobNavGo(tab) {
+  closeMobDrawer();
+  switchTab(tab);
+}
+
+function updateMobNav() {
+  const activeBtn = document.querySelector('.main-tab.on');
+  const activeId  = activeBtn?.id?.replace('tab-btn-','') || 'calendar';
+  document.querySelectorAll('.mob-nav-item[data-tab]').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === activeId);
+  });
+}
+
+function updateMobTabStrip() {
+  const activeBtn = document.querySelector('.main-tab.on');
+  const el = document.getElementById('mob-tab-strip-name');
+  if (el && activeBtn) el.textContent = activeBtn.textContent.trim();
+}
 </script>
 
 <!-- MODAL: LISTA DE LITURGIAS -->
@@ -5226,6 +5503,7 @@ checkSess();
     </div>
     <div class="mftr">
       <button class="btn btn-out" onclick="closeAgendaModal()">Cancelar</button>
+      <button class="btn btn-out" onclick="previewAgenda()">&#128065; Visualizar</button>
       <button class="btn btn-navy" onclick="saveAgenda()">Salvar</button>
     </div>
   </div>
