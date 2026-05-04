@@ -4439,8 +4439,22 @@ async function deleteReunAdminRep() {
 
 // ─── DASHBOARD CULTOS ────────────────────────────────────────
 async function loadAllRegistros() {
-  const { data } = await DB.from('ibcj_registros').select('*').order('data_culto', {ascending: false});
-  window._allRegistros = data || [];
+  const { data, error } = await DB.from('ibcj_culto_reports').select('*');
+  if (error) { console.warn('loadAllRegistros:', error.message); return; }
+  const evMap = {};
+  (S.events || []).forEach(e => { evMap[e.id] = e; });
+  const DAYS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  window._allRegistros = (data || []).map(r => {
+    const ev = evMap[r.event_id] || {};
+    const date = ev.date || '';
+    return {
+      ...r,
+      data_culto: date,
+      nome_culto: ev.name || '',
+      dia_semana: date ? DAYS[new Date(date+'T00:00:00').getDay()] : '',
+      _cat: ev.cat || '',
+    };
+  }).filter(r => r.data_culto).sort((a,b) => b.data_culto.localeCompare(a.data_culto));
 }
 
 async function initDashCultos(prefix) {
@@ -4470,15 +4484,13 @@ async function renderDashCultos(prefix) {
   let recs = (window._allRegistros||[]).filter(r => r.data_culto?.startsWith(year));
   // Filtro por tipo
   if (tipo === 'culto') {
-    recs = recs.filter(r => /culto/i.test(r.nome_culto||'') && !/ceia/i.test(r.nome_culto||''));
+    recs = recs.filter(r => r._cat === 'Culto' || (/culto/i.test(r.nome_culto||'') && !/ceia/i.test(r.nome_culto||'')));
   } else if (tipo === 'ceia') {
-    recs = recs.filter(r => /ceia/i.test(r.nome_culto||''));
+    recs = recs.filter(r => r._cat === 'Celebração da Ceia' || /ceia/i.test(r.nome_culto||''));
   } else if (tipo === 'ebd') {
-    recs = recs.filter(r => /ebd/i.test(r.nome_culto||''));
-  } else {
-    // Todos os cultos: culto + ceia + ebd
-    recs = recs.filter(r => /culto|ceia|ebd/i.test(r.nome_culto||''));
+    recs = recs.filter(r => r._cat === 'EBD' || /ebd/i.test(r.nome_culto||''));
   }
+  // Todos: exibe todos os relatórios de culto (RA usa modal próprio e não gera entradas aqui)
   if (!recs.length) {
     cont.innerHTML = '<div style="text-align:center;color:var(--g400);padding:48px 0;font-size:14px">Nenhum registro encontrado para o período selecionado.</div>';
     return;
@@ -5181,6 +5193,7 @@ async function saveCultoRep() {
   if (err) { alert('Erro ao salvar: '+err.message); return; }
   closeCultoRepModal();
   await loadCultoReports();
+  window._allRegistros = null;
   renderCultosList();
 }
 
@@ -5191,6 +5204,7 @@ async function deleteCultoRep() {
   if (error) { alert('Erro ao excluir: '+error.message); return; }
   closeCultoRepModal();
   await loadCultoReports();
+  window._allRegistros = null;
   renderCultosList();
 }
 
