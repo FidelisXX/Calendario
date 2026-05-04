@@ -341,6 +341,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
 .dash-next-date{font-size:11px;font-weight:700;color:var(--g400);white-space:nowrap;min-width:70px}
 .dash-next-name{font-size:13px;font-weight:700;color:var(--navy)}
 .dash-next-cat{display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:1px 7px;margin-top:2px}
+.dash-culto-table{width:100%;border-collapse:collapse;font-size:12px}
+.dash-culto-table th{text-align:left;padding:6px 8px;border-bottom:2px solid var(--g200);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--g400)}
+.dash-culto-table td{padding:7px 8px;border-bottom:1px solid var(--g100);vertical-align:top}
+.dash-culto-table tr:last-child td{border-bottom:none}
+.dash-culto-table .td-date{white-space:nowrap;color:var(--g500);font-size:11px}
+.dash-culto-table .td-name{font-weight:700;color:var(--navy)}
+.dash-culto-table .td-num{font-weight:800;color:var(--navy);text-align:right}
+.dash-culto-table .td-tag{display:inline-block;font-size:10px;font-weight:700;background:var(--g100);border-radius:20px;padding:1px 7px;margin-top:2px}
 @media(max-width:700px){.dash-kpi-grid{grid-template-columns:repeat(2,1fr)}.dash-row{grid-template-columns:1fr}.dash-month-grid{grid-template-columns:repeat(4,1fr)}}
 /* Balanceamento financeiro */
 .bal-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
@@ -706,6 +714,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         <button class="past-sub-btn on" id="past-sub-btn-agenda" onclick="switchPastoralSub('agenda')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--navy);border:none;border-bottom:3px solid var(--navy);margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128197; Agenda Pastoral</button>
         <button class="past-sub-btn" id="past-sub-btn-financeiro" onclick="switchPastoralSub('financeiro')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128200; Balanceamento Financeiro</button>
         <button class="past-sub-btn" id="past-sub-btn-dashboard" onclick="switchPastoralSub('dashboard')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#9729; Dashboard</button>
+        <button class="past-sub-btn" id="past-sub-btn-cultos" onclick="switchPastoralSub('cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128202; Dashboard Cultos</button>
       </div>
 
       <!-- Sub: Agenda Pastoral -->
@@ -745,6 +754,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         </div>
         <div id="dash-content"></div>
       </div>
+
+      <!-- Sub: Dashboard Cultos (Pastoral) -->
+      <div id="past-sub-cultos" style="display:none">
+        <div class="dash-filters">
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Ano</label>
+          <select id="pc-filter-year" onchange="renderDashCultos('pc')"></select>
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Tipo</label>
+          <select id="pc-filter-tipo" onchange="renderDashCultos('pc')">
+            <option value="">Todos os cultos</option>
+            <option value="culto">Culto</option>
+            <option value="ceia">Celebração da Ceia</option>
+            <option value="ebd">EBD</option>
+          </select>
+        </div>
+        <div id="pc-content">
+          <p style="text-align:center;color:var(--g400);padding:40px 0">Carregando...</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -756,6 +783,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
         <button id="sec-sub-btn-membros" onclick="switchSecretariaSub('membros')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--navy);border:none;border-bottom:3px solid var(--navy);margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128100; Lista de Membros</button>
         <button id="sec-sub-btn-cultos" onclick="switchSecretariaSub('cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128221; Relatório dos Cultos</button>
         <button id="sec-sub-btn-rad" onclick="switchSecretariaSub('rad')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128203; Dashboard Reuniões</button>
+        <button id="sec-sub-btn-dash-cultos" onclick="switchSecretariaSub('dash-cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128202; Dashboard Cultos</button>
       </div>
 
       <!-- Sub: Lista de Membros -->
@@ -830,6 +858,31 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
           <div class="rad-empty">&#128203; Selecione uma reunião acima para ver o dashboard</div>
         </div>
       </div>
+
+      <!-- Sub: Dashboard de Cultos -->
+      <div id="sec-sub-dash-cultos" style="display:none">
+        <div class="mbr-hdr">
+          <div>
+            <h2>&#128202; Dashboard de Cultos</h2>
+            <p>Análise de frequência, pregações e dinâmica dos cultos e EBD</p>
+          </div>
+        </div>
+        <div class="dash-filters">
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Ano</label>
+          <select id="dc-filter-year" onchange="renderDashCultos()"></select>
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Tipo</label>
+          <select id="dc-filter-tipo" onchange="renderDashCultos()">
+            <option value="">Todos os cultos</option>
+            <option value="culto">Culto</option>
+            <option value="ceia">Celebração da Ceia</option>
+            <option value="ebd">EBD</option>
+          </select>
+        </div>
+        <div id="dc-content">
+          <p style="text-align:center;color:var(--g400);padding:40px 0">Carregando...</p>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -2736,7 +2789,7 @@ async function deletePastoralNote(evtId) {
 
 // ─── SUB-ABAS PASTORAL ───────────────────────────────────────
 function switchPastoralSub(sub) {
-  const subs = ['agenda','financeiro','dashboard'];
+  const subs = ['agenda','financeiro','dashboard','cultos'];
   subs.forEach(s => {
     const btn = document.getElementById('past-sub-btn-'+s);
     const panel = document.getElementById('past-sub-'+s);
@@ -2745,7 +2798,8 @@ function switchPastoralSub(sub) {
     if (panel) panel.style.display = active ? '' : 'none';
   });
   if (sub === 'financeiro') renderBalanceamento();
-  if (sub === 'dashboard') { initDashFilters(); renderDashboard(); }
+  if (sub === 'dashboard')  { initDashFilters(); renderDashboard(); }
+  if (sub === 'cultos')     initDashCultos('pc');
 }
 
 function initDashFilters() {
@@ -4191,9 +4245,171 @@ async function deleteReunAdminRep() {
   renderCultosList();
 }
 
+// ─── DASHBOARD CULTOS ────────────────────────────────────────
+async function loadAllRegistros() {
+  const { data } = await DB.from('ibcj_registros').select('*').order('data_culto', {ascending: false});
+  window._allRegistros = data || [];
+}
+
+async function initDashCultos(prefix) {
+  prefix = prefix || 'dc';
+  if (!window._allRegistros) await loadAllRegistros();
+  const yearSel = document.getElementById(prefix+'-filter-year');
+  if (!yearSel) return;
+  const years = [...new Set((window._allRegistros||[]).map(r => r.data_culto?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const curYear = yearSel.value || String(new Date().getFullYear());
+  yearSel.innerHTML = years.length
+    ? years.map(y => '<option value="'+y+'"'+(y===curYear?' selected':'')+'>'+y+'</option>').join('')
+    : '<option value="'+curYear+'">'+curYear+'</option>';
+  if (!yearSel.value) yearSel.value = years[0] || curYear;
+  await renderDashCultos(prefix);
+}
+
+async function renderDashCultos(prefix) {
+  prefix = prefix || 'dc';
+  const cont = document.getElementById(prefix+'-content');
+  if (!cont) return;
+  if (!window._allRegistros) {
+    cont.innerHTML = '<p style="text-align:center;color:var(--g400);padding:40px 0">Carregando...</p>';
+    await loadAllRegistros();
+  }
+  const year = document.getElementById(prefix+'-filter-year')?.value || String(new Date().getFullYear());
+  const tipo = document.getElementById(prefix+'-filter-tipo')?.value || '';
+  let recs = (window._allRegistros||[]).filter(r => r.data_culto?.startsWith(year));
+  // Filtro por tipo
+  if (tipo === 'culto') {
+    recs = recs.filter(r => /culto/i.test(r.nome_culto||'') && !/ceia/i.test(r.nome_culto||''));
+  } else if (tipo === 'ceia') {
+    recs = recs.filter(r => /ceia/i.test(r.nome_culto||''));
+  } else if (tipo === 'ebd') {
+    recs = recs.filter(r => /ebd/i.test(r.nome_culto||''));
+  } else {
+    // Todos os cultos: culto + ceia + ebd
+    recs = recs.filter(r => /culto|ceia|ebd/i.test(r.nome_culto||''));
+  }
+  if (!recs.length) {
+    cont.innerHTML = '<div style="text-align:center;color:var(--g400);padding:48px 0;font-size:14px">Nenhum registro encontrado para o período selecionado.</div>';
+    return;
+  }
+  const totalCultos     = recs.length;
+  const totalPresentes  = recs.reduce((s,r) => s+(r.presentes||0), 0);
+  const avgPresentes    = Math.round(totalPresentes / totalCultos);
+  const maxRec          = recs.reduce((a,b) => (b.presentes||0) > (a.presentes||0) ? b : a, recs[0]);
+  const totalConvertidos= recs.reduce((s,r) => s+(r.convertidos||0), 0);
+  const DIAS_SEMANA_CALC = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const getDia = r => r.dia_semana?.trim() || (r.data_culto ? DIAS_SEMANA_CALC[new Date(r.data_culto+'T00:00:00').getDay()] : 'Sem info');
+  const MESES_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const byMonth = Array(12).fill(0).map(() => ({total:0,count:0}));
+  recs.forEach(r => { const m = parseInt(r.data_culto.slice(5,7),10)-1; byMonth[m].total+=(r.presentes||0); byMonth[m].count++; });
+  const maxMonthAvg = Math.max(...byMonth.map(m => m.count ? Math.round(m.total/m.count) : 0), 1);
+  const byDay = {};
+  recs.forEach(r => {
+    const d = getDia(r);
+    if (!byDay[d]) byDay[d] = {total:0,count:0};
+    byDay[d].total+=(r.presentes||0); byDay[d].count++;
+  });
+  const sortedDays = Object.entries(byDay).sort((a,b)=>b[1].total-a[1].total);
+  const maxDay = sortedDays[0]?.[1].total||1;
+  // Ranking por tipo de culto (nome_culto)
+  const byTipo = {};
+  recs.forEach(r => {
+    const t = r.nome_culto?.trim()||'Sem nome';
+    if (!byTipo[t]) byTipo[t]={total:0,count:0};
+    byTipo[t].total+=(r.presentes||0); byTipo[t].count++;
+  });
+  const sortedTipos = Object.entries(byTipo).sort((a,b)=>b[1].total-a[1].total).slice(0,8);
+  const maxTipo = sortedTipos[0]?.[1].total||1;
+  // Pregações: lista de cultos com pregador + texto bíblico
+  const pregacoes = [...recs]
+    .filter(r => r.pregador?.trim() || r.texto_biblico?.trim())
+    .sort((a,b)=>b.data_culto.localeCompare(a.data_culto))
+    .slice(0,20);
+  const recent = [...recs].sort((a,b)=>b.data_culto.localeCompare(a.data_culto)).slice(0,15);
+  let html = '';
+  html += '<div class="dash-kpi-grid">'
+    + kpi('blue',   '&#128203;', 'Cultos em '+year, totalCultos, 'registros de culto')
+    + kpi('purple', '&#128101;', 'Média de Presentes', avgPresentes, 'pessoas por culto')
+    + kpi('green',  '&#128200;', 'Culto com Mais Pessoas', maxRec.presentes||0, fmtDateBR(maxRec.data_culto)+' · '+escH(maxRec.nome_culto||''))
+    + kpi('orange', '&#10010;',  'Total Convertidos', totalConvertidos, 'no ano de '+year)
+    + '</div>';
+  html += '<div class="dash-row">';
+  html += '<div class="dash-card"><div class="dash-section-title">Média de Presentes por Mês — '+year+'</div>'
+    + '<div class="dash-month-grid">'
+    + byMonth.map((m,i) => {
+        const avg = m.count ? Math.round(m.total/m.count) : 0;
+        const h   = maxMonthAvg > 0 ? Math.round((avg/maxMonthAvg)*56) : 0;
+        return '<div class="dash-month-col">'
+          +'<div class="dash-month-col-val">'+(avg||'')+'</div>'
+          +'<div class="dash-month-col-bar"><div class="dash-month-col-fill" style="height:'+h+'px;background:'+(avg>=avgPresentes?'var(--navy)':'var(--g300)')+'"></div></div>'
+          +'<div class="dash-month-col-lbl">'+MESES_SHORT[i]+'</div>'
+          +'</div>';
+      }).join('')
+    + '</div><div style="font-size:10px;color:var(--g400);margin-top:8px">Barras escuras = acima da média ('+avgPresentes+' pessoas)</div></div>';
+  html += '<div class="dash-card"><div class="dash-section-title">Frequência por Dia da Semana</div>';
+  if (!sortedDays.length) { html += '<p style="color:var(--g400);font-size:13px;text-align:center;padding:16px 0">Sem dados.</p>'; }
+  else { html += sortedDays.map(([day,d]) => {
+    const pct = Math.round((d.total/maxDay)*100);
+    const avg = d.count ? Math.round(d.total/d.count) : 0;
+    return '<div class="dash-bar-row">'
+      +'<div class="dash-bar-label" title="'+escH(day)+'">'+escH(day)+'</div>'
+      +'<div class="dash-bar-track"><div class="dash-bar-fill" style="width:'+pct+'%;background:var(--navy)"></div></div>'
+      +'<div class="dash-bar-count" style="width:60px">ø '+avg+'</div>'
+      +'</div>';
+  }).join(''); }
+  html += '</div>';
+  html += '</div>';
+  html += '<div class="dash-row">';
+  html += '<div class="dash-card"><div class="dash-section-title">Tipos de Culto com Mais Presença</div>';
+  if (!sortedTipos.length) { html += '<p style="color:var(--g400);font-size:13px;text-align:center;padding:16px 0">Sem dados.</p>'; }
+  else { html += sortedTipos.map(([tipo,d]) => {
+    const pct = Math.round((d.total/maxTipo)*100);
+    const avg = d.count ? Math.round(d.total/d.count) : 0;
+    return '<div class="dash-bar-row">'
+      +'<div class="dash-bar-label" title="'+escH(tipo)+'">'+escH(tipo)+'</div>'
+      +'<div class="dash-bar-track"><div class="dash-bar-fill" style="width:'+pct+'%;background:#7c3aed"></div></div>'
+      +'<div style="font-size:11px;color:var(--g500);flex-shrink:0;width:80px;text-align:right">ø'+avg+' ('+d.count+'x)</div>'
+      +'</div>';
+  }).join(''); }
+  html += '</div>';
+  // Pregações recentes: pregador + texto bíblico
+  html += '<div class="dash-card"><div class="dash-section-title">Pregações — Pregador &amp; Palavra</div>';
+  if (!pregacoes.length) { html += '<p style="color:var(--g400);font-size:13px;text-align:center;padding:16px 0">Sem dados de pregações.</p>'; }
+  else { html += pregacoes.map(r => {
+    const pregador = r.pregador?.trim()||'—';
+    const texto    = r.texto_biblico?.trim()||'Texto não informado';
+    const dia      = getDia(r);
+    return '<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--g100);align-items:flex-start">'
+      +'<div style="min-width:72px;flex-shrink:0"><div style="font-size:11px;font-weight:700;color:var(--g400)">'+fmtDateBR(r.data_culto)+'</div>'
+      +'<div style="font-size:10px;color:var(--g400)">'+escH(dia)+'</div></div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--navy)">'+escH(pregador)+'</div>'
+      +'<div style="font-size:12px;color:var(--g600);margin-top:1px">&#128214; '+escH(texto)+'</div>'
+      +'<div style="font-size:10px;color:var(--g400);margin-top:1px">'+escH(r.nome_culto||'')+'</div>'
+      +'</div>'
+      +'<div style="font-size:12px;font-weight:800;color:var(--navy);flex-shrink:0">'+( r.presentes||0)+'</div>'
+      +'</div>';
+  }).join('')+'</div>'; }
+  html += '</div>';
+  html += '</div>';
+  html += '<div class="dash-card" style="margin-bottom:24px"><div class="dash-section-title">Últimos Cultos Registrados</div>'
+    +'<table class="dash-culto-table"><thead><tr>'
+    +'<th>Data</th><th>Culto</th><th>Pregador</th><th>Texto Bíblico</th><th style="text-align:right">Presentes</th><th style="text-align:right">Conv.</th>'
+    +'</tr></thead><tbody>'
+    + recent.map(r => '<tr>'
+        +'<td class="td-date">'+fmtDateBR(r.data_culto)+'<br><span style="font-size:10px;color:var(--g400)">'+escH(getDia(r))+'</span></td>'
+        +'<td class="td-name">'+escH(r.nome_culto||'—')+'</td>'
+        +'<td>'+escH(r.pregador||'—')+'</td>'
+        +'<td style="font-size:11px;color:var(--g600)">'+escH(r.texto_biblico||'—')+'</td>'
+        +'<td class="td-num">'+(r.presentes||0)+'</td>'
+        +'<td class="td-num" style="color:var(--g500)">'+((r.convertidos||0)||'—')+'</td>'
+        +'</tr>').join('')
+    +'</tbody></table></div>';
+  cont.innerHTML = html;
+}
+
 // ─── ADMINISTRAÇÃO SECRETARIA ────────────────────────────────
 function switchSecretariaSub(sub) {
-  const subs = ['membros','cultos','rad'];
+  const subs = ['membros','cultos','rad','dash-cultos'];
   subs.forEach(s => {
     const btn   = document.getElementById('sec-sub-btn-'+s);
     const panel = document.getElementById('sec-sub-'+s);
@@ -4201,8 +4417,9 @@ function switchSecretariaSub(sub) {
     if (btn)   { btn.style.color = active ? 'var(--navy)' : 'var(--g500)'; btn.style.borderBottomColor = active ? 'var(--navy)' : 'transparent'; }
     if (panel) panel.style.display = active ? '' : 'none';
   });
-  if (sub === 'cultos') initCultosFilters();
-  if (sub === 'rad')    initRaDashboard();
+  if (sub === 'cultos')      initCultosFilters();
+  if (sub === 'rad')         initRaDashboard();
+  if (sub === 'dash-cultos') initDashCultos('dc');
 }
 
 // ─── DASHBOARD REUNIÕES ADMINISTRATIVAS ──────────────────────
