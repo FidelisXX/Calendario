@@ -546,7 +546,7 @@ body{overflow-x:hidden}
   .mftr{padding:0 14px 14px;flex-wrap:wrap;gap:6px}
   .mftr .btn{flex:1;justify-content:center;min-width:80px}
   .culto-card{flex-direction:column;align-items:flex-start}
-  .min-grid{grid-template-columns:1fr 1fr}
+  .min-grid{grid-template-columns:1fr}
   .lit-inp-labels{display:none!important}
   .lit-inp-fields{flex-direction:column;gap:6px}
   .lit-inp-field.f-role,.lit-inp-field.f-resp{flex:0 0 auto;width:100%}
@@ -1018,6 +1018,12 @@ body{overflow-x:hidden}
           <label style="font-size:12px;font-weight:700;color:var(--g500)">Categoria</label>
           <select id="culto-filter-cat" onchange="renderCultosList()" style="border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;background:#fff">
             <option value="">Todas</option>
+          </select>
+          <label style="font-size:12px;font-weight:700;color:var(--g500)">Status</label>
+          <select id="culto-filter-status" onchange="renderCultosList()" style="border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;background:#fff">
+            <option value="">Todos</option>
+            <option value="preenchido">Preenchidos</option>
+            <option value="sem">Sem relatório</option>
           </select>
           <input type="text" id="culto-search" placeholder="Buscar evento..." oninput="renderCultosList()" style="border:1.5px solid var(--g200);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;min-width:160px">
         </div>
@@ -5088,22 +5094,24 @@ function initCultosFilters() {
 function renderCultosList() {
   const year   = document.getElementById('culto-filter-year')?.value || String(new Date().getFullYear());
   const cat    = document.getElementById('culto-filter-cat')?.value  || '';
+  const status = document.getElementById('culto-filter-status')?.value || '';
   const search = (document.getElementById('culto-search')?.value || '').toLowerCase();
   const cont   = document.getElementById('cultos-list');
   if (!cont) return;
+
+  const reportedIds = new Set([...(_cultoReports||[]), ...(_raReports||[])].map(r => r.event_id));
 
   let evts = (S.events||[])
     .filter(e => e.date.startsWith(year) && e.status === 'aprovado')
     .filter(e => !cat    || e.cat === cat)
     .filter(e => !search || e.name.toLowerCase().includes(search))
+    .filter(e => !status || (status === 'preenchido' ? reportedIds.has(e.id) : !reportedIds.has(e.id)))
     .sort((a,b) => a.date.localeCompare(b.date));
 
   if (!evts.length) {
     cont.innerHTML = '<p style="text-align:center;color:var(--g400);padding:40px 0">Nenhum evento encontrado.</p>';
     return;
   }
-
-  const reportedIds = new Set([...(_cultoReports||[]), ...(_raReports||[])].map(r => r.event_id));
 
   cont.innerHTML = evts.map(ev => {
     const cat = CATS[ev.cat]||CATS['Outro'];
