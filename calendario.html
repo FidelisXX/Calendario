@@ -3076,7 +3076,11 @@ async function renderDashboard() {
 
   // Membros por departamento
   const byDepto = {};
-  (window._membros||[]).forEach(m => { const d = m.departamento||'Sem departamento'; byDepto[d] = (byDepto[d]||0)+1; });
+  (window._membros||[]).forEach(m => {
+    const deps = parseDeptos(m.departamento);
+    if (deps.length) deps.forEach(d => { byDepto[d] = (byDepto[d]||0)+1; });
+    else byDepto['Sem departamento'] = (byDepto['Sem departamento']||0)+1;
+  });
   const sortedDeptos = Object.entries(byDepto).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const maxDepto = sortedDeptos[0]?.[1] || 1;
 
@@ -4157,7 +4161,7 @@ function renderMembros() {
 
   let list = _membros.filter(m => {
     if (search && !m.nome.toLowerCase().includes(search)) return false;
-    if (fDepto  && (m.departamento||'') !== fDepto) return false;
+    if (fDepto  && !parseDeptos(m.departamento).includes(fDepto)) return false;
     return true;
   }).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', {sensitivity:'base'}));
 
@@ -4172,12 +4176,22 @@ function renderMembros() {
     + '<td style="font-weight:600">'+escH(m.nome)+'</td>'
     + '<td>'+fmtDateBR(m.data_nascimento)+'</td>'
     + '<td>'+fmtDateBR(m.data_convencao)+'</td>'
-    + '<td>'+escH(m.departamento||'—')+'</td>'
+    + '<td>'+(parseDeptos(m.departamento).map(d=>escH(d)).join(', ')||'—')+'</td>'
     + '<td style="white-space:nowrap">'
       + '<button class="btn btn-out btn-sm" style="padding:3px 10px;font-size:11px" onclick="openMembroModal(\''+m.id+'\')">Editar</button>'
     + '</td>'
     + '</tr>').join('');
   document.getElementById('mbr-count').textContent = list.length + ' membro' + (list.length !== 1 ? 's' : '') + ' exibido' + (list.length !== 1 ? 's' : '');
+}
+
+function parseDeptos(departamento) {
+  if (!departamento) return [];
+  try { const p = JSON.parse(departamento); return Array.isArray(p) ? p : [p]; }
+  catch { return [departamento]; }
+}
+
+function getMembroDeptos() {
+  return [...document.querySelectorAll('#membro-depto-wrap input[type=checkbox]:checked')].map(cb => cb.value);
 }
 
 function openMembroModal(id) {
@@ -4188,11 +4202,19 @@ function openMembroModal(id) {
   document.getElementById('membro-nascimento').value = m?.data_nascimento || '';
   document.getElementById('membro-convencao').value  = m?.data_convencao || '';
   document.getElementById('membro-obs').value        = m?.observacoes || '';
-  // preenche select de ministérios
+  // preenche checkboxes de ministérios
   const nomes = getMinisterioNames();
-  const sel = document.getElementById('membro-depto');
-  sel.innerHTML = '<option value="">— Nenhum —</option>'
-    + nomes.map(n => '<option value="'+escH(n)+'"'+(n===(m?.departamento||'')?' selected':'')+'>'+escH(n)+'</option>').join('');
+  const selecionados = parseDeptos(m?.departamento);
+  const wrap = document.getElementById('membro-depto-wrap');
+  wrap.innerHTML = nomes.length
+    ? nomes.map((n,i) => {
+        const checked = selecionados.includes(n) ? ' checked' : '';
+        return '<label style="display:flex;align-items:center;gap:8px;padding:5px 10px;cursor:pointer;border-radius:5px;font-size:13px;color:var(--g800);transition:background .1s" onmouseover="this.style.background=\'var(--g50)\'" onmouseout="this.style.background=\'\'">'
+          + '<input type="checkbox" value="'+escH(n)+'"'+checked+' style="accent-color:var(--navy);width:15px;height:15px;flex-shrink:0">'
+          + escH(n)
+          + '</label>';
+      }).join('')
+    : '<span style="padding:8px 10px;font-size:12px;color:var(--g400);display:block">Nenhum ministério cadastrado</span>';
   // botão excluir
   document.getElementById('membro-del-btn').style.display = m ? '' : 'none';
   document.getElementById('membro-overlay').classList.add('on');
@@ -4212,7 +4234,7 @@ async function saveMembro() {
     nome,
     data_nascimento: document.getElementById('membro-nascimento').value || null,
     data_convencao:  document.getElementById('membro-convencao').value  || null,
-    departamento:    document.getElementById('membro-depto').value || null,
+    departamento:    (d => d.length ? JSON.stringify(d) : null)(getMembroDeptos()),
     observacoes:     document.getElementById('membro-obs').value.trim() || null,
   };
   const id = document.getElementById('membro-id').value;
@@ -5838,10 +5860,8 @@ function updateMobTabStrip() {
           </div>
         </div>
         <div>
-          <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Departamento / Ministério</label>
-          <select id="membro-depto" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--g800);box-sizing:border-box">
-            <option value="">— Nenhum —</option>
-          </select>
+          <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Departamento / Ministério <span style="font-weight:400;color:var(--g400)">(pode marcar mais de um)</span></label>
+          <div id="membro-depto-wrap" style="border:1.5px solid var(--g200);border-radius:7px;max-height:160px;overflow-y:auto;padding:6px 4px;background:#fff;box-sizing:border-box"></div>
         </div>
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Observações</label>
