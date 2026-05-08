@@ -168,24 +168,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   .mcard{box-shadow:none!important;break-inside:avoid;border:1px solid var(--g200)}
   #list-view{display:none!important}
   #grid-view{display:block!important}
-  body.print-lit #lit-print-area{display:flex!important;flex-direction:row;padding:12px!important;gap:0}
-  body.print-lit #lit-print-area .lp-print-col{flex:1;padding:16px}
+  body.print-lit #lit-print-area{display:flex!important;flex-direction:row;padding:0!important;gap:0}
+  body.print-lit #lit-print-area .lp-print-col{flex:0 0 50%;max-width:50%;box-sizing:border-box;padding:16px 20px;overflow:hidden}
   body.print-lit #lit-print-area .lp-print-col:not(.lp-print-single):first-child{border-right:1px solid #bbb}
-  body.print-lit #lit-print-area .lp-print-single{max-width:540px;margin:0 auto}
+  body.print-lit #lit-print-area .lp-print-single{flex:0 0 100%;max-width:540px;margin:0 auto;box-sizing:border-box;padding:16px 20px}
   body.print-lit *:not(#lit-print-area):not(#lit-print-area *){display:none!important}
   body.print-fin #fin-print-area{display:block!important;padding:32px}
   body.print-fin *:not(#fin-print-area):not(#fin-print-area *){display:none!important}
   body.print-bal #bal-print-area{display:block!important;padding:32px}
   body.print-bal *:not(#bal-print-area):not(#bal-print-area *){display:none!important}
-  body.print-diac #diac-print-area{display:flex!important;flex-direction:row;padding:12px!important;gap:0}
-  body.print-diac #diac-print-area .lp-print-col{flex:1;padding:16px}
+  body.print-diac #diac-print-area{display:flex!important;flex-direction:row;padding:0!important;gap:0}
+  body.print-diac #diac-print-area .lp-print-col{flex:0 0 50%;max-width:50%;box-sizing:border-box;padding:16px 20px;overflow:hidden}
   body.print-diac #diac-print-area .lp-print-col:not(.lp-print-single):first-child{border-right:1px solid #bbb}
-  body.print-diac #diac-print-area .lp-print-single{max-width:540px;margin:0 auto}
+  body.print-diac #diac-print-area .lp-print-single{flex:0 0 100%;max-width:540px;margin:0 auto;box-sizing:border-box;padding:16px 20px}
   body.print-diac *:not(#diac-print-area):not(#diac-print-area *){display:none!important}
-  body.print-agenda #agenda-print-area{display:flex!important;flex-direction:row;padding:12px!important;gap:0}
-  body.print-agenda #agenda-print-area .lp-print-col{flex:1;padding:16px}
+  body.print-agenda #agenda-print-area{display:flex!important;flex-direction:row;padding:0!important;gap:0}
+  body.print-agenda #agenda-print-area .lp-print-col{flex:0 0 50%;max-width:50%;box-sizing:border-box;padding:16px 20px;overflow:hidden}
   body.print-agenda #agenda-print-area .lp-print-col:not(.lp-print-single):first-child{border-right:1px solid #bbb}
-  body.print-agenda #agenda-print-area .lp-print-single{max-width:580px;margin:0 auto}
+  body.print-agenda #agenda-print-area .lp-print-single{flex:0 0 100%;max-width:580px;margin:0 auto;box-sizing:border-box;padding:16px 20px}
   body.print-agenda *:not(#agenda-print-area):not(#agenda-print-area *){display:none!important}
   .mevlist-hidden{display:flex!important}
   .mevlist-more{display:none!important}
