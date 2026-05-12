@@ -189,6 +189,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   body.print-agenda *:not(#agenda-print-area):not(#agenda-print-area *){display:none!important}
   .mevlist-hidden{display:flex!important}
   .mevlist-more{display:none!important}
+  body.print-double .lp-print-col:not(.lp-print-single){padding:6px 10px}
+  body.print-double .lp-preview{padding:6px 10px;max-width:none}
+  body.print-double .lp-logo-img{width:52px;height:52px;margin-bottom:4px}
+  body.print-double .lp-hdr{padding-bottom:8px;margin-bottom:10px}
+  body.print-double .lp-title-line{font-size:15px}
+  body.print-double .lp-items{margin:2px 0 10px}
+  body.print-double .lp-row{font-size:11.5px;margin-bottom:7px}
+  body.print-double .lp-rsub{font-size:10px;margin:-3px 0 5px 24px}
+  body.print-double .lp-ftr{margin-top:10px;padding-top:8px}
 }
 
 /* ── LITURGIA PREVIEW ─────────────────────────────────── */
@@ -2371,8 +2380,13 @@ function printLit(){
     ? '<div class="lp-print-col">'+litHtml+'</div><div class="lp-print-col">'+litHtml+'</div>'
     : '<div class="lp-print-col lp-print-single">'+litHtml+'</div>';
   document.body.classList.add('print-lit');
+  if(litLayout==='double') document.body.classList.add('print-double');
+  const _pgLit=document.createElement('style');
+  _pgLit.textContent=litLayout==='double'?'@page{size:landscape}':'@page{size:portrait}';
+  document.head.appendChild(_pgLit);
   window.print();
-  document.body.classList.remove('print-lit');
+  document.head.removeChild(_pgLit);
+  document.body.classList.remove('print-lit','print-double');
 }
 
 // ─── SERVIÇO DIACONAL ────────────────────────────────────────
@@ -2501,11 +2515,12 @@ function renderDiacItems(){
       +(i>0?'<button type="button" class="btn-icon" title="Mover para cima" onclick="moveDiacItem('+i+',-1)">↑</button>':'<span style="width:28px"></span>')
       +(i<diaconalItems.length-1?'<button type="button" class="btn-icon" title="Mover para baixo" onclick="moveDiacItem('+i+',1)">↓</button>':'<span style="width:28px"></span>')
       +'<button type="button" class="btn-icon" title="Remover" onclick="removeDiacItem('+i+')" style="color:var(--red)">&#128465;</button>'
-      +'</div></div>';
+      +'</div></div>'
+      +'<div class="lit-row-sub"><input class="lit-sub-inp" placeholder="Observação / sub-item opcional — ex: (Recolhimento: Diác. Carlos)" value="'+escH(it.sub||'')+'" oninput="diaconalItems['+i+'].sub=this.value"></div>';
     list.append(row);
   });
 }
-function addDiacItem(){ diaconalItems.push({role:'',persons:''}); renderDiacItems(); }
+function addDiacItem(){ diaconalItems.push({role:'',persons:'',sub:''}); renderDiacItems(); }
 function removeDiacItem(i){ diaconalItems.splice(i,1); renderDiacItems(); }
 function moveDiacItem(i,dir){ const j=i+dir; if(j<0||j>=diaconalItems.length)return; const t=diaconalItems[i]; diaconalItems[i]=diaconalItems[j]; diaconalItems[j]=t; renderDiacItems(); }
 async function saveDiac(){
@@ -2567,6 +2582,7 @@ function buildDiacHTML(diac){
     +'<span class="lp-rfill"></span>'
     +(it.persons?'<span class="lp-rresp">'+escH(it.persons)+'</span>':'')
     +'</div>'
+    +(it.sub?'<div class="lp-rsub">('+escH(it.sub)+')</div>':'')
   ).join('');
   const obsBlock=(diac.observations||'').trim()
     ?'<div style="margin-top:18px;font-size:12.5px;line-height:1.7;text-align:justify"><strong>Observações</strong>:<br>'+escH(diac.observations).replace(/\n/g,'<br>')+'</div>'
@@ -2604,8 +2620,13 @@ function printDiac(){
     ? '<div class="lp-print-col">'+diacHtml+'</div><div class="lp-print-col">'+diacHtml+'</div>'
     : '<div class="lp-print-col lp-print-single">'+diacHtml+'</div>';
   document.body.classList.add('print-diac');
+  if(diacLayout==='double') document.body.classList.add('print-double');
+  const _pgDiac=document.createElement('style');
+  _pgDiac.textContent=diacLayout==='double'?'@page{size:landscape}':'@page{size:portrait}';
+  document.head.appendChild(_pgDiac);
   window.print();
-  document.body.classList.remove('print-diac');
+  document.head.removeChild(_pgDiac);
+  document.body.classList.remove('print-diac','print-double');
 }
 // ─────────────────────────────────────────────────────────────
 
