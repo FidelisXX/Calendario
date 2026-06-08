@@ -813,6 +813,9 @@ body{overflow-x:hidden}
     <button class="main-tab" id="tab-btn-membros" onclick="switchTab('membros')" style="display:none">&#128203; Administração Secretaria</button>
   </div>
 
+  <!-- BANNER ANIVERSARIANTES -->
+  <div id="birthday-banner" style="display:none"></div>
+
   <!-- TOOLBAR -->
   <div class="toolbar">
     <div class="yr-ctrl">
@@ -1231,9 +1234,10 @@ let resetTokens = {}; // {email: {code, expires}}
 
 // ─── CONFIG EMAILJS ───────────────────────────────────────────
 const EMAILJS_CFG = {
-  publicKey:  'HM3z6mOau95WVtcFe',
-  serviceId:  'service_j6insrl',
-  templateId: 'template_b1461oh',
+  publicKey:          'HM3z6mOau95WVtcFe',
+  serviceId:          'service_j6insrl',
+  templateId:         'template_b1461oh',
+  birthdayTemplateId: 'template_vi9tr6u',
 };
 
 // ─── SUPABASE ─────────────────────────────────────────────────
@@ -1632,6 +1636,7 @@ async function showApp(user) {
   await Promise.all([loadEvts(), loadLiturgias(), loadDiaconal(), loadAgenda()]);
   updateNotifBadge();
   render();
+  checkWeekBirthdays();
 }
 
 // ─── NAVEGAÇÃO DE ANO ─────────────────────────────────────────
@@ -4290,6 +4295,139 @@ async function deleteMembroConfirm() {
   renderMembros();
 }
 
+// ─── ANIVERSARIANTES ─────────────────────────────────────────
+async function checkWeekBirthdays() {
+  if (!hasRole('pastor','secretaria','admin')) return;
+  if (!_membros.length) await loadMembros();
+
+  const today = new Date();
+  const dow = today.getDay(); // 0=Dom
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+
+  const yr = today.getFullYear();
+  const weekBirthdays = _membros.filter(m => {
+    if (!m.data_nascimento) return false;
+    const parts = m.data_nascimento.split('-').map(Number);
+    const bday = new Date(yr, parts[1] - 1, parts[2]);
+    return bday >= monday && bday <= sunday;
+  }).sort((a, b) => {
+    const pa = a.data_nascimento.split('-'), pb = b.data_nascimento.split('-');
+    return (Number(pa[1])*100 + Number(pa[2])) - (Number(pb[1])*100 + Number(pb[2]));
+  });
+
+  if (!weekBirthdays.length) return;
+
+  showBirthdayBanner(weekBirthdays, monday, sunday);
+
+  const weekKey = 'ibcj_bday_' + monday.toISOString().slice(0,10);
+  if (!localStorage.getItem(weekKey)) {
+    await sendBirthdayEmail(weekBirthdays, monday, sunday);
+    localStorage.setItem(weekKey, '1');
+  }
+}
+
+function showBirthdayBanner(members, monday, sunday) {
+  const banner = document.getElementById('birthday-banner');
+  if (!banner) return;
+  const fmt = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const yr = new Date().getFullYear();
+  const DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const names = members.map(m => {
+    const p = m.data_nascimento.split('-').map(Number);
+    const bd = new Date(yr, p[1]-1, p[2]);
+    return '<strong>'+escH(m.nome)+'</strong> <span style="font-size:11px;opacity:.75">('+DAYS[bd.getDay()]+', '+fmt(bd)+')</span>';
+  }).join(' &nbsp;·&nbsp; ');
+  banner.innerHTML = '<div style="background:linear-gradient(135deg,#c9a227,#e8c547);padding:9px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-family:inherit">'
+    +'<span style="font-size:20px">🎂</span>'
+    +'<span style="font-size:12px;font-weight:800;color:#1a2744;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Aniversariantes da semana</span>'
+    +'<span style="font-size:12px;color:#5a4010;white-space:nowrap">'+fmt(monday)+' – '+fmt(sunday)+'</span>'
+    +'<span style="font-size:13px;color:#1a2744">'+names+'</span>'
+    +'<button onclick="document.getElementById(\'birthday-banner\').style.display=\'none\'" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:20px;color:#1a2744;line-height:1;padding:0 4px;opacity:.6" title="Fechar">×</button>'
+    +'</div>';
+  banner.style.display = 'block';
+}
+
+async function sendBirthdayEmail(members, monday, sunday) {
+  const { data: recipients } = await DB.from('ibcj_users').select('name,email').in('role',['pastor','secretaria','admin']);
+  if (!recipients || !recipients.length) return;
+
+  const yr = new Date().getFullYear();
+  const fmtLong = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const fmt2 = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const week_range = fmt2(monday) + ' a ' + fmt2(sunday);
+
+  const birthday_list = members.map(m => {
+    const p = m.data_nascimento.split('-').map(Number);
+    const bd = new Date(yr, p[1]-1, p[2]);
+    const label = DAYS[bd.getDay()]+', '+String(p[2]).padStart(2,'0')+'/'+String(p[1]).padStart(2,'0');
+    return '• ' + m.nome + '   —   ' + label;
+  }).join('\n');
+
+  emailjs.init(EMAILJS_CFG.publicKey);
+  for (const rec of recipients) {
+    try {
+      await emailjs.send(EMAILJS_CFG.serviceId, EMAILJS_CFG.birthdayTemplateId, {
+        to_name:      rec.name || rec.email,
+        to_email:     rec.email,
+        week_range,
+        birthday_list,
+      });
+    } catch(e) { console.warn('Birthday email error:', rec.email, e); }
+  }
+}
+
+async function adminSendBirthdayEmail(btn) {
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  if (!_membros.length) await loadMembros();
+
+  const today = new Date();
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+
+  const yr = today.getFullYear();
+  const weekBirthdays = _membros.filter(m => {
+    if (!m.data_nascimento) return false;
+    const p = m.data_nascimento.split('-').map(Number);
+    const bd = new Date(yr, p[1]-1, p[2]);
+    return bd >= monday && bd <= sunday;
+  }).sort((a,b) => {
+    const pa = a.data_nascimento.split('-'), pb = b.data_nascimento.split('-');
+    return (Number(pa[1])*100+Number(pa[2]))-(Number(pb[1])*100+Number(pb[2]));
+  });
+
+  if (!weekBirthdays.length) {
+    btn.textContent = orig;
+    btn.disabled = false;
+    alert('Nenhum aniversariante nesta semana.');
+    return;
+  }
+
+  // Força reenvio removendo o controle de semana
+  const weekKey = 'ibcj_bday_' + monday.toISOString().slice(0,10);
+  localStorage.removeItem(weekKey);
+
+  await sendBirthdayEmail(weekBirthdays, monday, sunday);
+  localStorage.setItem(weekKey, '1');
+  showBirthdayBanner(weekBirthdays, monday, sunday);
+
+  btn.textContent = '✓ Enviado!';
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+}
+
 // ─── REUNIÃO ADMINISTRATIVA ──────────────────────────────────
 var _votIdx = 0;
 var _raReports = [];
@@ -5712,7 +5850,8 @@ function updateMobTabStrip() {
     <div class="mbody" id="admin-users-body">
       <div style="text-align:center;padding:24px;color:var(--g400)">Carregando...</div>
     </div>
-    <div class="mftr">
+    <div class="mftr" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <button class="btn btn-gold" onclick="adminSendBirthdayEmail(this)" title="Envia e-mail com aniversariantes da semana para pastor e secretária">&#127874; Enviar Aniversariantes da Semana</button>
       <button class="btn btn-out" onclick="closeAdminUsers()">Fechar</button>
     </div>
   </div>
