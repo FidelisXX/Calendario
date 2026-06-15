@@ -1606,8 +1606,8 @@ async function showApp(user) {
   if (canApprove()) {
     document.getElementById('bell-wrap').style.display = 'inline-flex';
   }
-  // Mostra botão admin
-  if (isAdmin()) {
+  // Mostra botão admin/pastor
+  if (hasRole('admin','pastor')) {
     document.getElementById('btn-admin-users').style.display = '';
   }
   // Mostra Serviço Diaconal apenas para admin, pastor e secretaria
@@ -3498,28 +3498,31 @@ async function deleteGabineteNotes() {
 
 // ─── GESTÃO DE USUÁRIOS (admin) ───────────────────────────────
 async function openAdminUsers() {
-  if (!isAdmin()) return;
+  if (!hasRole('admin','pastor')) return;
   document.getElementById('admin-users-overlay').classList.add('on');
   const users = await getAllUsersForAdmin();
   const body = document.getElementById('admin-users-body');
   if (!users.length) { body.innerHTML = '<p style="text-align:center;color:var(--g400)">Nenhum usuário.</p>'; return; }
-  const roleOpts = ['lider','secretaria','pastor','admin']
-    .map(r => '<option value="'+r+'">'+{lider:'Líder',secretaria:'Secretaria',pastor:'Pastor',admin:'Admin'}[r]+'</option>').join('');
+  const visibleRoles = isAdmin() ? ['lider','secretaria','pastor','admin'] : ['lider','secretaria','pastor'];
+  const roleLabels = {lider:'Líder',secretaria:'Secretaria',pastor:'Pastor',admin:'Admin'};
+  const roleOpts = visibleRoles.map(r => '<option value="'+r+'">'+roleLabels[r]+'</option>').join('');
   body.innerHTML = '<div style="overflow-x:auto"><table class="user-table">'
     + '<thead><tr><th>Nome</th><th>E-mail</th><th>Role</th><th>Cadastro</th><th>Ações</th></tr></thead>'
     + '<tbody>'
     + users.map(u => {
         const isSelf = u.email === currentUser.email;
+        const isTargetAdmin = u.role === 'admin';
+        const canManage = !isSelf && (!isTargetAdmin || isAdmin());
         return '<tr>'
           + '<td style="font-weight:600">' + escH(u.name) + '</td>'
           + '<td style="color:var(--g500);font-size:12px">' + escH(u.email) + '</td>'
-          + '<td>' + (isSelf
+          + '<td>' + (!canManage
             ? '<span class="role-badge role-'+u.role+'">' + u.role + '</span>'
             : '<select class="role-sel" onchange="changeUserRole(\''+u.id+'\',this.value)">'
               + roleOpts.replace('value="'+u.role+'"','value="'+u.role+'" selected')
               + '</select>') + '</td>'
           + '<td style="font-size:11px;color:var(--g400)">' + (u.created_at?u.created_at.slice(0,10):'') + '</td>'
-          + '<td>' + (isSelf ? '—' : '<button onclick="adminDeleteUser(\''+u.id+'\',\''+escH(u.name)+'\')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer">&#128465; Excluir</button>') + '</td>'
+          + '<td>' + (!canManage ? '—' : '<button onclick="adminDeleteUser(\''+u.id+'\',\''+escH(u.name)+'\')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer">&#128465; Excluir</button>') + '</td>'
           + '</tr>';
       }).join('')
     + '</tbody></table></div>';
@@ -3528,12 +3531,13 @@ function closeAdminUsers() {
   document.getElementById('admin-users-overlay').classList.remove('on');
 }
 async function changeUserRole(userId, newRole) {
-  if (!isAdmin()) return;
+  if (!hasRole('admin','pastor')) return;
+  if (!isAdmin() && newRole === 'admin') { alert('Você não tem permissão para atribuir a role Admin.'); return; }
   const err = await updateUserRole(userId, newRole);
   if (err) alert('Erro ao atualizar role: ' + err.message);
 }
 async function adminDeleteUser(userId, userName) {
-  if (!isAdmin()) return;
+  if (!hasRole('admin','pastor')) return;
   if (!confirm('Excluir o usuário "' + userName + '" permanentemente?\nEsta ação não pode ser desfeita.')) return;
   const err = await deleteUserById(userId);
   if (err) { alert('Erro ao excluir: ' + err.message); return; }
