@@ -982,6 +982,7 @@ body{overflow-x:hidden}
         <button id="sec-sub-btn-cultos" onclick="switchSecretariaSub('cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128221; Relatório dos Cultos</button>
         <button id="sec-sub-btn-rad" onclick="switchSecretariaSub('rad')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128203; Dashboard Reuniões</button>
         <button id="sec-sub-btn-dash-cultos" onclick="switchSecretariaSub('dash-cultos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#128202; Dashboard Cultos</button>
+        <button id="sec-sub-btn-convertidos" onclick="switchSecretariaSub('convertidos')" style="padding:8px 18px;font-size:13px;font-weight:700;color:var(--g500);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:inherit">&#10024; Novos Convertidos</button>
       </div>
 
       <!-- Sub: Lista de Membros -->
@@ -1014,6 +1015,38 @@ body{overflow-x:hidden}
           </table>
         </div>
         <div id="mbr-count" style="font-size:12px;color:var(--g400);margin-top:10px;text-align:right"></div>
+      </div>
+
+      <!-- Sub: Novos Convertidos -->
+      <div id="sec-sub-convertidos" style="display:none">
+        <div class="mbr-hdr">
+          <div>
+            <h2>&#10024; Novos Convertidos</h2>
+            <p>Pessoas que vieram ao Senhor e ainda não são membros</p>
+          </div>
+          <button class="btn btn-navy" onclick="openMembroModal(null,'convertido')">+ Novo Convertido</button>
+        </div>
+        <div class="mbr-search-bar">
+          <input type="text" id="conv-search" placeholder="Buscar por nome..." oninput="renderConvertidos()">
+          <select id="conv-filter-depto" onchange="renderConvertidos()">
+            <option value="">Todos os departamentos</option>
+          </select>
+        </div>
+        <div class="mbr-table-wrap">
+          <table class="mbr-table">
+            <thead>
+              <tr>
+                <th>Nome Completo</th>
+                <th>Nascimento</th>
+                <th>Data de Conversão</th>
+                <th>Departamento</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="conv-tbody"></tbody>
+          </table>
+        </div>
+        <div id="conv-count" style="font-size:12px;color:var(--g400);margin-top:10px;text-align:right"></div>
       </div>
 
       <!-- Sub: Relatório dos Cultos -->
@@ -4190,6 +4223,7 @@ function renderMembros() {
   }
 
   let list = _membros.filter(m => {
+    if ((m.tipo || 'membro') !== 'membro') return false;
     if (search && !m.nome.toLowerCase().includes(search)) return false;
     if (fDepto  && !parseDeptos(m.departamento).includes(fDepto)) return false;
     return true;
@@ -4214,6 +4248,44 @@ function renderMembros() {
   document.getElementById('mbr-count').textContent = list.length + ' membro' + (list.length !== 1 ? 's' : '') + ' exibido' + (list.length !== 1 ? 's' : '');
 }
 
+function renderConvertidos() {
+  const search = (document.getElementById('conv-search')?.value || '').toLowerCase();
+  const fDepto = document.getElementById('conv-filter-depto')?.value || '';
+
+  const nomes = getMinisterioNames();
+  const selDepto = document.getElementById('conv-filter-depto');
+  if (selDepto) {
+    const cur = selDepto.value;
+    selDepto.innerHTML = '<option value="">Todos os departamentos</option>'
+      + nomes.map(n => '<option value="'+escH(n)+'"'+(n===cur?' selected':'')+'>'+escH(n)+'</option>').join('');
+  }
+
+  let list = _membros.filter(m => {
+    if (m.tipo !== 'convertido') return false;
+    if (search && !m.nome.toLowerCase().includes(search)) return false;
+    if (fDepto  && !parseDeptos(m.departamento).includes(fDepto)) return false;
+    return true;
+  }).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', {sensitivity:'base'}));
+
+  const tbody = document.getElementById('conv-tbody');
+  if (!tbody) return;
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="mbr-empty">Nenhum convertido cadastrado.</td></tr>';
+    document.getElementById('conv-count').textContent = '';
+    return;
+  }
+  tbody.innerHTML = list.map(m => '<tr>'
+    + '<td style="font-weight:600">'+escH(m.nome)+'</td>'
+    + '<td>'+fmtDateBR(m.data_nascimento)+'</td>'
+    + '<td>'+fmtDateBR(m.data_convencao)+'</td>'
+    + '<td>'+(parseDeptos(m.departamento).map(d=>escH(d)).join(', ')||'—')+'</td>'
+    + '<td style="white-space:nowrap">'
+      + '<button class="btn btn-out btn-sm" style="padding:3px 10px;font-size:11px" onclick="openMembroModal(\''+m.id+'\',\'convertido\')">Editar</button>'
+    + '</td>'
+    + '</tr>').join('');
+  document.getElementById('conv-count').textContent = list.length + ' convertido' + (list.length !== 1 ? 's' : '') + ' exibido' + (list.length !== 1 ? 's' : '');
+}
+
 function parseDeptos(departamento) {
   if (!departamento) return [];
   try { const p = JSON.parse(departamento); return Array.isArray(p) ? p : [p]; }
@@ -4224,14 +4296,21 @@ function getMembroDeptos() {
   return [...document.querySelectorAll('#membro-depto-wrap input[type=checkbox]:checked')].map(cb => cb.value);
 }
 
-function openMembroModal(id) {
+function openMembroModal(id, tipo) {
   const m = id ? _membros.find(x => x.id === id) : null;
-  document.getElementById('membro-modal-title').textContent = m ? 'Editar Membro' : 'Novo Membro';
+  const t = m ? (m.tipo || 'membro') : (tipo || 'membro');
+  const isConv = t === 'convertido';
+  document.getElementById('membro-modal-title').textContent = m
+    ? (isConv ? 'Editar Convertido' : 'Editar Membro')
+    : (isConv ? 'Novo Convertido'   : 'Novo Membro');
   document.getElementById('membro-id').value         = m?.id || '';
+  document.getElementById('membro-tipo').value       = t;
   document.getElementById('membro-nome').value       = m?.nome || '';
   document.getElementById('membro-nascimento').value = m?.data_nascimento || '';
   document.getElementById('membro-convencao').value  = m?.data_convencao || '';
   document.getElementById('membro-obs').value        = m?.observacoes || '';
+  document.getElementById('membro-convencao-label').textContent = isConv ? 'Data de Conversão' : 'Data da Convenção/Batismo';
+  document.getElementById('membro-promover-btn').style.display = (m && isConv) ? '' : 'none';
   // preenche checkboxes de ministérios
   const nomes = getMinisterioNames();
   const selecionados = parseDeptos(m?.departamento);
@@ -4260,8 +4339,10 @@ async function saveMembro() {
   if (!nome) { alert('Informe o nome completo.'); return; }
   const btn = document.getElementById('membro-save-btn');
   btn.textContent = 'Salvando...'; btn.disabled = true;
+  const tipo = document.getElementById('membro-tipo').value || 'membro';
   const rec = {
     nome,
+    tipo,
     data_nascimento: document.getElementById('membro-nascimento').value || null,
     data_convencao:  document.getElementById('membro-convencao').value  || null,
     departamento:    (d => d.length ? JSON.stringify(d) : null)(getMembroDeptos()),
@@ -4284,18 +4365,36 @@ async function saveMembro() {
   if (err) { alert('Erro ao salvar: ' + err.message); return; }
   closeMembroModal();
   await loadMembros();
-  renderMembros();
+  if (tipo === 'convertido') renderConvertidos(); else renderMembros();
 }
 
 async function deleteMembroConfirm() {
-  const id = document.getElementById('membro-id').value;
+  const id   = document.getElementById('membro-id').value;
+  const tipo = document.getElementById('membro-tipo').value || 'membro';
   if (!id) return;
   const nome = document.getElementById('membro-nome').value;
-  if (!confirm('Excluir o membro "'+nome+'"? Esta ação não pode ser desfeita.')) return;
+  const label = tipo === 'convertido' ? 'convertido' : 'membro';
+  if (!confirm('Excluir o '+label+' "'+nome+'"? Esta ação não pode ser desfeita.')) return;
   const { error } = await DB.from('ibcj_membros').delete().eq('id', id);
   if (error) { alert('Erro ao excluir: ' + error.message); return; }
   closeMembroModal();
   await loadMembros();
+  if (tipo === 'convertido') renderConvertidos(); else renderMembros();
+}
+
+async function promoverAMembro() {
+  const id   = document.getElementById('membro-id').value;
+  const nome = document.getElementById('membro-nome').value;
+  if (!id) return;
+  if (!confirm('Promover "'+nome+'" para Membro da Igreja?')) return;
+  const btn = document.getElementById('membro-promover-btn');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  const { error } = await DB.from('ibcj_membros').update({ tipo: 'membro' }).eq('id', id);
+  btn.textContent = '✨ Promover a Membro'; btn.disabled = false;
+  if (error) { alert('Erro ao promover: ' + error.message); return; }
+  closeMembroModal();
+  await loadMembros();
+  renderConvertidos();
   renderMembros();
 }
 
@@ -4804,7 +4903,7 @@ async function renderDashCultos(prefix) {
 
 // ─── ADMINISTRAÇÃO SECRETARIA ────────────────────────────────
 function switchSecretariaSub(sub) {
-  const subs = ['membros','cultos','rad','dash-cultos'];
+  const subs = ['membros','cultos','rad','dash-cultos','convertidos'];
   subs.forEach(s => {
     const btn   = document.getElementById('sec-sub-btn-'+s);
     const panel = document.getElementById('sec-sub-'+s);
@@ -4812,9 +4911,10 @@ function switchSecretariaSub(sub) {
     if (btn)   { btn.style.color = active ? 'var(--navy)' : 'var(--g500)'; btn.style.borderBottomColor = active ? 'var(--navy)' : 'transparent'; }
     if (panel) panel.style.display = active ? '' : 'none';
   });
-  if (sub === 'cultos')      initCultosFilters();
-  if (sub === 'rad')         initRaDashboard();
-  if (sub === 'dash-cultos') initDashCultos('dc');
+  if (sub === 'cultos')       initCultosFilters();
+  if (sub === 'rad')          initRaDashboard();
+  if (sub === 'dash-cultos')  initDashCultos('dc');
+  if (sub === 'convertidos')  renderConvertidos();
 }
 
 // ─── DASHBOARD REUNIÕES ADMINISTRATIVAS ──────────────────────
@@ -6008,6 +6108,7 @@ function updateMobTabStrip() {
     </div>
     <div class="mbody">
       <input type="hidden" id="membro-id">
+      <input type="hidden" id="membro-tipo" value="membro">
       <div style="display:grid;grid-template-columns:1fr;gap:14px">
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Nome Completo *</label>
@@ -6019,7 +6120,7 @@ function updateMobTabStrip() {
             <input type="date" id="membro-nascimento" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box">
           </div>
           <div>
-            <label style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Data da Convenção/Batismo</label>
+            <label id="membro-convencao-label" style="font-size:12px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Data da Convenção/Batismo</label>
             <input type="date" id="membro-convencao" style="width:100%;border:1.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box">
           </div>
         </div>
@@ -6033,8 +6134,9 @@ function updateMobTabStrip() {
         </div>
       </div>
     </div>
-    <div class="mftr" style="justify-content:space-between">
+    <div class="mftr" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
       <button class="btn btn-out" id="membro-del-btn" onclick="deleteMembroConfirm()" style="display:none;color:#dc2626;border-color:#dc2626">&#128465; Excluir</button>
+      <button class="btn btn-gold" id="membro-promover-btn" onclick="promoverAMembro()" style="display:none">&#10024; Promover a Membro</button>
       <div style="display:flex;gap:8px;margin-left:auto">
         <button class="btn btn-out" onclick="closeMembroModal()">Cancelar</button>
         <button class="btn btn-navy" id="membro-save-btn" onclick="saveMembro()">Salvar</button>
