@@ -187,6 +187,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g100);color:va
   body.print-agenda #agenda-print-area .lp-print-col:not(.lp-print-single):first-child{border-right:1px solid #bbb}
   body.print-agenda #agenda-print-area .lp-print-single{flex:0 0 100%;max-width:580px;margin:0 auto;box-sizing:border-box;padding:16px 20px}
   body.print-agenda *:not(#agenda-print-area):not(#agenda-print-area *){display:none!important}
+  body.print-agenda .lp-hdr{padding-bottom:6px;margin-bottom:8px}
+  body.print-agenda .lp-logo-img{width:50px;height:50px;margin-bottom:3px}
+  body.print-agenda .lp-slogan{font-size:11px;margin-bottom:3px}
+  body.print-agenda .lp-church{font-size:14px}
+  body.print-agenda table td{padding-top:9px!important;padding-bottom:9px!important}
+  body.print-agenda .lp-ftr{margin-top:8px;padding-top:6px}
   .mevlist-hidden{display:flex!important}
   .mevlist-more{display:none!important}
   body.print-double .lp-print-col:not(.lp-print-single){padding:6px 10px}
@@ -5097,26 +5103,26 @@ function buildAgendaHTML(ag) {
         ? fmtD(ds) + ' à ' + fmtD(de) + ' de ' + fmtM(de) + ' ' + de.getFullYear()
         : fmtD(ds) + ' de ' + fmtM(ds) + ' à ' + fmtD(de) + ' de ' + fmtM(de) + ' ' + de.getFullYear())
     : '';
-  const daysHtml = (ag.days||[]).filter(day => day.items && day.items.length).map(day => {
-    const itemsHtml = day.items.map(it => {
-      const subsHtml = (it.subs||[]).filter(s=>s.trim()).map(s =>
-        '<div style="padding-left:20px;font-size:11.5px;color:#333;margin-top:1px">'+escH(s)+'</div>'
-      ).join('');
-      return '<div style="margin-bottom:6px">'
-        + (it.time ? '<div style="font-size:12px;font-weight:700;margin-bottom:2px">'+escH(it.time)+'</div>' : '')
-        + '<div style="font-size:12px">'
-        + (it.bullet ? '&#10070; ' : '')
-        + (it.desc ? '<span style="'+(it.bold?'font-weight:700;':'')+(it.italic?'font-style:italic;':'')+'">'+escH(it.desc)+'</span>' : '')
-        + (it.note ? ' <span style="font-size:11px;color:#555">'+escH(it.note)+'</span>' : '')
-        + '</div>'
-        + subsHtml
-        + '</div>';
-    }).join('');
-    return '<div style="margin-bottom:12px">'
-      + '<div style="font-size:13px;font-weight:700;text-decoration:underline;margin-bottom:4px">'+escH(day.label)+'</div>'
-      + itemsHtml
+
+  const activeDays = (ag.days||[]).filter(day => day.items && day.items.length);
+  const daysHtml = activeDays.map((day, idx) => {
+    const itemsHtml = '<div style="font-size:12px;line-height:1.7">'
+      + day.items.map((it, idx) => {
+          const sep = idx > 0 ? '<span style="color:#bbb;margin:0 6px">|</span>' : '';
+          return sep
+            + (it.time ? '<span style="font-weight:700">'+escH(it.time)+'</span> ' : '')
+            + (it.bullet ? '&#10070; ' : '')
+            + (it.desc ? '<span style="'+(it.bold?'font-weight:700;':'')+(it.italic?'font-style:italic;':'')+'">'+escH(it.desc)+'</span>' : '')
+            + (it.note ? ' <span style="font-size:11px;color:#555">'+escH(it.note)+'</span>' : '');
+        }).join('')
       + '</div>';
+    const borderTop = idx > 0 ? 'border-top:1px solid #ccc;' : '';
+    return '<tr>'
+      + '<td style="'+borderTop+'width:26%;vertical-align:top;padding:7px 12px 7px 0;font-size:12.5px;font-weight:700;text-decoration:underline;white-space:nowrap">'+escH(day.label)+'</td>'
+      + '<td style="'+borderTop+'width:74%;vertical-align:top;padding:7px 0 7px 8px">'+itemsHtml+'</td>'
+      + '</tr>';
   }).join('');
+
   return '<div class="lp-preview" style="font-family:Arial,sans-serif">'
     + '<div class="lp-hdr">'
     + (logo ? '<img class="lp-logo-img" src="'+logo+'"><br>' : '')
@@ -5124,8 +5130,8 @@ function buildAgendaHTML(ag) {
     + '<div class="lp-church">IGREJA BATISTA CENTRAL DO JORDÃO</div>'
     + (periodLine ? '<div style="font-size:13px;font-weight:700;text-decoration:underline;margin-top:4px">Agenda período de '+escH(periodLine)+'</div>' : '')
     + '</div>'
-    + '<div style="margin-top:14px">'+daysHtml+'</div>'
-    + (ag.note ? '<div style="margin-top:12px;font-size:12px;font-style:italic">'+escH(ag.note).replace(/\n/g,'<br>')+'</div>' : '')
+    + '<table style="width:100%;border-collapse:collapse;margin-top:12px"><tbody>'+daysHtml+'</tbody></table>'
+    + (ag.note ? '<div style="margin-top:10px;font-size:12px;font-style:italic">'+escH(ag.note).replace(/\n/g,'<br>')+'</div>' : '')
     + '<div class="lp-ftr">'
     + (logo ? '<img class="lp-ftr-logo" src="'+logo+'">' : '')
     + '<div class="lp-ftr-txt">'+footer+'</div>'
@@ -5342,9 +5348,13 @@ function printAgenda() {
   document.getElementById('agenda-print-area').innerHTML = layout==='double'
     ? '<div class="lp-print-col">'+html+'</div><div class="lp-print-col">'+html+'</div>'
     : '<div class="lp-print-col lp-print-single">'+html+'</div>';
+  const _pgAg = document.createElement('style');
+  _pgAg.textContent = layout==='double' ? '@page{size:landscape;margin:8mm 10mm}' : '@page{size:portrait;margin:8mm 12mm}';
+  document.head.appendChild(_pgAg);
   document.body.classList.add('print-agenda');
   window.print();
   document.body.classList.remove('print-agenda');
+  document.head.removeChild(_pgAg);
 }
 
 // ─── RELATÓRIO DOS CULTOS ─────────────────────────────────────
