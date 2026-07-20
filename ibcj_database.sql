@@ -7,7 +7,7 @@
 --   O sistema usa autenticação própria (tabela ibcj_users),
 --   NÃO usa o Supabase Auth nativo (auth.uid()).
 --   Por isso, o RLS é DESABILITADO em todas as tabelas.
---   As regras de acesso são controladas pelo próprio JavaScript.
+--   As regras de acesso são controladas pelo próprio JavaScript. 
 -- ============================================================
 
 
