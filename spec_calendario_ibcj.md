@@ -1,5 +1,5 @@
 # 📋 Especificação do Sistema
-## Calendário de Eventos — Igreja Batista Central do Jordão (IBCJ)
+## Calendário de Eventos — Primeira Igreja Batista de Cajueiro Seco (PIB)
 
 ---
 
@@ -137,4 +137,4 @@ Ao selecionar uma data para novo evento:
 
 ---
 
-*Documento elaborado para a Igreja Batista Central do Jordão — versão 1.0*
+*Documento elaborado para a Primeira Igreja Batista de Cajueiro Seco — versão 1.0*
