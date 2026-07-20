@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/calendario.html" }
+    { "source": "/", "destination": "/gestao-ibcj.html" }
   ]
 }
