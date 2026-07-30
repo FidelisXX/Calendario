@@ -2832,6 +2832,7 @@ function renderNotifPanel() {
         + '<div class="notif-actions">'
         + (canApprove() ? '<button class="btn btn-sm btn-navy" onclick="openApprovalModal(\''+ev.id+'\',\'aprovado\');toggleNotifPanel()">Aprovar</button>'
           + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="openApprovalModal(\''+ev.id+'\',\'rejected\');toggleNotifPanel()">Rejeitar</button>' : '')
+        + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openEvtModal(\''+ev.id+'\')">&#9998; Editar</button>'
         + '</div>';
       list.append(item);
     });
@@ -2850,6 +2851,7 @@ function renderNotifPanel() {
         + (canApprove() ? '<button class="btn btn-sm btn-navy" onclick="approveLit(\''+lit.id+'\')">Aprovar</button>'
           + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="rejectLit(\''+lit.id+'\')">Rejeitar</button>' : '')
         + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openLitView(\''+lit.id+'\')">&#128065; Ver</button>'
+        + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openLitModal(\''+lit.id+'\')">&#9998; Editar</button>'
         + '</div>';
       list.append(item);
     });
@@ -2868,6 +2870,7 @@ function renderNotifPanel() {
         + (canApprove() ? '<button class="btn btn-sm btn-navy" onclick="approveDiac(\''+diac.id+'\')">Aprovar</button>'
           + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="rejectDiac(\''+diac.id+'\')">Rejeitar</button>' : '')
         + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openDiacView(\''+diac.id+'\')">&#128065; Ver</button>'
+        + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openDiacModal(\''+diac.id+'\')">&#9998; Editar</button>'
         + '</div>';
       list.append(item);
     });
@@ -2886,6 +2889,7 @@ function renderNotifPanel() {
         + (canApprove() ? '<button class="btn btn-sm btn-navy" onclick="approveAgenda(\''+ag.id+'\')">Aprovar</button>'
           + '<button class="btn btn-sm btn-out" style="color:var(--red);border-color:var(--red)" onclick="rejectAgenda(\''+ag.id+'\')">Rejeitar</button>' : '')
         + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openAgendaView(\''+ag.id+'\')">&#128065; Ver</button>'
+        + '<button class="btn btn-sm btn-out" onclick="toggleNotifPanel();openAgendaModal(\''+ag.id+'\')">&#9998; Editar</button>'
         + '</div>';
       list.append(item);
     });
