@@ -615,6 +615,7 @@ body{overflow-x:hidden}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5818231595842776" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -1623,6 +1624,7 @@ async function showApp(user) {
   if (user.email === ADMIN_EMAIL) currentUser.role = 'admin';
 
   document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('adsense-banner').style.display = '';
   document.getElementById('app').style.display = 'flex';
   document.getElementById('app').style.flexDirection = 'column';
 
@@ -6297,6 +6299,16 @@ function updateMobTabStrip() {
       </div>
     </div>
   </div>
+</div>
+<!-- Banner AdSense -->
+<div id="adsense-banner" style="display:none;width:100%;background:#f8f8f8;border-top:1px solid #e5e7eb;padding:8px 16px;text-align:center">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-5818231595842776"
+       data-ad-slot="5236698541"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
 </body>
 </html>
