@@ -745,6 +745,10 @@ body{overflow-x:hidden}
             <span>Pendentes de aprovação</span>
             <button style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--g400)" onclick="toggleNotifPanel()">✕</button>
           </div>
+          <div id="notif-bulk-actions" style="display:none;gap:8px;padding:10px 16px;border-bottom:1px solid var(--g200);background:var(--g50)">
+            <button class="btn btn-sm btn-navy" style="flex:1" onclick="approveAll()">&#10003; Aprovar Tudo</button>
+            <button class="btn btn-sm btn-out" style="flex:1;color:var(--red);border-color:var(--red)" onclick="rejectAll()">&#10005; Rejeitar Tudo</button>
+          </div>
           <div class="notif-list" id="notif-list"></div>
         </div>
       </div>
@@ -2637,7 +2641,7 @@ function buildDiacHTML(diac){
   return '<div class="lp-preview">'
     +'<div class="lp-hdr">'
     +(logo?'<img class="lp-logo-img" src="'+logo+'"><br>':'')
-    +'<div class="lp-church">PRIMEIRA IGREJA BATISTA DE CAJUEIRO SECO</div>'
+    +'<div class="lp-church">IGREJA BATISTA CENTRAL DO JORDÃO</div>'
     +(diac.slogan?'<div class="lp-slogan"><em>'+escH(diac.slogan)+'</em></div>':'')
     +'<div class="lp-title-line">'+escH(diac.title)+'</div>'
     +(diac.event_ref?'<div style="font-weight:700;font-size:13px;margin-top:5px;letter-spacing:.2px">'+escH(diac.event_ref)+'</div>':'')
@@ -2816,8 +2820,10 @@ function renderNotifPanel() {
   const pendingAgenda = getPendingAgenda();
   if (!pendingEvts.length && !pendingLits.length && !pendingDiac.length && !pendingAgenda.length) {
     list.innerHTML = '<div class="notif-empty">Nada pendente de aprovação &#10003;</div>';
+    document.getElementById('notif-bulk-actions').style.display = 'none';
     return;
   }
+  document.getElementById('notif-bulk-actions').style.display = 'flex';
   list.innerHTML = '';
   if (pendingEvts.length) {
     const hdr = document.createElement('div');
@@ -2901,6 +2907,44 @@ document.addEventListener('click', e => {
   if (wrap && !wrap.contains(e.target)) document.getElementById('notif-panel').classList.remove('on');
 });
 
+
+async function approveAll() {
+  if (!canApprove()) return;
+  if (!confirm('Aprovar todos os itens pendentes?')) return;
+  const evts  = getPendingEvts();
+  const lits  = getPendingLits();
+  const diacs = getPendingDiac();
+  const ags   = getPendingAgenda();
+  await Promise.all([
+    ...evts.map(e  => DB.from('ibcj_events').update({status:'aprovado'}).eq('id',e.id).then(() => { e.status='aprovado'; })),
+    ...lits.map(l  => DB.from('ibcj_liturgias').update({status:'aprovado'}).eq('id',l.id).then(() => { l.status='aprovado'; })),
+    ...diacs.map(d => DB.from('ibcj_diaconal').update({status:'aprovado'}).eq('id',d.id).then(() => { d.status='aprovado'; })),
+    ...ags.map(a   => DB.from('ibcj_agenda').update({status:'aprovado'}).eq('id',a.id).then(() => { a.status='aprovado'; })),
+  ]);
+  updateNotifBadge();
+  renderNotifPanel();
+  renderCalendar();
+}
+
+async function rejectAll() {
+  if (!canApprove()) return;
+  const reason = prompt('Motivo da rejeição para todos os itens (obrigatório):');
+  if (reason === null) return;
+  if (!reason.trim()) { alert('Informe o motivo.'); return; }
+  const evts  = getPendingEvts();
+  const lits  = getPendingLits();
+  const diacs = getPendingDiac();
+  const ags   = getPendingAgenda();
+  await Promise.all([
+    ...evts.map(e  => DB.from('ibcj_events').update({status:'rejected'}).eq('id',e.id).then(() => { e.status='rejected'; })),
+    ...lits.map(l  => DB.from('ibcj_liturgias').update({status:'rejected'}).eq('id',l.id).then(() => { l.status='rejected'; })),
+    ...diacs.map(d => DB.from('ibcj_diaconal').update({status:'rejected'}).eq('id',d.id).then(() => { d.status='rejected'; })),
+    ...ags.map(a   => DB.from('ibcj_agenda').update({status:'rejected'}).eq('id',a.id).then(() => { a.status='rejected'; })),
+  ]);
+  updateNotifBadge();
+  renderNotifPanel();
+  renderCalendar();
+}
 
 // ─── APROVAÇÃO DE EVENTOS ────────────────────────────────────
 function openApprovalModal(evtId, defaultAction) {
@@ -5133,7 +5177,7 @@ function buildAgendaHTML(ag) {
     + '<div class="lp-hdr">'
     + (logo ? '<img class="lp-logo-img" src="'+logo+'"><br>' : '')
     + (ag.slogan ? '<div class="lp-slogan"><em>'+escH(ag.slogan)+'</em></div>' : '')
-    + '<div class="lp-church">PRIMEIRA IGREJA BATISTA DE CAJUEIRO SECO</div>'
+    + '<div class="lp-church">IGREJA BATISTA CENTRAL DO JORDÃO</div>'
     + (periodLine ? '<div style="font-size:13px;font-weight:700;text-decoration:underline;margin-top:4px">Agenda período de '+escH(periodLine)+'</div>' : '')
     + '</div>'
     + '<table style="width:100%;border-collapse:collapse;margin-top:12px"><tbody>'+daysHtml+'</tbody></table>'
