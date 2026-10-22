@@ -241,12 +241,13 @@ revoke all on public.ibcj_users_legacy from anon, authenticated;
 --  Novos arquivos: comprovantes/<igreja_id>/<arquivo>
 --  Arquivos antigos (pasta = e-mail do usuário) são considerados da IBCJ.
 --  O front precisa passar a usar createSignedUrl() em vez de getPublicUrl().
+--  Usa o id fixo da IBCJ (não a tag), para continuar valendo se a sigla for editada.
 create or replace function public.igreja_do_arquivo(caminho text)
 returns uuid language sql stable security definer set search_path = public as $$
   select case
     when split_part(caminho, '/', 1) ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
       then split_part(caminho, '/', 1)::uuid
-    else (select id from public.igrejas where tag = 'ibcj')
+    else '921a5810-1f64-4033-b5db-61ccb626ae90'::uuid   -- IBCJ
   end
 $$;
 

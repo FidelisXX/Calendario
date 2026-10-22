@@ -2235,11 +2235,13 @@ let litViewingId = null;
 
 function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function getLitByEvent(evId){ return S.liturgias.find(l=>l.event_id===evId)||null; }
-// Logo da igreja exibida: logo_url cadastrado; a IBCJ usa a imagem embutida; outras sem logo ficam sem
+// Logo da igreja exibida: logo_url cadastrado; a IBCJ usa a imagem embutida; outras sem logo ficam sem.
+// Compara pelo id (fixo) e não pela tag, que pode ser editada.
+const IGREJA_IBCJ_ID = '921a5810-1f64-4033-b5db-61ccb626ae90';
 function getLogoSrc(){
   const ig = igrejaAtual();
   if (ig?.logo_url) return ig.logo_url;
-  if (ig && ig.tag !== 'ibcj') return '';
+  if (ig && ig.id !== IGREJA_IBCJ_ID) return '';
   const img = document.querySelector('.llogo img');
   return img ? img.src : '';
 }
@@ -3716,7 +3718,7 @@ function normalizarTag(input) {
 async function criarIgreja(e) {
   e.preventDefault();
   const tag  = document.getElementById('nova-igreja-tag').value.trim().toLowerCase();
-  const nome = document.getElementById('nova-igreja-nome').value.trim();
+  const nome = document.getElementById('nova-igreja-nome').value.trim().replace(/\s+/g, ' ');
   const { error } = await DB.from('igrejas').insert({ tag, nome, created_by: currentUser.id });
   if (error) { alert(/duplicate|unique/i.test(error.message) ? 'Já existe uma igreja com a tag "'+tag+'".' : 'Erro ao criar igreja: '+error.message); return; }
   openAdminUsers();
@@ -3724,12 +3726,18 @@ async function criarIgreja(e) {
 async function editarIgreja(id) {
   const ig = S.igrejas.find(i => i.id === id);
   if (!ig) return;
+  const tagIn = prompt('Tag (sigla) da igreja — letras minúsculas, números ou hífen:', ig.tag);
+  if (tagIn === null) return;
+  const tagEl = { value: tagIn }; normalizarTag(tagEl);
+  const tag = tagEl.value;
+  if (tag.length < 2) { alert('A tag precisa ter pelo menos 2 caracteres.'); return; }
   const nome = prompt('Nome da igreja:', ig.nome);
   if (nome === null || !nome.trim()) return;
   const logo = prompt('URL do logo (deixe vazio para nenhum):', ig.logo_url || '');
   if (logo === null) return;
-  const { error } = await DB.from('igrejas').update({ nome: nome.trim(), logo_url: logo.trim() || null }).eq('id', id);
-  if (error) { alert('Erro ao salvar: '+error.message); return; }
+  const { error } = await DB.from('igrejas')
+    .update({ tag, nome: nome.trim().replace(/\s+/g, ' '), logo_url: logo.trim() || null }).eq('id', id);
+  if (error) { alert(/duplicate|unique/i.test(error.message) ? 'Já existe uma igreja com a tag "'+tag+'".' : 'Erro ao salvar: '+error.message); return; }
   if (id === S.igrejaId) { await loadIgrejas(); aplicarIgreja(); }
   openAdminUsers();
 }
